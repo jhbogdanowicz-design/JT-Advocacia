@@ -1,4 +1,5 @@
 import React from 'react';
+import logoImg from '../assets/logo.png';
 
 export default function Logo({ className = '', width = 120, height = 100 }) {
   return (
@@ -13,35 +14,28 @@ export default function Logo({ className = '', width = 120, height = 100 }) {
         userSelect: 'none'
       }}
     >
-      <svg 
-        viewBox="0 0 100 70" 
-        width="100%" 
-        height="100%" 
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <style>
-          {`
-            .logo-path {
-              fill: var(--color-gold);
-              transition: fill 0.4s ease;
-            }
-            body.light-theme .logo-path {
-              fill: #002D62; /* Navy blue in light theme */
-            }
-          `}
-        </style>
-        <g>
-          {/* We render 'T' path first, then layer 'J' on top so its vertical stem crosses in front of the 'T', matching your logo exactly! */}
-          <path 
-            className="logo-path"
-            d="M 33 21 L 33 16 C 33 16, 35 15.5, 37 15.5 L 63 15.5 C 65 15.5, 67 16, 67 16 L 67 21 C 67 21, 65.5 17.5, 63.5 17.5 L 56 17.5 L 56 54 L 61 54 C 61 54, 59 55.5, 59 56.5 L 48 56.5 C 48 55.5, 46 54, 46 54 L 51 54 L 51 17.5 L 36.5 17.5 C 34.5 17.5, 33 21, 33 21 Z" 
-          />
-          <path 
-            className="logo-path"
-            d="M 38 12.5 C 38 12.5, 40 12, 42 12 L 48 12 C 50 12, 52 12.5, 52 12.5 L 52 15 C 52 15, 50.5 13.5, 48.5 13.5 L 45.5 13.5 L 45.5 44 C 45.5 48.5, 43.5 53.5, 39 53.5 C 35 53.5, 32.5 49.5, 32.5 45 C 32.5 43, 33.5 42, 33.5 42 C 33.5 42, 34 43.5, 35 44.5 C 36 45.5, 37.5 46, 38.5 45.5 C 39.5 45, 40.5 43, 40.5 40.5 L 40.5 13.5 L 38 13.5 Z" 
-          />
-        </g>
-      </svg>
+      <style>
+        {`
+          .brand-logo-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            /* Converts your exact navy blue logo to a premium golden color in dark mode */
+            filter: invert(72%) sepia(18%) saturate(982%) hue-rotate(346deg) brightness(88%) contrast(85%);
+            transition: filter 0.4s ease;
+          }
+          body.light-theme .brand-logo-img {
+            /* Displays your exact original navy blue logo in light mode */
+            filter: none;
+          }
+        `}
+      </style>
+      <img 
+        src={logoImg} 
+        alt="JT Advocacia" 
+        className="brand-logo-img" 
+        draggable="false"
+      />
     </div>
   );
 }
