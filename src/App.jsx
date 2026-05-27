@@ -8,8 +8,27 @@ export default function App() {
   const [session, setSession] = useState(null);
   const [view, setView] = useState('login'); // 'login' | 'register' | 'dashboard'
   const [loading, setLoading] = useState(true);
+  
+  // Theme state: default to 'dark' or loaded from local storage
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('theme') || 'dark';
+  });
 
-  // 1. Fetch active session on mount
+  // Apply theme class to document body
+  useEffect(() => {
+    if (theme === 'light') {
+      document.body.classList.add('light-theme');
+    } else {
+      document.body.classList.remove('light-theme');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+  };
+
+  // Fetch active session on mount
   useEffect(() => {
     async function initSession() {
       try {
@@ -32,7 +51,7 @@ export default function App() {
 
     initSession();
 
-    // 2. Listen to real-time auth changes (sign in, sign out, token refresh)
+    // Listen to real-time auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, currentSession) => {
       setSession(currentSession);
       if (currentSession) {
@@ -68,14 +87,14 @@ export default function App() {
     );
   }
 
-  // Routing Logic
+  // Routing Logic with Theme variables passed down
   if (session) {
-    return <Dashboard session={session} onLogout={handleLogout} />;
+    return <Dashboard session={session} onLogout={handleLogout} theme={theme} onToggleTheme={toggleTheme} />;
   }
 
   if (view === 'register') {
-    return <Register onViewChange={setView} onSessionUpdate={handleSessionUpdate} />;
+    return <Register onViewChange={setView} onSessionUpdate={handleSessionUpdate} theme={theme} onToggleTheme={toggleTheme} />;
   }
 
-  return <Login onViewChange={setView} onSessionUpdate={handleSessionUpdate} />;
+  return <Login onViewChange={setView} onSessionUpdate={handleSessionUpdate} theme={theme} onToggleTheme={toggleTheme} />;
 }

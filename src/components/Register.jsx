@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../supabaseClient';
 
-export default function Register({ onViewChange, onSessionUpdate }) {
+export default function Register({ onViewChange, onSessionUpdate, theme, onToggleTheme }) {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [oab, setOab] = useState('');
@@ -16,7 +16,6 @@ export default function Register({ onViewChange, onSessionUpdate }) {
     setErrorMsg('');
     setSuccessMsg('');
 
-    // Validations
     if (!nome || !email || !password || !confirmPassword) {
       setErrorMsg('Por favor, preencha todos os campos obrigatórios.');
       return;
@@ -34,7 +33,6 @@ export default function Register({ onViewChange, onSessionUpdate }) {
 
     setLoading(true);
     try {
-      // Call Supabase Auth SignUp with metadata so that the database trigger handles creation
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -51,13 +49,11 @@ export default function Register({ onViewChange, onSessionUpdate }) {
       }
 
       if (data.session) {
-        // Logged in immediately (email confirmation disabled)
         setSuccessMsg('Cadastro realizado com sucesso!');
         setTimeout(() => {
           onSessionUpdate(data.session);
         }, 1500);
       } else if (data.user) {
-        // Email confirmation enabled on project
         setSuccessMsg('Cadastro realizado! Por favor, verifique seu e-mail para confirmar a conta e fazer login.');
         setNome('');
         setEmail('');
@@ -81,6 +77,34 @@ export default function Register({ onViewChange, onSessionUpdate }) {
 
   return (
     <div className="auth-page">
+      {/* Floating Theme Toggle */}
+      <div className="theme-toggle-floating">
+        <button 
+          className="btn-theme-toggle" 
+          onClick={onToggleTheme} 
+          type="button"
+          title={theme === 'light' ? 'Modo Escuro' : 'Modo Claro'}
+        >
+          {theme === 'light' ? (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          ) : (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+          )}
+        </button>
+      </div>
+
       <div className="auth-card">
         <div className="brand-header">
           <div className="brand-logo-txt">JT</div>

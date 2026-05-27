@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 
-export default function Dashboard({ session, onLogout }) {
+export default function Dashboard({ session, onLogout, theme, onToggleTheme }) {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   
-  // Dashboard Metrics
   const [stats, setStats] = useState({
     clientes: 0,
     processos: 0,
@@ -18,7 +17,6 @@ export default function Dashboard({ session, onLogout }) {
       
       setLoading(true);
       try {
-        // 1. Fetch lawyer profile from public.advogados
         const { data: profileData, error: profileError } = await supabase
           .from('advogados')
           .select('nome, email, oab')
@@ -27,7 +25,6 @@ export default function Dashboard({ session, onLogout }) {
 
         if (profileError) {
           console.warn('Erro ao obter perfil. Pode ser que o trigger ainda esteja executando ou não sincronizou:', profileError.message);
-          // Fallback if profile not found or delayed
           setProfile({
             nome: session.user.user_metadata?.nome || 'Advogado Associado',
             email: session.user.email,
@@ -37,7 +34,6 @@ export default function Dashboard({ session, onLogout }) {
           setProfile(profileData);
         }
 
-        // 2. Fetch counts. The RLS policies will automatically scope the count to only the current user's records.
         const [clientsRes, processesRes, appointmentsRes] = await Promise.all([
           supabase.from('clientes').select('id', { count: 'exact', head: true }),
           supabase.from('processos').select('id', { count: 'exact', head: true }),
@@ -70,7 +66,7 @@ export default function Dashboard({ session, onLogout }) {
 
   if (loading && !profile) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', backgroundColor: '#0A192F', color: '#C5A880', fontSize: '1.2rem', fontFamily: 'Cinzel, serif', letterSpacing: '2px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', backgroundColor: 'var(--color-bg-primary)', color: 'var(--color-gold)', fontSize: '1.2rem', fontFamily: 'Cinzel, serif', letterSpacing: '2px' }}>
         Carregando painel de segurança...
       </div>
     );
@@ -88,6 +84,33 @@ export default function Dashboard({ session, onLogout }) {
         </div>
         
         <div className="nav-user">
+          {/* Theme Toggle Button inside Navbar */}
+          <button 
+            className="btn-theme-toggle" 
+            onClick={onToggleTheme} 
+            type="button"
+            title={theme === 'light' ? 'Modo Escuro' : 'Modo Claro'}
+            style={{ width: '36px', height: '36px', marginRight: '0.5rem' }}
+          >
+            {theme === 'light' ? (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '16px', height: '16px' }}>
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '16px', height: '16px' }}>
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
+            )}
+          </button>
+
           <div className="user-badge">
             <span>{lawyerName}</span>
             <span className="oab-text">{lawyerOab}</span>
