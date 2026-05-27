@@ -1,20 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
   <style>
-    .fav-j {
+    .fav-j, .fav-t {
       font-family: 'Cinzel', 'Playfair Display', 'Georgia', serif;
       font-size: 82px;
       font-weight: 700;
-      fill: #C5A880; /* Elegant gold */
+      fill: #002D62; /* Navy blue by default (light mode) */
+      transition: fill 0.3s ease;
     }
-    .fav-t {
-      font-family: 'Cinzel', 'Playfair Display', 'Georgia', serif;
-      font-size: 82px;
-      font-weight: 700;
-      fill: #0A192F; /* Deep navy */
+    @media (prefers-color-scheme: dark) {
+      .fav-j, .fav-t {
+        fill: #C5A880; /* Elegant gold for dark mode */
+      }
     }
   </style>
   <g>
-    <text x="12" y="80" class="fav-j">J</text>
-    <text x="44" y="80" class="fav-t">T</text>
+    <text x="36" y="80" class="fav-t">T</text>
+    <text x="14" y="80" class="fav-j">J</text>
   </g>
 </svg>
