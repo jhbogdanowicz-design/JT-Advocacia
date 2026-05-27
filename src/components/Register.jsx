@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../supabaseClient';
+import Logo from './Logo';
 
 export default function Register({ onViewChange, onSessionUpdate, theme, onToggleTheme }) {
   const [nome, setNome] = useState('');
@@ -107,7 +108,8 @@ export default function Register({ onViewChange, onSessionUpdate, theme, onToggl
 
       <div className="auth-card">
         <div className="brand-header">
-          <div className="brand-logo-txt">JT</div>
+          {/* Beautiful Handcrafted Vector Logo Monogram */}
+          <Logo width={140} height={110} />
           <div className="brand-subtitle">JT ADVOCACIA</div>
         </div>
 

@@ -13,6 +13,7 @@
       fill: #0A192F; /* Deep navy */
     }
   </style>
+  <!-- Beautiful centered JT monogram -->
   <g>
     <text x="12" y="80" class="fav-j">J</text>
     <text x="44" y="80" class="fav-t">T</text>

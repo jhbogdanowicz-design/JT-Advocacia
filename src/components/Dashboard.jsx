@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
+import Logo from './Logo';
 
 export default function Dashboard({ session, onLogout, theme, onToggleTheme }) {
   const [profile, setProfile] = useState(null);
@@ -79,12 +80,14 @@ export default function Dashboard({ session, onLogout, theme, onToggleTheme }) {
     <div className="dashboard-container">
       {/* Navigation */}
       <nav className="dashboard-nav">
-        <div className="nav-brand">
-          <span className="nav-logo">JT ADVOCACIA</span>
+        <div className="nav-brand" style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+          {/* Logo combined with title */}
+          <Logo width={65} height={52} />
+          <span className="nav-logo" style={{ fontSize: '1.4rem', marginLeft: '-5px' }}>ADVOCACIA</span>
         </div>
         
         <div className="nav-user">
-          {/* Theme Toggle Button inside Navbar */}
+          {/* Theme Toggle Button */}
           <button 
             className="btn-theme-toggle" 
             onClick={onToggleTheme} 
