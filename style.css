@@ -1994,3 +1994,113 @@ body {
   }
 }
 
+/* =========================================================================
+   ⚡ ESTILOS ADICIONAIS: ESTRATÉGIA JURÍDICA E INTELIGÊNCIA ARTIFICIAL (IA)
+   ========================================================================= */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Abas de Estratégia no Modal de Criação */
+.ia-strategy-tab-btn {
+  background: none;
+  border: 1px solid transparent;
+  padding: 8px 16px;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-weight: 600;
+  font-family: 'Outfit';
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.ia-strategy-tab-btn:hover {
+  color: var(--text-primary) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+.ia-strategy-tab-btn.active {
+  color: var(--gold) !important;
+  background: rgba(197, 168, 92, 0.08) !important;
+  border: 1px solid rgba(197, 168, 92, 0.25) !important;
+}
+
+/* Abas de Visualização da Estratégia no Modal de Detalhes */
+.view-strategy-tab-btn {
+  background: none;
+  border: 1px solid var(--input-border);
+  padding: 6px 12px;
+  border-radius: 4px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Outfit';
+  transition: all 0.2s ease;
+}
+
+.view-strategy-tab-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--panel-border);
+}
+
+.view-strategy-tab-btn.active {
+  color: var(--gold);
+  background: rgba(197, 168, 92, 0.08);
+  border-color: var(--gold);
+}
+
+/* Abas Gerais do Detalhe do Processo */
+.detail-tab-btn {
+  transition: all 0.2s ease;
+}
+
+.detail-tab-btn:hover {
+  color: var(--text-primary) !important;
+}
+
+.detail-tab-btn.active {
+  color: var(--gold) !important;
+  border-bottom-color: var(--gold) !important;
+}
+
+/* Estilos de Cards de Visualização da Estratégia Jurídica */
+.strategy-card-item {
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.strategy-card-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  font-family: 'Outfit';
+}
+
+.strategy-bullet-list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.strategy-bullet-list li {
+  margin-bottom: 6px;
+}
+
+.strategy-bullet-list li:last-child {
+  margin-bottom: 0;
+}
+
+.strategy-bullet-list li::marker {
+  color: var(--gold);
+}
+

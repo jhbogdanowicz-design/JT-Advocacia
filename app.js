@@ -218,6 +218,52 @@ const editCompAnotacoes = document.getElementById("edit-comp-anotacoes");
 let activeProcessId = null; // Guarda o ID do processo em visualização/edição
 let activeCompromissoId = null; // Guarda o ID do compromisso em edição
 
+// =========================================================================
+// ⚡ MAPEAMENTO DE ELEMENTOS DO MODAL DE CRIAÇÃO E IA
+// =========================================================================
+const modalProcessoIa = document.getElementById("modal-processo-ia");
+const btnCloseModalProcessoIa = document.getElementById("btn-close-modal-processo-ia");
+const processoIaForm = document.getElementById("processo-ia-form");
+const inProcIaTitulo = document.getElementById("proc-ia-titulo");
+const inProcIaNumero = document.getElementById("proc-ia-numero");
+const inProcIaArea = document.getElementById("proc-ia-area");
+const inProcIaStatus = document.getElementById("proc-ia-status");
+const inProcIaTribunal = document.getElementById("proc-ia-tribunal");
+const inProcIaVara = document.getElementById("proc-ia-vara");
+const inProcIaValor = document.getElementById("proc-ia-valor");
+const inProcIaObservacoes = document.getElementById("proc-ia-observacoes");
+const btnGerarEstrategiaIa = document.getElementById("btn-gerar-estrategia-ia");
+const iaLoadingOverlay = document.getElementById("ia-loading-overlay");
+const iaLoadingText = document.getElementById("ia-loading-text");
+const iaStrategyContainer = document.getElementById("ia-strategy-container");
+const btnRegerarIa = document.getElementById("btn-regerar-ia");
+const btnCancelarProcessoIa = document.getElementById("btn-cancelar-processo-ia");
+const btnSalvarProcessoIa = document.getElementById("btn-salvar-processo-ia");
+const btnSalvarProcessoManual = document.getElementById("btn-salvar-processo-manual");
+
+// Textareas do Editor de Estratégia
+const iaTesesTextarea = document.getElementById("ia-teses-textarea");
+const iaDocsTextarea = document.getElementById("ia-docs-textarea");
+const iaLeisTextarea = document.getElementById("ia-leis-textarea");
+const iaRiscosTextarea = document.getElementById("ia-riscos-textarea");
+const iaPassosTextarea = document.getElementById("ia-passos-textarea");
+
+// Abas de Estratégia
+const iaStrategyTabButtons = document.querySelectorAll(".ia-strategy-tab-btn");
+
+// Abas de Visualização no Detalhe do Processo
+const btnDetailTabTimeline = document.getElementById("btn-detail-tab-timeline");
+const btnDetailTabEstrategia = document.getElementById("btn-detail-tab-estrategia");
+const detailTimelineContainer = document.getElementById("detail-timeline-container");
+const detailEstrategiaContainer = document.getElementById("detail-estrategia-container");
+const viewStrategyTabContent = document.getElementById("view-strategy-tab-content");
+const viewStrategyTabButtons = document.querySelectorAll(".view-strategy-tab-btn");
+
+// Variáveis de Estado Local da IA
+let currentIAResponse = null; // Guarda o JSON completo retornado pela IA
+let activeIATab = "pre"; // Aba ativa ("pre", "inicial", "audiencia")
+let activeDetailProcessStrategy = null; // Guarda a estratégia do processo ativamente visualizado
+
 
 // =========================================================================
 // 🚀 ROTEAMENTO DE VISUALIZAÇÕES (SPA ROUTING)
@@ -1474,7 +1520,20 @@ async function loadClientCommitmentsList() {
 // ⚖️ SEÇÃO 3: PROCESSOS VINCULADOS (CRONOLOGIA & DETALHES VERTICAIS)
 // =========================================================================
 btnCriarProcessoTrigger.addEventListener("click", () => {
-  alert("O módulo completo de criação e vinculação de processos será implementado na próxima etapa!");
+  // Reseta formulário de criação de processo e IA
+  processoIaForm.reset();
+  currentIAResponse = null;
+  activeIATab = "pre";
+  
+  iaStrategyContainer.style.display = "none";
+  iaLoadingOverlay.style.display = "none";
+  
+  // Exibição padrão dos botões
+  btnSalvarProcessoIa.style.display = "none";
+  btnSalvarProcessoManual.style.display = "block";
+  
+  // Abre o modal
+  modalProcessoIa.style.display = "flex";
 });
 
 async function loadClientProcessesList() {
@@ -1530,7 +1589,7 @@ async function loadClientProcessesList() {
   }
 }
 
-// Expansão do Modal do Processo com Timeline de Andamentos (JSONB)
+// Expansão do Modal do Processo com Timeline de Andamentos (JSONB) e Estratégia IA
 function openProcessModalDetails(p) {
   activeProcessId = p.id;
   modalProcessoDetail.style.display = "flex";
@@ -1546,6 +1605,25 @@ function openProcessModalDetails(p) {
   const statusEl = document.getElementById("proc-detail-status");
   statusEl.innerText = p.status;
   statusEl.style.color = p.status === "Ativo" ? "var(--success-color)" : "var(--text-secondary)";
+
+  // Configura a estratégia carregada do processo
+  activeDetailProcessStrategy = p.estrategia_ia || null;
+  if (activeDetailProcessStrategy) {
+    btnDetailTabEstrategia.style.display = "block";
+  } else {
+    btnDetailTabEstrategia.style.display = "none";
+  }
+
+  // Reseta abas do modal para a timeline por padrão
+  btnDetailTabTimeline.classList.add("active");
+  btnDetailTabEstrategia.classList.remove("active");
+  btnDetailTabTimeline.style.color = "var(--text-primary)";
+  btnDetailTabTimeline.style.borderBottomColor = "var(--gold)";
+  btnDetailTabEstrategia.style.color = "var(--text-secondary)";
+  btnDetailTabEstrategia.style.borderBottomColor = "transparent";
+  
+  detailTimelineContainer.style.display = "block";
+  detailEstrategiaContainer.style.display = "none";
 
   // Renderiza a linha do tempo vertical de movimentações do histórico (JSONB)
   const timeline = document.getElementById("proc-detail-timeline");
@@ -1909,9 +1987,447 @@ btnHeroLogin.addEventListener("click", () => {
   switchPublicView("login");
 });
 
-linksGoLanding.forEach(link => {
+  linksGoLanding.forEach(link => {
   link.addEventListener("click", (e) => {
     e.preventDefault();
     switchPublicView("landing");
   });
 });
+
+// =========================================================================
+// ⚡ SEÇÃO: FLUXO COMPLETO E LÓGICA DE ESTRATÉGIAS JURÍDICAS IA
+// =========================================================================
+
+// Fechamento de Modais
+btnCloseModalProcessoIa.addEventListener("click", () => {
+  modalProcessoIa.style.display = "none";
+});
+btnCancelarProcessoIa.addEventListener("click", () => {
+  modalProcessoIa.style.display = "none";
+});
+
+// Mapeamento do índice das fases processuais da estratégia
+const FASES_IA = {
+  pre: 0,
+  inicial: 1,
+  audiencia: 2
+};
+
+// Carrega os dados do estado para os textareas do editor
+function updateIAEditorFields() {
+  if (!currentIAResponse || !currentIAResponse.estrategia_processual) return;
+  
+  const phaseIndex = FASES_IA[activeIATab];
+  const phaseData = currentIAResponse.estrategia_processual[phaseIndex];
+  
+  if (!phaseData || !phaseData.acoes) return;
+  
+  const acoes = phaseData.acoes;
+  
+  // Converte arrays de strings retornados pela IA em linhas de texto
+  iaTesesTextarea.value = (acoes.teses_juridicas || []).join("\n");
+  iaDocsTextarea.value = (acoes.documentos_necessarios || []).join("\n");
+  iaLeisTextarea.value = (acoes.fundamentacao_legal || []).join("\n");
+  iaRiscosTextarea.value = (acoes.riscos_e_alertas || []).join("\n");
+  iaPassosTextarea.value = (acoes.proximos_passos || []).join("\n");
+}
+
+// Salva os valores atualmente digitados nos textareas de volta para o estado
+function saveIAEditorFieldsToState() {
+  if (!currentIAResponse || !currentIAResponse.estrategia_processual) return;
+  
+  const phaseIndex = FASES_IA[activeIATab];
+  const phaseData = currentIAResponse.estrategia_processual[phaseIndex];
+  
+  if (!phaseData) return;
+  if (!phaseData.acoes) {
+    phaseData.acoes = {};
+  }
+  
+  // Função auxiliar para dividir strings em arrays removendo linhas vazias
+  const textToArray = (val) => val.split("\n").map(l => l.trim()).filter(l => l !== "");
+  
+  phaseData.acoes.teses_juridicas = textToArray(iaTesesTextarea.value);
+  phaseData.acoes.documentos_necessarios = textToArray(iaDocsTextarea.value);
+  phaseData.acoes.fundamentacao_legal = textToArray(iaLeisTextarea.value);
+  phaseData.acoes.riscos_e_alertas = textToArray(iaRiscosTextarea.value);
+  phaseData.acoes.proximos_passos = textToArray(iaPassosTextarea.value);
+}
+
+// Controla a troca de abas no formulário/editor de estratégia
+function switchIATab(tabName) {
+  // 1. Salva o conteúdo digitado no estado da aba anterior
+  saveIAEditorFieldsToState();
+  
+  // 2. Atualiza a classe de aba ativa na UI
+  iaStrategyTabButtons.forEach(btn => {
+    if (btn.getAttribute("data-ia-tab") === tabName) {
+      btn.classList.add("active");
+      btn.style.color = "var(--gold)";
+      btn.style.backgroundColor = "rgba(197, 168, 92, 0.08)";
+      btn.style.borderColor = "rgba(197, 168, 92, 0.25)";
+    } else {
+      btn.classList.remove("active");
+      btn.style.color = "var(--text-secondary)";
+      btn.style.backgroundColor = "transparent";
+      btn.style.borderColor = "transparent";
+    }
+  });
+  
+  // 3. Define a nova aba ativa e carrega seus dados no editor
+  activeIATab = tabName;
+  updateIAEditorFields();
+}
+
+// Vincula eventos nos botões das abas da estratégia
+iaStrategyTabButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    const tabName = btn.getAttribute("data-ia-tab");
+    switchIATab(tabName);
+  });
+});
+
+// Sincronizador de Loading da IA com Mensagens Dinâmicas
+let iaLoadingInterval = null;
+function startIALoading() {
+  iaLoadingOverlay.style.display = "flex";
+  iaStrategyContainer.style.display = "none";
+  btnGerarEstrategiaIa.disabled = true;
+  btnRegerarIa.disabled = true;
+  
+  const messages = [
+    "Analisando relatos do cliente...",
+    "Mapeando artigos da lei...",
+    "Estruturando teses jurídicas...",
+    "Buscando jurisprudência complementar...",
+    "Validando fundamentações na legislação brasileira...",
+    "Refinando planos de ação processual..."
+  ];
+  
+  let i = 0;
+  iaLoadingText.innerText = messages[0];
+  
+  iaLoadingInterval = setInterval(() => {
+    i = (i + 1) % messages.length;
+    iaLoadingText.innerText = messages[i];
+  }, 3000);
+}
+
+function stopIALoading() {
+  if (iaLoadingInterval) {
+    clearInterval(iaLoadingInterval);
+    iaLoadingInterval = null;
+  }
+  iaLoadingOverlay.style.display = "none";
+  btnGerarEstrategiaIa.disabled = false;
+  btnRegerarIa.disabled = false;
+}
+
+// Execução da geração de estratégia via IA
+async function processIAGenerator() {
+  if (!activeClientId) {
+    alert("Nenhum cliente selecionado ativamente.");
+    return;
+  }
+  
+  // Mapear dados e observações do perfil do cliente selecionado
+  const clientName = editInName.value;
+  const clientObservations = editInObservacoes.value;
+  const clientAssistance = editInTipoAssistencia.value;
+  const selectedAreas = Array.from(document.querySelectorAll("input[name='edit-client-areas']:checked"))
+    .map(cb => cb.value)
+    .join(", ") || editInAreasExtra.value || "Área Não Especificada";
+  
+  const dadosDoClienteCompilados = `
+Nome do Cliente: ${clientName}
+Área Jurídica de Interesse: ${selectedAreas}
+Tipo de Assistência Contratada: ${clientAssistance}
+Fatos Narrados e Histórico Detalhado:
+${clientObservations || "Nenhuma anotação de fatos foi inserida na ficha do cliente ainda."}
+`;
+  
+  try {
+    startIALoading();
+    
+    // Chamada segura para o endpoint da serverless function
+    const response = await fetch("/api/gerar-estrategia", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        dados_do_cliente: dadosDoClienteCompilados
+      })
+    });
+    
+    if (!response.ok) {
+      const errData = await response.json();
+      throw new Error(errData.error || errData.details || "Erro no servidor da IA.");
+    }
+    
+    const data = await response.json();
+    
+    if (!data || !data.estrategia_processual) {
+      throw new Error("Estrutura estratégica inválida retornada pelo servidor.");
+    }
+    
+    // Salva o JSON gerado no estado e ativa a visualização
+    currentIAResponse = data;
+    stopIALoading();
+    
+    // Atualiza a visualização com a aba padrão (Pré-Processual)
+    activeIATab = "pre";
+    switchIATab("pre");
+    
+    // Exibe o container da estratégia e ajusta os botões
+    iaStrategyContainer.style.display = "block";
+    btnSalvarProcessoIa.style.display = "block";
+    
+    // Preenche automaticamente o título da ação sugerido se estiver vazio
+    if (!inProcIaTitulo.value.trim()) {
+      inProcIaTitulo.value = `Ação Jurídica - ${selectedAreas} (${clientName})`;
+    }
+    if (!inProcIaArea.value) {
+      inProcIaArea.value = selectedAreas.split(", ")[0] || "";
+    }
+    
+  } catch (err) {
+    stopIALoading();
+    console.error("Falha ao gerar estratégia com IA:", err);
+    
+    // Exibe o toast amigável conforme regras de erro da especificação
+    const retry = confirm("Não foi possível gerar a estratégia com IA no momento. Deseja tentar novamente ou estruturar o Processo Manualmente?");
+    if (retry) {
+      processIAGenerator();
+    }
+  }
+}
+
+// Vincula gatilho de geração ao botão
+btnGerarEstrategiaIa.addEventListener("click", () => {
+  processIAGenerator();
+});
+btnRegerarIa.addEventListener("click", () => {
+  processIAGenerator();
+});
+
+// 💾 FLUXO: SALVAR PROCESSO COM ESTRATÉGIA GERADA E EDITADA
+processoIaForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  
+  if (!activeClientId) return;
+  if (!currentIAResponse) {
+    alert("Gere uma estratégia com IA antes de salvar ou utilize o salvamento manual.");
+    return;
+  }
+  
+  // Salva o conteúdo atualmente visualizado
+  saveIAEditorFieldsToState();
+  
+  const titulo = inProcIaTitulo.value.trim();
+  const numero = inProcIaNumero.value.trim();
+  const area = inProcIaArea.value;
+  const status = inProcIaStatus.value;
+  const tribunal = inProcIaTribunal.value.trim();
+  const vara = inProcIaVara.value.trim();
+  const valor = inProcIaValor.value ? parseFloat(inProcIaValor.value) : null;
+  const observacoes = inProcIaObservacoes.value.trim();
+  
+  try {
+    setLoadingState(btnSalvarProcessoIa, true, "Sincronizando...");
+    
+    const { data, error } = await supabase
+      .from("processos")
+      .insert({
+        cliente_id: activeClientId,
+        titulo: titulo,
+        numero_processo: numero || null,
+        area_direito: area || null,
+        status: status,
+        tribunal: tribunal || null,
+        vara: vara || null,
+        valor_causa: valor,
+        observacoes_internas: observacoes || null,
+        estrategia_ia: currentIAResponse
+      });
+      
+    if (error) throw error;
+    
+    alert("Processo judicial e planejamento estratégico salvos com sucesso!");
+    modalProcessoIa.style.display = "none";
+    
+    // Recarrega as listagens correspondentes
+    loadClientProcessesList();
+    loadDashboardData();
+    
+  } catch (err) {
+    console.error("Erro ao persistir processo:", err.message);
+    alert(`Erro ao salvar processo: ${err.message}`);
+  } finally {
+    setLoadingState(btnSalvarProcessoIa, false, "Salvar Processo e Estratégia");
+  }
+});
+
+// 💾 FLUXO: SALVAR APENAS OS METADADOS (MANUAL)
+btnSalvarProcessoManual.addEventListener("click", async () => {
+  if (!activeClientId) return;
+  
+  const titulo = inProcIaTitulo.value.trim();
+  const numero = inProcIaNumero.value.trim();
+  const area = inProcIaArea.value;
+  const status = inProcIaStatus.value;
+  const tribunal = inProcIaTribunal.value.trim();
+  const vara = inProcIaVara.value.trim();
+  const valor = inProcIaValor.value ? parseFloat(inProcIaValor.value) : null;
+  const observacoes = inProcIaObservacoes.value.trim();
+  
+  if (!titulo || !area) {
+    alert("Para o salvamento manual, preencha o Título da Ação e a Área do Direito.");
+    inProcIaTitulo.focus();
+    return;
+  }
+  
+  try {
+    setLoadingState(btnSalvarProcessoManual, true, "Salvando...");
+    
+    const { error } = await supabase
+      .from("processos")
+      .insert({
+        cliente_id: activeClientId,
+        titulo: titulo,
+        numero_processo: numero || null,
+        area_direito: area || null,
+        status: status,
+        tribunal: tribunal || null,
+        vara: vara || null,
+        valor_causa: valor,
+        observacoes_internas: observacoes || null,
+        estrategia_ia: null // Sem estratégia IA associada
+      });
+      
+    if (error) throw error;
+    
+    alert("Processo judicial cadastrado manualmente com sucesso!");
+    modalProcessoIa.style.display = "none";
+    
+    // Recarrega listagens
+    loadClientProcessesList();
+    loadDashboardData();
+    
+  } catch (err) {
+    console.error("Erro no cadastro manual de processo:", err.message);
+    alert(`Erro ao salvar processo: ${err.message}`);
+  } finally {
+    setLoadingState(btnSalvarProcessoManual, false, "Salvar Sem Estratégia (Manual)");
+  }
+});
+
+// =========================================================================
+// ⚡ SEÇÃO: DETALHES DO PROCESSO - NAVEGAÇÃO DE ABAS & ESTRATÉGIA IA
+// =========================================================================
+
+// Click na aba Linha do Tempo (Timeline)
+btnDetailTabTimeline.addEventListener("click", () => {
+  btnDetailTabTimeline.classList.add("active");
+  btnDetailTabEstrategia.classList.remove("active");
+  btnDetailTabTimeline.style.color = "var(--text-primary)";
+  btnDetailTabTimeline.style.borderBottomColor = "var(--gold)";
+  btnDetailTabEstrategia.style.color = "var(--text-secondary)";
+  btnDetailTabEstrategia.style.borderBottomColor = "transparent";
+  
+  detailTimelineContainer.style.display = "block";
+  detailEstrategiaContainer.style.display = "none";
+});
+
+// Click na aba Estratégia Jurídica IA
+btnDetailTabEstrategia.addEventListener("click", () => {
+  if (!activeDetailProcessStrategy) return;
+  
+  btnDetailTabTimeline.classList.remove("active");
+  btnDetailTabEstrategia.classList.add("active");
+  btnDetailTabTimeline.style.color = "var(--text-secondary)";
+  btnDetailTabTimeline.style.borderBottomColor = "transparent";
+  btnDetailTabEstrategia.style.color = "var(--gold)";
+  btnDetailTabEstrategia.style.borderBottomColor = "var(--gold)";
+  
+  detailTimelineContainer.style.display = "none";
+  detailEstrategiaContainer.style.display = "block";
+  
+  // Seta e renderiza a sub-aba padrão (Pré-Processual)
+  switchDetailStrategyTab("pre");
+});
+
+// Controla a troca de sub-aba de estratégia no visualizador
+function switchDetailStrategyTab(tabName) {
+  viewStrategyTabButtons.forEach(btn => {
+    const isTarget = btn.getAttribute("data-view-tab") === tabName;
+    btn.classList.toggle("active", isTarget);
+    if (isTarget) {
+      btn.style.color = "var(--gold)";
+      btn.style.backgroundColor = "rgba(197, 168, 92, 0.08)";
+      btn.style.borderColor = "var(--gold)";
+    } else {
+      btn.style.color = "var(--text-secondary)";
+      btn.style.backgroundColor = "transparent";
+      btn.style.borderColor = "var(--input-border)";
+    }
+  });
+  
+  renderDetailStrategyTab(tabName);
+}
+
+// Vincula click aos botões de sub-abas do visualizador
+viewStrategyTabButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    const tabName = btn.getAttribute("data-view-tab");
+    switchDetailStrategyTab(tabName);
+  });
+});
+
+// Renderizador da Estratégia Jurídica Salva (Apenas leitura premium com bullet-points)
+function renderDetailStrategyTab(tabName) {
+  if (!activeDetailProcessStrategy) return;
+  
+  let phaseIndex = FASES_IA[tabName];
+  const phaseData = activeDetailProcessStrategy.estrategia_processual?.[phaseIndex];
+  
+  if (!phaseData || !phaseData.acoes) {
+    viewStrategyTabContent.innerHTML = `<div class="inactive-empty">Nenhum dado estratégico salvo para esta fase.</div>`;
+    return;
+  }
+  
+  const acoes = phaseData.acoes;
+  
+  // Função auxiliar de renderização de listas em HTML
+  const renderList = (title, items, colorVar, iconSvg) => {
+    const listHtml = (items && items.length > 0)
+      ? `<ul class="strategy-bullet-list">${items.map(item => `<li>${item}</li>`).join("")}</ul>`
+      : `<p style="font-size: 13px; color: var(--text-secondary); margin: 0; font-style: italic;">Nenhum item cadastrado.</p>`;
+      
+    return `
+      <div class="strategy-card-item">
+        <div class="strategy-card-title" style="color: ${colorVar}; display: flex; align-items: center; gap: 8px;">
+          ${iconSvg}
+          <span>${title}</span>
+        </div>
+        ${listHtml}
+      </div>
+    `;
+  };
+  
+  const teseIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`;
+  const docIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>`;
+  const leiIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`;
+  const riscoIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--error-color);"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+  const passoIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--success-color);"><polyline points="20 6 9 17 4 12"/></svg>`;
+  
+  viewStrategyTabContent.innerHTML = `
+    ${renderList("Teses Jurídicas Sugeridas", acoes.teses_juridicas, "var(--gold)", teseIcon)}
+    ${renderList("Documentos Indispensáveis", acoes.documentos_necessarios, "var(--text-primary)", docIcon)}
+    ${renderList("Fundamentação Legal Recomendada", acoes.fundamentacao_legal, "var(--gold)", leiIcon)}
+    <div class="strategy-row-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+      ${renderList("Riscos e Pontos de Atenção", acoes.riscos_e_alertas, "var(--error-color)", riscoIcon)}
+      ${renderList("Ações Jurídicas Imediatas", acoes.proximos_passos, "var(--success-color)", passoIcon)}
+    </div>
+  `;
+}
