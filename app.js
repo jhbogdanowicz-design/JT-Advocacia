@@ -45,6 +45,12 @@ const signupPasswordConfirm = document.getElementById("signup-password-confirm")
 const linkGoSignup = document.getElementById("link-go-signup");
 const linkGoLogin = document.getElementById("link-go-login");
 
+// Elementos da Landing Page
+const landingContainer = document.getElementById("landing-container");
+const btnGoRestricted = document.getElementById("btn-go-restricted");
+const btnHeroLogin = document.getElementById("btn-hero-login");
+const linksGoLanding = document.querySelectorAll(".link-go-landing");
+
 // Botões de Ação
 const btnLoginSubmit = document.getElementById("btn-login-submit");
 const btnSignupSubmit = document.getElementById("btn-signup-submit");
@@ -220,12 +226,18 @@ function switchPublicView(viewName) {
   hideMessage(loginMessage);
   hideMessage(signupMessage);
 
-  if (viewName === "login") {
+  if (viewName === "landing") {
+    landingContainer.style.display = "block";
+    authContainer.style.display = "none";
+    appLayout.style.display = "none";
+  } else if (viewName === "login") {
+    landingContainer.style.display = "none";
     authContainer.style.display = "block";
     appLayout.style.display = "none";
     viewLogin.classList.add("active");
     viewSignup.classList.remove("active");
   } else if (viewName === "signup") {
+    landingContainer.style.display = "none";
     authContainer.style.display = "block";
     appLayout.style.display = "none";
     viewLogin.classList.remove("active");
@@ -1610,6 +1622,7 @@ supabase.auth.onAuthStateChange(async (event, session) => {
     const initials = userMetadataName.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
     sidebarUserAvatar.innerText = initials;
 
+    landingContainer.style.display = "none";
     authContainer.style.display = "none";
     appLayout.style.display = "flex";
 
@@ -1625,9 +1638,10 @@ supabase.auth.onAuthStateChange(async (event, session) => {
       switchPrivateView("dashboard");
     }
   } else {
-    authContainer.style.display = "block";
+    landingContainer.style.display = "block";
+    authContainer.style.display = "none";
     appLayout.style.display = "none";
-    switchPublicView("login");
+    switchPublicView("landing");
   }
 });
 
@@ -1882,4 +1896,22 @@ editCompromissoForm.addEventListener("submit", async (e) => {
   } finally {
     setLoadingState(document.getElementById("btn-save-compromisso-changes"), false, "Salvar Alterações");
   }
+});
+
+// =========================================================================
+// 🌐 SEÇÃO: NAVEGAÇÃO DA LANDING PAGE
+// =========================================================================
+btnGoRestricted.addEventListener("click", () => {
+  switchPublicView("login");
+});
+
+btnHeroLogin.addEventListener("click", () => {
+  switchPublicView("login");
+});
+
+linksGoLanding.forEach(link => {
+  link.addEventListener("click", (e) => {
+    e.preventDefault();
+    switchPublicView("landing");
+  });
 });

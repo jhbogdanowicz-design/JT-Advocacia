@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JT Advocacia</title>
   <meta name="description" content="Sistema sofisticado de gestão jurídica para advocacia moderna. Acesse seus processos, clientes e compromissos com segurança.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <!-- Favicon configurado com o logotipo oficial -->
   <link rel="icon" type="image/jpeg" href="logo.jpg">
@@ -12,9 +15,146 @@
 <body data-theme="dark"> <!-- Inicia no modo escuro por padrão jurídico elegante, alternável via botão -->
 
   <!-- =========================================================================
+       ÁREA PÚBLICA: APRESENTAÇÃO / LANDING PAGE (MOSTRADA QUANDO DESLOGADO POR PADRÃO)
+       ========================================================================= -->
+  <div id="landing-container" class="landing-page-view">
+    
+    <!-- HEADER / NAVBAR -->
+    <header class="landing-header">
+      <div class="landing-nav-wrapper">
+        <div class="landing-logo">
+          <img src="logo.jpg" alt="Logo JT Advocacia" class="landing-logo-img">
+          <span class="landing-logo-text">JT Advocacia</span>
+        </div>
+        <nav class="landing-nav">
+          <a href="#inicio" class="landing-nav-link">Início</a>
+          <a href="#diferenciais" class="landing-nav-link">Pilares</a>
+          <a href="#atuacao" class="landing-nav-link">Especialidades</a>
+        </nav>
+        <div class="landing-nav-actions">
+          <button class="btn-landing-restricted" id="btn-go-restricted">Portal Restrito</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="landing-hero" id="inicio">
+      <div class="landing-hero-content">
+        <span class="landing-hero-tag">EXCELÊNCIA & RIGOR JURÍDICO</span>
+        <h1 class="landing-hero-title">Advocacia de Alta Performance para Negócios e Indivíduos</h1>
+        <p class="landing-hero-subtitle">
+          Gestão jurídica estratégica, transparência absoluta em tempo real e defesa técnica qualificada para garantir a segurança e o sucesso das suas demandas.
+        </p>
+        <div class="landing-hero-actions">
+          <button class="btn-landing-primary" id="btn-hero-login">Acessar Plataforma</button>
+          <a href="https://wa.me/5500000000000" target="_blank" rel="noopener noreferrer" class="btn-landing-secondary">Falar com Especialista</a>
+        </div>
+      </div>
+      <div class="landing-hero-visual">
+        <div class="landing-image-wrapper">
+          <img src="modern_law_office.png" alt="Escritório JT Advocacia" class="landing-hero-img">
+          <div class="landing-image-overlay"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DIFFERENTIALS / FEATURES SECTION -->
+    <section class="landing-differentials" id="diferenciais">
+      <div class="landing-section-header">
+        <span class="landing-section-tag">COMPROMISSO COM A QUALIDADE</span>
+        <h2 class="landing-section-title">Nossos Pilares de Atuação</h2>
+        <p class="landing-section-subtitle">Aliamos rigor acadêmico, processos otimizados e tecnologia integrada para entregar soluções eficientes.</p>
+      </div>
+
+      <div class="landing-features-grid">
+        <!-- Card 1 -->
+        <div class="landing-feature-card">
+          <div class="landing-card-icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3 class="landing-card-title">Transparência em Tempo Real</h3>
+          <p class="landing-card-text">Nossos clientes acompanham andamentos processuais, prazos e compromissos diretamente pela nossa área restrita de forma ágil e segura.</p>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="landing-feature-card">
+          <div class="landing-card-icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          </div>
+          <h3 class="landing-card-title">Rigor e Pontualidade</h3>
+          <p class="landing-card-text">Contamos com fluxos rigorosos de controle para garantir o cumprimento preciso de prazos fatais e a prontidão em todas as audiências.</p>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="landing-feature-card">
+          <div class="landing-card-icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><path d="M12 11v6"/><path d="M9 14h6"/></svg>
+          </div>
+          <h3 class="landing-card-title">Gestão Digital de Ativos</h3>
+          <p class="landing-card-text">Todos os históricos de andamentos, notas de reuniões e documentos de qualificações estruturados e centralizados em nuvem.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRACTICE AREAS SECTION -->
+    <section class="landing-areas" id="atuacao">
+      <div class="landing-section-header">
+        <span class="landing-section-tag">COMPETÊNCIA MULTIDISCIPLINAR</span>
+        <h2 class="landing-section-title">Especialidades Jurídicas</h2>
+        <p class="landing-section-subtitle">Oferecemos representação jurídica de excelência em múltiplas ramificações do direito.</p>
+      </div>
+
+      <div class="landing-areas-list">
+        <!-- Area 1 -->
+        <div class="landing-area-item">
+          <div class="landing-area-header">
+            <span class="landing-area-num">01</span>
+            <h3 class="landing-area-name">Direito Civil e Contratos</h3>
+          </div>
+          <p class="landing-area-desc">Elaboração, análise e revisão contratual, além de representação contenciosa cível estratégica para prevenção e solução de conflitos e passivos.</p>
+        </div>
+
+        <!-- Area 2 -->
+        <div class="landing-area-item">
+          <div class="landing-area-header">
+            <span class="landing-area-num">02</span>
+            <h3 class="landing-area-name">Direito do Trabalho</h3>
+          </div>
+          <p class="landing-area-desc">Consultoria jurídica preventiva corporativa e representação judicial robusta na defesa de interesses trabalhistas com total sigilo profissional.</p>
+        </div>
+
+        <!-- Area 3 -->
+        <div class="landing-area-item">
+          <div class="landing-area-header">
+            <span class="landing-area-num">03</span>
+            <h3 class="landing-area-name">Direito Corporativo e Societário</h3>
+          </div>
+          <p class="landing-area-desc">Acompanhamento e reestruturação corporativa, compliance, assessoria contratual e blindagem jurídica preventiva para negócios em expansão.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="landing-footer">
+      <div class="landing-footer-wrapper">
+        <div class="landing-footer-brand">
+          <span class="landing-footer-logo">JT Advocacia</span>
+          <p class="landing-footer-about">Gestão jurídica moderna e orientada a resultados.</p>
+        </div>
+        <div class="landing-footer-info">
+          <span>OAB/SP nº 00.000-G</span> | 
+          <span>Av. Paulista, nº 1000 - Bela Vista - São Paulo/SP</span><br>
+          <span style="opacity: 0.5;">© 2026 JT Advocacia. Todos os direitos reservados.</span>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- =========================================================================
        ÁREA PÚBLICA: AUTENTICAÇÃO (MOSTRADA QUANDO DESLOGADO)
        ========================================================================= -->
-  <div class="container" id="auth-container">
+  <div class="container" id="auth-container" style="display: none;">
     
     <header class="auth-header">
       <button class="theme-toggle-btn" id="theme-toggle-auth" aria-label="Alternar esquema de cores">
@@ -69,8 +209,9 @@
           <button type="submit" class="btn-primary" id="btn-login-submit">Entrar</button>
         </form>
 
-        <div class="auth-footer">
-          Não tem conta? <a href="#" class="auth-link" id="link-go-signup">Cadastre-se</a>
+        <div class="auth-footer" style="display: flex; flex-direction: column; gap: 8px; align-items: center;">
+          <span>Não tem conta? <a href="#" class="auth-link" id="link-go-signup">Cadastre-se</a></span>
+          <a href="#" class="auth-link link-go-landing" style="font-size: 13px; opacity: 0.7; margin-top: 4px;">← Voltar ao Início</a>
         </div>
 
       </div>
@@ -161,8 +302,9 @@
           <button type="submit" class="btn-primary" id="btn-signup-submit">Criar conta</button>
         </form>
 
-        <div class="auth-footer">
-          Já tem conta? <a href="#" class="auth-link" id="link-go-login">Faça login</a>
+        <div class="auth-footer" style="display: flex; flex-direction: column; gap: 8px; align-items: center;">
+          <span>Já tem conta? <a href="#" class="auth-link" id="link-go-login">Faça login</a></span>
+          <a href="#" class="auth-link link-go-landing" style="font-size: 13px; opacity: 0.7; margin-top: 4px;">← Voltar ao Início</a>
         </div>
 
       </div>
