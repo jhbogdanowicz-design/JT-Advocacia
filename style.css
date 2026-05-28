@@ -2245,3 +2245,145 @@ body {
   }
 }
 
+/* =========================================================================
+   🌐 NAVIGATION ACTIONS & LIGHT MODE OVERRIDES FOR LANDING PAGE
+   ========================================================================= */
+.landing-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+[data-theme="light"] .landing-page-view {
+  background-color: var(--bg-color) !important;
+  background: var(--bg-gradient) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .landing-header {
+  background: rgba(248, 250, 252, 0.8) !important;
+  border-bottom-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+[data-theme="light"] .landing-logo-text {
+  background: linear-gradient(135deg, #0f172a 0%, #a38545 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+[data-theme="light"] .landing-nav-link {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .landing-nav-link:hover {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .landing-hero-title {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .landing-hero-subtitle {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .btn-landing-secondary {
+  background: rgba(15, 23, 42, 0.03) !important;
+  border-color: rgba(15, 23, 42, 0.1) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .btn-landing-secondary:hover {
+  background: rgba(15, 23, 42, 0.08) !important;
+  border-color: rgba(15, 23, 42, 0.2) !important;
+}
+
+[data-theme="light"] .landing-image-wrapper {
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08), 0 0 40px rgba(197, 168, 92, 0.03) !important;
+  border-color: rgba(15, 23, 42, 0.05) !important;
+}
+
+[data-theme="light"] .landing-image-overlay {
+  background: linear-gradient(to top, rgba(248, 250, 252, 0.6) 0%, rgba(248, 250, 252, 0) 100%) !important;
+}
+
+[data-theme="light"] .landing-differentials {
+  border-top-color: rgba(15, 23, 42, 0.05) !important;
+}
+
+[data-theme="light"] .landing-section-title {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .landing-section-subtitle {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .landing-feature-card {
+  background: var(--panel-bg) !important;
+  border-color: var(--panel-border) !important;
+}
+
+[data-theme="light"] .landing-card-title {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .landing-card-text {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .landing-areas {
+  border-top-color: rgba(15, 23, 42, 0.05) !important;
+}
+
+[data-theme="light"] .specialty-card {
+  background: var(--panel-bg) !important;
+  border-color: var(--panel-border) !important;
+}
+
+[data-theme="light"] .specialty-card:hover {
+  background: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 12px 30px rgba(197, 168, 92, 0.08) !important;
+}
+
+[data-theme="light"] .specialty-title {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .specialty-card:hover .specialty-title {
+  color: var(--gold) !important;
+}
+
+[data-theme="light"] .specialty-desc {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .specialty-card:hover .specialty-desc {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .specialty-num {
+  color: rgba(15, 23, 42, 0.04) !important;
+}
+
+[data-theme="light"] .specialty-card:hover .specialty-num {
+  color: rgba(197, 168, 92, 0.15) !important;
+}
+
+[data-theme="light"] .landing-footer {
+  background: #F1F5F9 !important;
+  border-top-color: rgba(15, 23, 42, 0.06) !important;
+}
+
+[data-theme="light"] .landing-footer-logo {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .landing-footer-about {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .landing-footer-info {
+  color: var(--text-secondary) !important;
+}
+

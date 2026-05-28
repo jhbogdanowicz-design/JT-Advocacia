@@ -354,6 +354,10 @@ function setTheme(theme) {
   const moonInner = document.getElementById("theme-moon-inner");
   const textInner = document.getElementById("theme-text-inner");
 
+  const sunLanding = document.getElementById("theme-sun-landing");
+  const moonLanding = document.getElementById("theme-moon-landing");
+  const textLanding = document.getElementById("theme-text-landing");
+
   if (theme === "light") {
     if (sunAuth) sunAuth.style.display = "none";
     if (moonAuth) moonAuth.style.display = "block";
@@ -362,6 +366,10 @@ function setTheme(theme) {
     if (sunInner) sunInner.style.display = "none";
     if (moonInner) moonInner.style.display = "block";
     if (textInner) textInner.innerText = "Modo Escuro";
+
+    if (sunLanding) sunLanding.style.display = "none";
+    if (moonLanding) moonLanding.style.display = "block";
+    if (textLanding) textLanding.innerText = "Modo Escuro";
   } else {
     if (sunAuth) sunAuth.style.display = "block";
     if (moonAuth) moonAuth.style.display = "none";
@@ -370,6 +378,10 @@ function setTheme(theme) {
     if (sunInner) sunInner.style.display = "block";
     if (moonInner) moonInner.style.display = "none";
     if (textInner) textInner.innerText = "Modo Claro";
+
+    if (sunLanding) sunLanding.style.display = "block";
+    if (moonLanding) moonLanding.style.display = "none";
+    if (textLanding) textLanding.innerText = "Modo Claro";
   }
 }
 
@@ -385,6 +397,14 @@ document.getElementById("theme-toggle-inner").addEventListener("click", () => {
   const currentTheme = document.body.getAttribute("data-theme");
   setTheme(currentTheme === "dark" ? "light" : "dark");
 });
+
+const themeToggleLanding = document.getElementById("theme-toggle-landing");
+if (themeToggleLanding) {
+  themeToggleLanding.addEventListener("click", () => {
+    const currentTheme = document.body.getAttribute("data-theme");
+    setTheme(currentTheme === "dark" ? "light" : "dark");
+  });
+}
 
 // =========================================================================
 // ✉️ EXIBIÇÃO DE MENSAGENS E FEEDBACKS
