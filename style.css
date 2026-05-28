@@ -2010,6 +2010,8 @@ body {
   border-top: 1px solid rgba(255, 255, 255, 0.03);
   padding-top: 14px;
   transition: color 0.3s ease;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .arrow-icon {
