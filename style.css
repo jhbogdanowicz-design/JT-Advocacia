@@ -2389,3 +2389,80 @@ body {
   color: var(--text-secondary) !important;
 }
 
+/* =========================================================================
+   Central de Documentos & jsPDF Reports Styles
+   ========================================================================= */
+.doc-item-card {
+  background: var(--input-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.doc-item-card:hover {
+  border-color: var(--gold);
+  box-shadow: 0 4px 12px var(--gold-light);
+  transform: translateY(-2px);
+}
+
+.doc-item-icon-wrapper {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  background: rgba(212, 175, 55, 0.1);
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.doc-item-details {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex-grow: 1;
+  margin-left: 12px;
+  overflow: hidden;
+}
+
+.doc-item-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.doc-item-meta {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.btn-generate-pdf-doc {
+  width: auto;
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 0;
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-generate-pdf-doc:hover {
+  background: var(--gold);
+  color: #070A13;
+}
+

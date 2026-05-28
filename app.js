@@ -10,6 +10,7 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // VARIÁVEIS DE ESTADO GLOBAL (SPA STATE)
 // =========================================================================
 let activeClientId = null; // Guarda o ID do cliente visualizado no momento
+let activeClientObject = null; // Guarda o objeto completo do cliente visualizado no momento
 
 // =========================================================================
 // ELEMENTOS DO DOM (MAPEAMENTO)
@@ -185,6 +186,11 @@ const btnCriarProcessoTrigger = document.getElementById("btn-criar-processo-trig
 const processosEmptyMsg = document.getElementById("processos-empty-msg");
 const processosTimelineListContainer = document.getElementById("processos-timeline-list-container");
 
+// Central de Documentos
+const documentosEmptyMsg = document.getElementById("documentos-empty-msg");
+const documentosListContainer = document.getElementById("documentos-list-container");
+const btnExportarPdfEstrategia = document.getElementById("btn-exportar-pdf-estrategia");
+
 // Novos Modais e Elementos de Edição
 const btnEditLawyerProfile = document.getElementById("btn-edit-lawyer-profile");
 const modalEditLawyer = document.getElementById("modal-edit-lawyer");
@@ -267,6 +273,7 @@ const viewStrategyTabButtons = document.querySelectorAll(".view-strategy-tab-btn
 let currentIAResponse = null; // Guarda o JSON completo retornado pela IA
 let activeIATab = "pre"; // Aba ativa ("pre", "inicial", "audiencia")
 let activeDetailProcessStrategy = null; // Guarda a estratégia do processo ativamente visualizado
+let activeDetailProcessObject = null; // Guarda o objeto completo do processo ativamente visualizado no modal
 
 
 // =========================================================================
@@ -1304,6 +1311,7 @@ async function openClientDetailsById(clientId) {
 function openClientDetails(c) {
   showClientesPanel("detail");
   activeClientId = c.id; // Vincula o ID do cliente globalmente
+  activeClientObject = c; // Salva o objeto do cliente globalmente
 
   // 1. Atualizar o Título do Perfil
   clientProfileTitleName.innerText = c.nome;
@@ -1803,6 +1811,9 @@ async function loadClientProcessesList() {
       processosTimelineListContainer.style.display = "none";
     }
 
+    // Carregar a Central de Documentos com os processos do cliente
+    loadClientDocumentsList(processes || []);
+
   } catch (err) {
     console.error("Erro ao buscar processos do cliente:", err.message);
   }
@@ -1811,6 +1822,7 @@ async function loadClientProcessesList() {
 // Expansão do Modal do Processo com Timeline de Andamentos (JSONB) e Estratégia IA
 function openProcessModalDetails(p) {
   activeProcessId = p.id;
+  activeDetailProcessObject = p; // Guarda o processo visualizado no modal para exportação
   modalProcessoDetail.style.display = "flex";
 
   // Preenche dados textuais
@@ -2676,4 +2688,331 @@ function renderDetailStrategyTab(tabName) {
       ${renderList("Ações Jurídicas Imediatas", acoes.proximos_passos, "var(--success-color)", passoIcon)}
     </div>
   `;
+}
+
+// =========================================================================
+// 📄 SEÇÃO: CENTRAL DE DOCUMENTOS & RELATÓRIOS EM PDF (jsPDF)
+// =========================================================================
+
+// Carrega e renderiza a listagem de processos com estratégia na Central de Documentos
+function loadClientDocumentsList(processes) {
+  if (!documentosListContainer) return;
+  documentosListContainer.innerHTML = "";
+
+  // Filtra apenas processos que possuem estratégia de IA estruturada
+  const processesWithStrategy = processes.filter(
+    (p) => p.estrategia_ia && p.estrategia_ia.estrategia_processual
+  );
+
+  if (processesWithStrategy.length > 0) {
+    documentosEmptyMsg.style.display = "none";
+    documentosListContainer.style.display = "flex";
+
+    processesWithStrategy.forEach((p) => {
+      const card = document.createElement("div");
+      card.className = "doc-item-card";
+
+      card.innerHTML = `
+        <div class="doc-item-icon-wrapper">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div class="doc-item-details">
+          <span class="doc-item-title">${p.titulo}</span>
+          <span class="doc-item-meta">Relatório de Estratégia Jurídica IA • Nº ${p.numero_processo || "Sem número"}</span>
+        </div>
+        <button type="button" class="btn-generate-pdf-doc" data-process-id="${p.id}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <span>Gerar PDF</span>
+        </button>
+      `;
+
+      const btn = card.querySelector(".btn-generate-pdf-doc");
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (activeClientObject) {
+          generateStrategyPDF(activeClientObject, p);
+        } else {
+          alert("Erro: Nenhum cliente carregado ativamente.");
+        }
+      });
+
+      documentosListContainer.appendChild(card);
+    });
+  } else {
+    documentosEmptyMsg.style.display = "block";
+    documentosListContainer.style.display = "none";
+  }
+}
+
+// Ouvinte do botão Gerar PDF no cabeçalho de Estratégia Jurídica do Modal de Detalhes
+if (btnExportarPdfEstrategia) {
+  btnExportarPdfEstrategia.addEventListener("click", () => {
+    if (activeClientObject && activeDetailProcessObject) {
+      generateStrategyPDF(activeClientObject, activeDetailProcessObject);
+    } else {
+      alert("Erro: Informações do cliente ou do processo não encontradas.");
+    }
+  });
+}
+
+// Motor de Geração Premium de PDF com jsPDF (Papel Timbrado Digital, Margens e Auto-Paginação)
+async function generateStrategyPDF(client, process) {
+  if (!window.jspdf) {
+    alert("Erro: A biblioteca de geração de PDF ainda está carregando ou falhou. Verifique sua conexão.");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF("p", "mm", "a4");
+
+  // Configurações Globais do Documento
+  let currentPageNum = 1;
+  let currentY = 30; // Margem superior inicial para conteúdo da primeira página
+  const marginX = 20;
+  const printableWidth = 170; // 210 - 20 - 20 (A4)
+  const primaryColor = [15, 23, 42]; // Azul Escuro Slate (#0F172A)
+  const goldColor = [180, 140, 50]; // Dourado Escuro para Impressão (#B48C32)
+  const textColor = [50, 50, 50]; // Grafite Escuro para Corpo
+  const lightGrayColor = [220, 220, 220]; // Linhas Divisórias
+
+  // Helper para desenhar Papel Timbrado Digital em todas as páginas
+  function drawLetterhead(pdf, pageNum) {
+    // Linha Superior de Papel Timbrado
+    pdf.setDrawColor(goldColor[0], goldColor[1], goldColor[2]);
+    pdf.setLineWidth(0.6);
+    pdf.line(marginX, 20, 210 - marginX, 20);
+
+    pdf.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    pdf.setLineWidth(0.2);
+    pdf.line(marginX, 21, 210 - marginX, 21);
+
+    // Identificação do Escritório (Top-Left)
+    pdf.setFont("times", "bold");
+    pdf.setFontSize(12);
+    pdf.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    pdf.text("JT ADVOCACIA", marginX, 15);
+
+    // Tagline / Slogan (Top-Right)
+    pdf.setFont("times", "italic");
+    pdf.setFontSize(8);
+    pdf.setTextColor(120, 120, 120);
+    pdf.text("Consultoria Jurídica de Alto Padrão", 210 - marginX, 15, { align: "right" });
+
+    // Linha e Texto de Rodapé Confidencial
+    pdf.setDrawColor(lightGrayColor[0], lightGrayColor[1], lightGrayColor[2]);
+    pdf.setLineWidth(0.2);
+    pdf.line(marginX, 280, 210 - marginX, 280);
+
+    pdf.setFont("times", "normal");
+    pdf.setFontSize(7.5);
+    pdf.setTextColor(150, 150, 150);
+    pdf.text("Documento Jurídico Confidencial • Direitos Reservados JT Advocacia", marginX, 285);
+    pdf.text(`Página ${pageNum}`, 210 - marginX, 285, { align: "right" });
+  }
+
+  // Helper para controlar a quebra de página
+  function checkPageOverflow(heightNeeded) {
+    if (currentY + heightNeeded > 268) {
+      doc.addPage();
+      currentPageNum++;
+      drawLetterhead(doc, currentPageNum);
+      currentY = 32; // Inicia o Y no topo da nova página com margem segura
+      return true;
+    }
+    return false;
+  }
+
+  // Helper para renderizar linhas de texto embrulhadas com quebra de página dinâmica
+  function printWrappedParagraphs(paragraphs, fontSize = 10, fontStyle = "normal", color = textColor, indent = 0) {
+    doc.setFont("times", fontStyle);
+    doc.setFontSize(fontSize);
+    doc.setTextColor(color[0], color[1], color[2]);
+
+    paragraphs.forEach((text) => {
+      const wrappedText = doc.splitTextToSize(text, printableWidth - indent);
+      const lineHeight = fontSize * 0.45; // mm por linha
+      const paragraphHeight = wrappedText.length * lineHeight;
+
+      checkPageOverflow(paragraphHeight + 3); // 3mm de espaçamento
+
+      wrappedText.forEach((line) => {
+        doc.text(line, marginX + indent, currentY);
+        currentY += lineHeight;
+      });
+
+      currentY += 2; // Espaço entre parágrafos
+    });
+  }
+
+  // Helper para renderizar cabeçalhos de seções no PDF
+  function printSectionTitle(title, topMargin = 6) {
+    currentY += topMargin;
+    checkPageOverflow(12);
+
+    doc.setFont("times", "bold");
+    doc.setFontSize(11);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.text(title.toUpperCase(), marginX, currentY);
+    currentY += 2;
+
+    doc.setDrawColor(goldColor[0], goldColor[1], goldColor[2]);
+    doc.setLineWidth(0.4);
+    doc.line(marginX, currentY, marginX + 30, currentY); // Traço dourado elegante de 30mm
+    currentY += 5;
+  }
+
+  // --- EXECUÇÃO DO DESENHO DO DOCUMENTO ---
+
+  // Desenha o cabeçalho/timbre inicial da Página 1
+  drawLetterhead(doc, currentPageNum);
+
+  // 1. TÍTULO DO RELATÓRIO
+  currentY = 36;
+  doc.setFont("times", "bold");
+  doc.setFontSize(16);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text("PARECER JURÍDICO DE ESTRATÉGIA PROCESSUAL", 105, currentY, { align: "center" });
+  currentY += 4;
+
+  doc.setFont("times", "italic");
+  doc.setFontSize(9);
+  doc.setTextColor(goldColor[0], goldColor[1], goldColor[2]);
+  doc.text("Análise Estruturada por Inteligência Artificial Especializada", 105, currentY, { align: "center" });
+  currentY += 8;
+
+  // 2. SEÇÃO I: QUALIFICAÇÃO DO CLIENTE & DADOS DO PROCESSO
+  printSectionTitle("I. Qualificação da Ficha e Metadados do Caso", 2);
+
+  // Construção do bloco de dados civil do cliente e do processo
+  const dataNascimentoLabel = client.tipo_pessoa === "PJ" ? "Fundação" : "Nascimento";
+  const docLabel = client.tipo_pessoa === "PJ" ? "CNPJ" : "CPF";
+  const profissaoLabel = client.tipo_pessoa === "PJ" ? "Ramo de Atuação" : "Profissão";
+
+  const clientInfo = [
+    `Cliente: ${client.nome} (${client.tipo_pessoa || "PF"})`,
+    `${docLabel}: ${client.cpf_cnpj || "Não cadastrado"}  |  ${dataNascimentoLabel}: ${client.data_nascimento_fundacao || "Não informada"}`,
+    `Contato: ${client.telefone || "Sem telefone"}  |  E-mail: ${client.email || "Não informado"}`,
+    `Endereço: ${client.endereco_completo || "Não qualificado"}`,
+  ];
+
+  printWrappedParagraphs(clientInfo, 9.5, "normal", textColor, 4);
+  currentY += 2;
+
+  // Bloco de informações do Processo
+  const valCausa = process.valor_causa 
+    ? `R$ ${process.valor_causa.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`
+    : "Não cadastrado";
+
+  const processInfo = [
+    `Título do Processo: ${process.titulo}`,
+    `Número Único CNJ: ${process.numero_processo || "Em fase pré-processual / não distribuído"}`,
+    `Área do Direito: ${process.area_direito || "Não informada"}  |  Valor da Causa: ${valCausa}`,
+    `Tribunal de Destino: ${process.tribunal || "Não especificado"}  |  Vara / Comarca: ${process.vara || "Não qualificada"}`,
+    `Status Processual: ${process.status || "Ativo"}`
+  ];
+
+  doc.setDrawColor(lightGrayColor[0], lightGrayColor[1], lightGrayColor[2]);
+  doc.setLineWidth(0.15);
+  doc.line(marginX, currentY, 210 - marginX, currentY); // Linha divisória fina
+  currentY += 5;
+
+  printWrappedParagraphs(processInfo, 9.5, "normal", textColor, 4);
+  currentY += 4;
+
+  // 3. SEÇÃO II: ESTRATÉGIA PROCESSUAL POR FASES (PROMPT 6)
+  printSectionTitle("II. estratégia jurídica recomendada", 4);
+
+  const strategy = process.estrategia_ia;
+
+  if (strategy && strategy.estrategia_processual && Array.isArray(strategy.estrategia_processual)) {
+    strategy.estrategia_processual.forEach((phase) => {
+      // Título da Fase Processual
+      checkPageOverflow(14);
+      currentY += 3;
+      doc.setFont("times", "bold");
+      doc.setFontSize(10.5);
+      doc.setTextColor(goldColor[0], goldColor[1], goldColor[2]);
+      doc.text(`> FASE: ${phase.fase.toUpperCase()}`, marginX, currentY);
+      currentY += 5;
+
+      const acoes = phase.acoes || {};
+
+      // Função auxiliar para renderizar listas no PDF
+      const printBulletList = (sectionTitle, items, isRisco = false) => {
+        if (!items || !Array.isArray(items) || items.length === 0) return;
+
+        checkPageOverflow(10);
+        doc.setFont("times", "bold");
+        doc.setFontSize(9);
+        doc.setTextColor(isRisco ? 180 : primaryColor[0], isRisco ? 40 : primaryColor[1], isRisco ? 40 : primaryColor[2]);
+        doc.text(sectionTitle, marginX + 4, currentY);
+        currentY += 4;
+
+        items.forEach((item) => {
+          const bulletSymbol = "•  ";
+          const itemText = bulletSymbol + item;
+          const wrapped = doc.splitTextToSize(itemText, printableWidth - 8);
+          const lineHeight = 4.2;
+          const heightNeeded = wrapped.length * lineHeight;
+
+          checkPageOverflow(heightNeeded + 1.5);
+
+          wrapped.forEach((line, index) => {
+            doc.setFont("times", "normal");
+            doc.setFontSize(8.5);
+            doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+            // Alinhamento com indentação na segunda linha do mesmo item
+            const indentX = index === 0 ? marginX + 8 : marginX + 11;
+            doc.text(line, indentX, currentY);
+            currentY += lineHeight;
+          });
+          currentY += 1; // Pequeno respiro entre bullets
+        });
+        currentY += 2; // Respiro entre seções da mesma fase
+      };
+
+      // Imprime as subdivisões estratégicas da fase
+      printBulletList("Teses Jurídicas Sugeridas", acoes.teses_juridicas);
+      printBulletList("Documentos Indispensáveis", acoes.documentos_necessarios);
+      printBulletList("Fundamentação Legal Recomendada", acoes.fundamentacao_legal);
+      printBulletList("Riscos e Alertas de Atenção", acoes.riscos_e_alertas, true);
+      printBulletList("Ações e Diligências Imediatas", acoes.proximos_passos);
+      
+      currentY += 3;
+    });
+  } else {
+    printWrappedParagraphs(
+      ["Nenhuma estratégia detalhada gerada via Inteligência Artificial foi encontrada para este processo."],
+      9.5,
+      "italic",
+      textColor,
+      4
+    );
+  }
+
+  // 4. SEÇÃO IV: FECHAMENTO / ASSINATURA
+  checkPageOverflow(32);
+  currentY += 10;
+  
+  doc.setDrawColor(goldColor[0], goldColor[1], goldColor[2]);
+  doc.setLineWidth(0.3);
+  doc.line(70, currentY, 140, currentY); // Linha centralizada para assinatura
+  currentY += 4.5;
+
+  doc.setFont("times", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text("JT ADVOCACIA E ASSOCIADOS", 105, currentY, { align: "center" });
+  currentY += 4;
+
+  doc.setFont("times", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(120, 120, 120);
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
+  doc.text(`Documento emitido em ${dateStr}`, 105, currentY, { align: "center" });
+
+  // Dispara o download automático do PDF
+  const safeClientName = client.nome.replace(/[^a-zA-Z0-9]/g, "_");
+  doc.save(`Estrategia_JT_Advocacia_${safeClientName}.pdf`);
 }

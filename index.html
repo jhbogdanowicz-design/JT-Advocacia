@@ -1004,7 +1004,6 @@
                   <!-- Inserido dinamicamente via JS -->
                 </div>
               </div>
-
               <!-- SEÇÃO 3: PROCESSOS VINCULADOS -->
               <div class="detail-card-panel">
                 <div class="panel-header-flex" style="margin-bottom: 16px;">
@@ -1017,6 +1016,21 @@
                 </div>
 
                 <div class="processos-timeline-list" id="processos-timeline-list-container" style="display: none; display:flex; flex-direction:column; gap:12px;">
+                  <!-- Inserido dinamicamente via JS -->
+                </div>
+              </div>
+
+              <!-- SEÇÃO 4: CENTRAL DE DOCUMENTOS -->
+              <div class="detail-card-panel" style="margin-top: 24px;">
+                <div class="panel-header-flex" style="margin-bottom: 16px;">
+                  <h3 style="font-size:16px; font-weight:600; color:var(--text-primary);">Central de Documentos</h3>
+                </div>
+
+                <div id="documentos-empty-msg" class="inactive-empty" style="margin-top: 15px;">
+                  Nenhum relatório de estratégia de IA gerado para este cliente ainda.
+                </div>
+
+                <div class="documentos-list" id="documentos-list-container" style="display: none; display:flex; flex-direction:column; gap:12px;">
                   <!-- Inserido dinamicamente via JS -->
                 </div>
               </div>
@@ -1164,6 +1178,10 @@
         <div id="detail-estrategia-container" style="display: none;">
           <h4 style="margin-bottom: 16px; font-weight: 600; color: var(--gold); display:flex; justify-content:space-between; align-items:center;">
             <span>⚡ Estratégia Jurídica de Linha de Ação</span>
+            <button type="button" class="btn-secondary" id="btn-exportar-pdf-estrategia" style="width: auto; padding: 6px 12px; font-size: 11px; margin-top: 0; background: rgba(212, 175, 55, 0.08); color: var(--gold); border: 1px solid var(--gold); border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              <span>Gerar Relatório PDF</span>
+            </button>
           </h4>
           
           <div class="ia-strategy-view-tabs" style="display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--input-border); padding-bottom: 8px; overflow-x: auto;">
@@ -1489,6 +1507,7 @@
        IMPORTAÇÃO DO SDK DO SUPABASE E SCRIPT DA APLICAÇÃO
        ========================================================================= -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script type="module" src="app.js"></script>
 </body>
 </html>
