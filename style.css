@@ -1864,54 +1864,166 @@ body {
   border-top: 1px solid rgba(255, 255, 255, 0.03);
 }
 
-.landing-areas-list {
+.landing-areas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  margin-top: 50px;
+}
+
+@media (min-width: 992px) {
+  .landing-areas-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .specialty-card.destaque {
+    grid-column: span 1;
+    border-color: rgba(197, 168, 92, 0.25);
+    background: rgba(197, 168, 92, 0.02);
+    box-shadow: 0 4px 20px rgba(197, 168, 92, 0.03);
+  }
+}
+
+.specialty-card {
+  position: relative;
+  background: rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  padding: 32px;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   gap: 20px;
-  max-width: 900px;
-  margin: 0 auto;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
-.landing-area-item {
-  background: rgba(15, 23, 42, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.02);
-  border-radius: 8px;
-  padding: 30px 40px;
-  transition: all 0.3s ease;
+.specialty-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  border-color: rgba(197, 168, 92, 0.35) !important;
+  box-shadow: 0 12px 30px rgba(197, 168, 92, 0.06);
+  background: rgba(15, 23, 42, 0.55);
 }
 
-.landing-area-item:hover {
-  background: rgba(15, 23, 42, 0.45);
-  border-color: rgba(197, 168, 92, 0.2);
-  transform: translateX(5px);
+.specialty-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.landing-area-header {
+.specialty-icon-wrapper {
+  padding: 10px;
+  background: rgba(197, 168, 92, 0.08);
+  border: 1px solid rgba(197, 168, 92, 0.2);
+  border-radius: 12px;
+  color: var(--gold);
   display: flex;
   align-items: center;
-  gap: 24px;
-  margin-bottom: 12px;
+  justify-content: center;
+  transition: transform 0.3s ease;
 }
 
-.landing-area-num {
-  font-family: 'Outfit', sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  color: #c5a85c;
-  opacity: 0.8;
+.specialty-icon-wrapper svg {
+  width: 24px;
+  height: 24px;
 }
 
-.landing-area-name {
+.specialty-card:hover .specialty-icon-wrapper {
+  transform: scale(1.1);
+}
+
+.specialty-num {
   font-family: 'Playfair Display', serif;
-  font-size: 22px;
-  color: #ffffff;
+  font-size: 26px;
+  font-style: italic;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.05);
+  transition: color 0.3s ease;
+  user-select: none;
 }
 
-.landing-area-desc {
-  font-size: 14px;
+.specialty-card:hover .specialty-num {
+  color: rgba(197, 168, 92, 0.15);
+}
+
+.specialty-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-grow: 1;
+}
+
+.specialty-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: rgba(197, 168, 92, 0.12);
+  border: 1px solid rgba(197, 168, 92, 0.2);
+  padding: 3px 8px;
+  border-radius: 4px;
+  width: max-content;
+  margin-bottom: 4px;
+}
+
+.specialty-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 19px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+  transition: color 0.2s ease;
+}
+
+.specialty-card:hover .specialty-title {
+  color: var(--gold);
+}
+
+.specialty-foco {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: rgba(197, 168, 92, 0.8);
+}
+
+.specialty-desc {
+  font-size: 13.5px;
+  font-weight: 300;
   line-height: 1.6;
   color: #94a3b8;
-  padding-left: 40px;
+  margin: 8px 0 0 0;
+  transition: color 0.2s ease;
+}
+
+.specialty-card:hover .specialty-desc {
+  color: #cbd5e1;
+}
+
+.specialty-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  border-top: 1px solid rgba(255, 255, 255, 0.03);
+  padding-top: 14px;
+  transition: color 0.3s ease;
+}
+
+.arrow-icon {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.3s ease;
+}
+
+.specialty-card:hover .specialty-footer {
+  color: var(--gold);
+}
+
+.specialty-card:hover .arrow-icon {
+  transform: translateX(4px);
 }
 
 /* FOOTER */
