@@ -1214,39 +1214,12 @@
           <label class="form-label" for="edit-lawyer-phone">Telefone / Contato</label>
           <input type="text" id="edit-lawyer-phone" class="form-input-premium" placeholder="Ex: (11) 99999-9999">
         </div>
-        <div class="form-group" style="margin-top: 15px; margin-bottom: 10px;">
-          <button type="button" class="btn-landing-restricted" id="btn-trigger-mfa" style="width: 100%; border-color: var(--gold); color: var(--gold);">Configurar Segurança Duas Etapas (2FA)</button>
-        </div>
         <button type="submit" class="btn-primary" id="btn-save-lawyer-profile">Salvar Alterações</button>
       </form>
     </div>
   </div>
 
-  <!-- MODAL 3B: DESAFIO MFA / 2FA (MULTI-FACTOR AUTHENTICATION) -->
-  <div class="modal-overlay" id="modal-mfa-challenge" style="display: none; z-index: 1200;">
-    <div class="modal-card" style="max-width: 380px;">
-      <div class="modal-header">
-        <h3>Segurança Duas Etapas (2FA)</h3>
-        <button type="button" class="btn-close-modal" id="btn-close-modal-mfa">&times;</button>
-      </div>
-      <div style="text-align: center; margin-bottom: 20px;">
-        <span style="font-size: 32px; display: block; margin-bottom: 10px;">🔒</span>
-        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
-          Insira o código MFA de 6 dígitos enviado ao seu aplicativo autenticador para confirmar a ativação do 2FA.
-        </p>
-      </div>
-      <form id="mfa-challenge-form">
-        <div class="form-group">
-          <input type="text" id="mfa-token-input" class="form-input-premium" placeholder="000000" maxlength="6" style="text-align: center; font-size: 20px; letter-spacing: 0.3em; font-weight: 700; height: 48px;" required>
-        </div>
-        <div id="mfa-error-msg" class="message-box" style="display: none; margin-bottom: 15px; padding: 10px; font-size: 11px;"></div>
-        <div style="display: flex; gap: 12px; margin-top: 20px;">
-          <button type="button" class="btn-landing-secondary" id="btn-cancel-mfa" style="flex: 1; padding: 10px 0; font-size: 12px;">Cancelar</button>
-          <button type="submit" class="btn-primary" id="btn-confirm-mfa" style="flex: 1; padding: 10px 0; font-size: 12px;">Confirmar</button>
-        </div>
-      </form>
-    </div>
-  </div>
+
 
   <!-- =========================================================================
        MODAL 4: EDITAR PROCESSO JUDICIAL

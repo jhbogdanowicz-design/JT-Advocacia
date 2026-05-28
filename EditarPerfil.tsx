@@ -29,12 +29,7 @@ export const EditarPerfil: React.FC = () => {
   // Estados de Controle de UI
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
-  
-  // Controle do modal de verificação 2FA (MFA)
-  const [showMfaModal, setShowMfaModal] = useState(false);
-  const [mfaCode, setMfaCode] = useState("");
-  const [mfaLoading, setMfaLoading] = useState(false);
-  const [mfaError, setMfaError] = useState("");
+
 
   // Efeito para carregar dados do usuário autenticado no início
   useEffect(() => {
@@ -140,43 +135,7 @@ export const EditarPerfil: React.FC = () => {
     }
   };
 
-  // Simula ou ativa o desafio de 2FA (MFA)
-  const handleToggle2FA = () => {
-    setMfaError("");
-    setMfaCode("");
-    setShowMfaModal(true);
-  };
 
-  const handleVerifyMfaChallenge = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (mfaCode.length < 6) {
-      setMfaError("O código de verificação deve conter 6 dígitos.");
-      return;
-    }
-
-    try {
-      setMfaLoading(true);
-      setMfaError("");
-      
-      // Arquitetura de desafio pronta para Supabase MFA
-      // const challenge = await supabase.auth.mfa.challenge({ factorId: '...' });
-      // const verify = await supabase.auth.mfa.verify({ factorId: '...', challengeId: challenge.data.id, code: mfaCode });
-      
-      // Simulação de chamada de validação do token
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      
-      if (mfaCode === "123456" || mfaCode.startsWith("0")) { // Mocks de teste
-        showToast("Fator de Autenticação Dupla (2FA) configurado com sucesso!", "success");
-        setShowMfaModal(false);
-      } else {
-        throw new Error("Código de segurança inválido ou expirado. Tente novamente.");
-      }
-    } catch (err: any) {
-      setMfaError(err.message || "Falha ao validar desafio 2FA.");
-    } finally {
-      setMfaLoading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-[#070A13] text-[#F8FAFC] flex items-center justify-center p-6 relative overflow-hidden">
@@ -293,27 +252,6 @@ export const EditarPerfil: React.FC = () => {
               </div>
             </div>
 
-            {/* Extra Security Settings (2FA) */}
-            <div className="pt-4 border-t border-[#1E293B]/80 flex flex-col gap-3">
-              <h3 className="text-sm font-semibold tracking-wide text-slate-200">
-                Segurança Adicional
-              </h3>
-              <div className="flex items-center justify-between bg-[#1E293B]/20 border border-[#1E293B]/40 rounded-xl p-4">
-                <div>
-                  <h4 className="text-xs font-medium text-slate-300">Autenticação em Duas Etapas (2FA)</h4>
-                  <p className="text-[11px] text-slate-500 mt-0.5 font-light">
-                    Exija um código numérico temporário ao realizar o login.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleToggle2FA}
-                  className="px-3.5 py-1.5 rounded-lg border border-[#D4AF37]/40 hover:border-[#D4AF37] text-xs font-semibold text-[#D4AF37] hover:bg-[#D4AF37]/5 transition-all outline-none"
-                >
-                  Configurar 2FA
-                </button>
-              </div>
-            </div>
 
             {/* Buttons */}
             <div className="pt-2 flex justify-end gap-3">
@@ -328,67 +266,6 @@ export const EditarPerfil: React.FC = () => {
           </form>
         )}
       </div>
-
-      {/* MFA Challenge / 2FA Validation Modal */}
-      {showMfaModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="w-full max-w-sm bg-[#0F172A] border border-[#1E293B] rounded-2xl p-6 shadow-2xl relative">
-            <button
-              onClick={() => setShowMfaModal(false)}
-              className="absolute top-4 right-4 text-slate-500 hover:text-slate-200 text-xl font-bold bg-none border-none cursor-pointer"
-            >
-              &times;
-            </button>
-            <div className="text-center mb-6">
-              <div className="w-12 h-12 bg-[#D4AF37]/10 border border-[#D4AF37]/20 rounded-full flex items-center justify-center text-[#D4AF37] text-xl mx-auto mb-4">
-                🔒
-              </div>
-              <h3 className="text-lg font-playfair font-semibold text-slate-100">
-                Verificação de Segurança
-              </h3>
-              <p className="text-xs text-slate-400 mt-1.5 font-light leading-relaxed">
-                Insira o código MFA de 6 dígitos enviado ao seu dispositivo autenticador.
-              </p>
-            </div>
-
-            <form onSubmit={handleVerifyMfaChallenge} className="space-y-4">
-              <div className="flex flex-col gap-2">
-                <input
-                  type="text"
-                  maxLength={6}
-                  value={mfaCode}
-                  onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, ""))}
-                  placeholder="000000"
-                  required
-                  className="w-full h-11 text-center bg-[#070A13] border border-[#1E293B] focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] rounded-lg text-lg font-bold tracking-[0.4em] text-slate-200 outline-none transition-colors"
-                />
-                {mfaError && (
-                  <p className="text-[11px] text-[#EF4444] bg-[#EF4444]/5 border border-[#EF4444]/10 p-2 rounded text-center">
-                    {mfaError}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setShowMfaModal(false)}
-                  className="w-1/2 h-11 rounded-lg border border-[#1E293B] hover:border-slate-500 text-xs font-semibold text-slate-400 hover:text-slate-200 transition-colors outline-none cursor-pointer"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={mfaLoading}
-                  className="w-1/2 h-11 rounded-lg bg-[#D4AF37] hover:bg-[#F3E5AB] text-[#070A13] font-semibold text-xs transition-colors flex items-center justify-center outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {mfaLoading ? "Confirmando..." : "Confirmar"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -195,13 +195,6 @@ const editLawyerName = document.getElementById("edit-lawyer-name");
 const editLawyerOab = document.getElementById("edit-lawyer-oab");
 const editLawyerEmail = document.getElementById("edit-lawyer-email");
 const editLawyerPhone = document.getElementById("edit-lawyer-phone");
-const btnTriggerMfa = document.getElementById("btn-trigger-mfa");
-const modalMfaChallenge = document.getElementById("modal-mfa-challenge");
-const btnCloseModalMfa = document.getElementById("btn-close-modal-mfa");
-const btnCancelMfa = document.getElementById("btn-cancel-mfa");
-const mfaChallengeForm = document.getElementById("mfa-challenge-form");
-const mfaTokenInput = document.getElementById("mfa-token-input");
-const mfaErrorMsg = document.getElementById("mfa-error-msg");
 
 const btnEditProcessTrigger = document.getElementById("btn-edit-process-trigger");
 const modalEditProcess = document.getElementById("modal-edit-process");
@@ -1950,7 +1943,7 @@ supabase.auth.onAuthStateChange(async (event, session) => {
 });
 
 // =========================================================================
-// ⚙️ SEÇÃO: EDIÇÃO DO PERFIL DO ADVOGADO & MFA (2FA)
+// ⚙️ SEÇÃO: EDIÇÃO DO PERFIL DO ADVOGADO
 // =========================================================================
 const handleEditProfile = async () => {
   try {
@@ -2049,53 +2042,7 @@ editLawyerForm.addEventListener("submit", async (e) => {
   }
 });
 
-// Ações de MFA / 2FA (Multi-Factor Authentication)
-btnTriggerMfa.addEventListener("click", () => {
-  mfaErrorMsg.style.display = "none";
-  mfaTokenInput.value = "";
-  modalMfaChallenge.style.display = "flex";
-});
 
-const closeMfaModal = () => {
-  modalMfaChallenge.style.display = "none";
-};
-
-btnCloseModalMfa.addEventListener("click", closeMfaModal);
-btnCancelMfa.addEventListener("click", closeMfaModal);
-
-mfaChallengeForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const token = mfaTokenInput.value.replace(/\D/g, "");
-
-  if (token.length < 6) {
-    mfaErrorMsg.innerText = "O código deve ter 6 dígitos numéricos.";
-    mfaErrorMsg.style.display = "block";
-    mfaErrorMsg.className = "message-box error";
-    return;
-  }
-
-  try {
-    setLoadingState(document.getElementById("btn-confirm-mfa"), true, "Validando...");
-    mfaErrorMsg.style.display = "none";
-
-    // Simulação do desafio de MFA / 2FA (completamente compatível com o Supabase MFA API)
-    await new Promise((resolve) => setTimeout(resolve, 1200));
-
-    // Código aceito para testes de demonstração
-    if (token === "123456" || token.startsWith("0")) {
-      alert("Autenticação em Duas Etapas (2FA) configurada e ativada com sucesso!");
-      closeMfaModal();
-    } else {
-      throw new Error("Código 2FA incorreto ou expirado. Tente novamente.");
-    }
-  } catch (err) {
-    mfaErrorMsg.innerText = err.message;
-    mfaErrorMsg.style.display = "block";
-    mfaErrorMsg.className = "message-box error";
-  } finally {
-    setLoadingState(document.getElementById("btn-confirm-mfa"), false, "Confirmar");
-  }
-});
 
 // =========================================================================
 // ⚖️ SEÇÃO: EDIÇÃO DE PROCESSOS VINCULADOS
