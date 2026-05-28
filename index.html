@@ -1,14 +1,1047 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/logo.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="JT Advocacia - Sistema premium de gestão jurídica, processos judiciais, clientes e compromissos com segurança isolada e de ponta." />
-    <title>JT Advocacia - Gestão Jurídica Inteligente</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JT Advocacia</title>
+  <meta name="description" content="Sistema sofisticado de gestão jurídica para advocacia moderna. Acesse seus processos, clientes e compromissos com segurança.">
+  <link rel="stylesheet" href="style.css">
+  <!-- Favicon configurado com o logotipo oficial -->
+  <link rel="icon" type="image/jpeg" href="logo.jpg">
+</head>
+<body data-theme="dark"> <!-- Inicia no modo escuro por padrão jurídico elegante, alternável via botão -->
+
+  <!-- =========================================================================
+       ÁREA PÚBLICA: AUTENTICAÇÃO (MOSTRADA QUANDO DESLOGADO)
+       ========================================================================= -->
+  <div class="container" id="auth-container">
+    
+    <header class="auth-header">
+      <button class="theme-toggle-btn" id="theme-toggle-auth" aria-label="Alternar esquema de cores">
+        <!-- Ícone Sol (Modo Claro) -->
+        <svg id="theme-sun-auth" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="display: none; width: 18px; height: 18px; fill: currentColor;">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41m12.72-12.72l-1.41 1.41"/>
+        </svg>
+        <!-- Ícone Lua (Modo Escuro) -->
+        <svg id="theme-moon-auth" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 18px; height: 18px; fill: currentColor;">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+        <span id="theme-text-auth">Modo Claro</span>
+      </button>
+    </header>
+
+    <!-- TELA 1: LOGIN -->
+    <section id="view-login" class="view-section active">
+      <div class="auth-card">
+        
+        <div class="logo-container">
+          <img src="logo.jpg" alt="Logo JT Advocacia" style="height: 80px; width: auto; margin-bottom: 12px; filter: drop-shadow(0 0 8px rgba(197, 168, 92, 0.15)); border-radius: 8px;">
+          <h2 class="logo-text">JT Advocacia</h2>
+        </div>
+
+        <h3 class="form-title">Acesse sua conta</h3>
+        <p class="form-subtitle">Digite suas credenciais abaixo para entrar no sistema.</p>
+
+        <div id="login-message" class="message-box"></div>
+
+        <form id="login-form">
+          <div class="form-group">
+            <label class="form-label" for="login-email">E-mail</label>
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              </span>
+              <input type="email" id="login-email" class="form-input" placeholder="exemplo@adv.com.br" required autocomplete="email">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="login-password">Senha de acesso</label>
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </span>
+              <input type="password" id="login-password" class="form-input" placeholder="Digite sua senha" minlength="6" required autocomplete="current-password">
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary" id="btn-login-submit">Entrar</button>
+        </form>
+
+        <div class="auth-footer">
+          Não tem conta? <a href="#" class="auth-link" id="link-go-signup">Cadastre-se</a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TELA 2: CADASTRO -->
+    <section id="view-signup" class="view-section">
+      <div class="auth-card">
+        
+        <div class="logo-container">
+          <img src="logo.jpg" alt="Logo JT Advocacia" style="height: 80px; width: auto; margin-bottom: 12px; filter: drop-shadow(0 0 8px rgba(197, 168, 92, 0.15)); border-radius: 8px;">
+          <h2 class="logo-text">JT Advocacia</h2>
+          <span class="logo-subtext">Criar Conta</span>
+        </div>
+
+        <h3 class="form-title">Cadastre-se no sistema</h3>
+        <p class="form-subtitle">Preencha as informações profissionais solicitadas.</p>
+
+        <div id="signup-message" class="message-box"></div>
+
+        <form id="signup-form">
+          <div class="form-group">
+            <label class="form-label" for="signup-treatment">Título de Tratamento</label>
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </span>
+              <select id="signup-treatment" class="form-input" style="appearance: none; -webkit-appearance: none; cursor: pointer; padding-right: 32px;" required>
+                <option value="Dr." selected>Dr. (Masculino)</option>
+                <option value="Dra.">Dra. (Feminino)</option>
+              </select>
+              <span class="input-icon" style="left: auto; right: 16px; pointer-events: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="signup-name">Nome completo</label>
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </span>
+              <input type="text" id="signup-name" class="form-input" placeholder="Nome Sobrenome" required autocomplete="name">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="signup-email">E-mail</label>
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              </span>
+              <input type="email" id="signup-email" class="form-input" placeholder="exemplo@adv.com.br" required autocomplete="email">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="signup-oab">Número da OAB (Opcional)</label>
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </span>
+              <input type="text" id="signup-oab" class="form-input" placeholder="Ex: OAB/SP 123456">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="signup-password">Senha (mínimo 6 caracteres)</label>
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </span>
+              <input type="password" id="signup-password" class="form-input" placeholder="Digite sua senha" minlength="6" required autocomplete="new-password">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="signup-password-confirm">Confirmar Senha</label>
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </span>
+              <input type="password" id="signup-password-confirm" class="form-input" placeholder="Confirme sua senha" minlength="6" required autocomplete="new-password">
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary" id="btn-signup-submit">Criar conta</button>
+        </form>
+
+        <div class="auth-footer">
+          Já tem conta? <a href="#" class="auth-link" id="link-go-login">Faça login</a>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+  <!-- =========================================================================
+       ÁREA PRIVADA: INTERNA ADMINISTRATIVA (MOSTRADA QUANDO LOGADO)
+       ========================================================================= -->
+  <div id="app-layout" style="display: none;">
+    
+    <!-- Sidebar fixa à esquerda -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <img src="logo.jpg" alt="Logo JT Advocacia">
+        <div class="logo-title">
+          <h2>JT</h2>
+          <span>ADVOCACIA</span>
+        </div>
+      </div>
+      
+      <!-- Menu de Navegação -->
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-view="dashboard">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+          <span>Dashboard</span>
+        </a>
+        <a href="#" class="nav-item" data-view="clientes">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Clientes</span>
+        </a>
+        <a href="#" class="nav-item" data-view="processos">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <span>Processos</span>
+        </a>
+        <a href="#" class="nav-item" data-view="agenda">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>Agenda</span>
+        </a>
+      </nav>
+
+      <!-- Rodapé do menu com Perfil e Logout -->
+      <div class="sidebar-footer">
+        <div class="user-badge" id="btn-edit-lawyer-profile" style="cursor: pointer;" title="Editar meu perfil profissional">
+          <div class="user-avatar" id="sidebar-user-avatar">JT</div>
+          <div class="user-meta">
+            <span class="user-name" id="sidebar-user-name">Carregando...</span>
+            <span class="user-oab" id="sidebar-user-oab">OAB/SP ------</span>
+          </div>
+        </div>
+        <button class="btn-logout-sidebar" id="btn-logout" title="Sair do sistema">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <span>Sair</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Área principal de conteúdo administrativo -->
+    <main class="main-content">
+      
+      <!-- Top Bar Global Interna -->
+      <div class="top-bar">
+        <div class="top-bar-welcome">
+          <h1 id="welcome-message">Carregando painel...</h1>
+        </div>
+        
+        <div class="top-bar-actions">
+          <button class="theme-toggle-btn" id="theme-toggle-inner" aria-label="Alternar esquema de cores">
+            <svg id="theme-sun-inner" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="display: none; width: 18px; height: 18px; fill: currentColor;">
+              <circle cx="12" cy="12" r="4"/>
+              <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41m12.72-12.72l-1.41 1.41"/>
+            </svg>
+            <svg id="theme-moon-inner" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 18px; height: 18px; fill: currentColor;">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+            <span id="theme-text-inner">Modo Claro</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- =========================================================================
+           DASHBOARD VIEW
+           ========================================================================= -->
+      <section id="view-dashboard" class="content-view active">
+        
+        <!-- Grade de Métricas (Cards 1 e 2) -->
+        <div class="metrics-grid">
+          
+          <!-- CARD 1: Clientes Ativos -->
+          <div class="metrics-card">
+            <div class="card-icon" style="background: rgba(197, 168, 92, 0.1); color: var(--gold);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            </div>
+            <div class="card-info">
+              <h3>Clientes Ativos</h3>
+              <p id="metric-clients-count" class="metric-number">0</p>
+              <span class="card-subtitle">Clientes registrados em sua carteira</span>
+            </div>
+          </div>
+
+          <!-- CARD 2: Compromissos da Semana -->
+          <div class="metrics-card">
+            <div class="card-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success-color);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div class="card-info">
+              <h3>Compromissos da Semana</h3>
+              <p id="metric-events-count" class="metric-number">0</p>
+              <span class="card-subtitle">Prazos, reuniões e audiências nesta semana</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- CARD 3: Processos Parados (Sem Movimentação > 30 dias) -->
+        <div class="inactive-processes-card">
+          <div class="card-header-flex">
+            <div>
+              <h3>Processos Parados (> 30 Dias)</h3>
+              <p class="section-desc">Ações judiciais ativas sem nenhuma movimentação processual ou anotação recente no último mês.</p>
+            </div>
+            <span class="badge-count" id="inactive-badge-count">0</span>
+          </div>
+
+          <!-- Container com Lista Rolável -->
+          <div class="inactive-list-wrapper">
+            <div id="inactive-list-placeholder" class="inactive-empty">
+              <!-- Renderizado dinamicamente via JS -->
+              Carregando processos...
+            </div>
+            <ul class="inactive-list" id="inactive-processes-list" style="display: none;">
+              <!-- Elementos criados via JS -->
+            </ul>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- =========================================================================
+           VIEW PLACEHOLDERS (CLIENTES, PROCESSOS, AGENDA)
+           ========================================================================= -->
+      
+      <!-- =========================================================================
+           CLIENTES VIEW (LISTAGEM, CADASTRO, DETALHES)
+           ========================================================================= -->
+      <section id="view-clientes" class="content-view">
+        
+        <!-- 1. PAINEL DE LISTAGEM DE CLIENTES -->
+        <div id="clientes-list-panel">
+          <div class="panel-header-flex">
+            <div>
+              <h2 class="panel-main-title">Carteira de Clientes</h2>
+              <p class="section-desc">Gerencie os dados e o histórico processual dos seus clientes com segurança.</p>
+            </div>
+            <button class="btn-primary" id="btn-novo-cliente" style="width: auto; margin-top: 0; padding: 10px 20px;">+ Novo Cliente</button>
+          </div>
+
+          <!-- Barra de busca -->
+          <div class="search-bar-wrapper">
+            <span class="search-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </span>
+            <input type="text" id="clientes-search-input" class="search-input" placeholder="Pesquisar por nome ou CPF/CNPJ...">
+          </div>
+
+          <!-- Listagem física de clientes -->
+          <div id="clientes-list-empty" class="inactive-empty" style="margin-top: 20px;">
+            Nenhum cliente cadastrado ainda.
+          </div>
+          <div class="clientes-grid" id="clientes-grid-list" style="display: none;">
+            <!-- Renderizado dinamicamente via JS -->
+          </div>
+        </div>
+
+        <!-- 2. PAINEL DO FORMULÁRIO DE CADASTRO -->
+        <div id="clientes-form-panel" style="display: none;">
+          <div class="panel-header-flex" style="margin-bottom: 20px;">
+            <div>
+              <h2 class="panel-main-title">Cadastrar Novo Cliente</h2>
+              <p class="section-desc">Insira as qualificações civis e jurídicas para contratos e petições.</p>
+            </div>
+            <button class="btn-secondary" id="btn-cancelar-cadastro" style="padding: 10px 20px;">Cancelar</button>
+          </div>
+
+          <div class="form-tabs">
+            <button class="form-tab-btn active" data-tab="identificacao">1. Identificação</button>
+            <button class="form-tab-btn" data-tab="qualificacao">2. Qualificação</button>
+            <button class="form-tab-btn" data-tab="juridico">3. Dados Jurídicos</button>
+          </div>
+
+          <form id="cliente-cadastro-form">
+            
+            <!-- ABA 1: IDENTIFICAÇÃO -->
+            <div class="form-tab-content active" id="tab-identificacao">
+              <div class="form-grid">
+                <div class="form-group col-span-2">
+                  <label class="form-label" for="client-nome">Nome Completo / Razão Social <span style="color:var(--error-color);">*</span></label>
+                  <input type="text" id="client-nome" class="form-input-premium" placeholder="Nome completo do cliente" required>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">Tipo de Pessoa</label>
+                  <div class="radio-group-flex">
+                    <label class="radio-label">
+                      <input type="radio" name="client-tipo-pessoa" value="PF" checked> Pessoa Física (PF)
+                    </label>
+                    <label class="radio-label">
+                      <input type="radio" name="client-tipo-pessoa" value="PJ"> Pessoa Jurídica (PJ)
+                    </label>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="client-cpf-cnpj" id="lbl-cpf-cnpj">CPF</label>
+                  <input type="text" id="client-cpf-cnpj" class="form-input-premium" placeholder="000.000.000-00">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="client-data-nasc" id="lbl-data-nasc">Data de Nascimento</label>
+                  <input type="date" id="client-data-nasc" class="form-input-premium">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="client-telefone">Telefone</label>
+                  <input type="text" id="client-telefone" class="form-input-premium" placeholder="(00) 00000-0000">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="client-whatsapp">WhatsApp</label>
+                  <input type="text" id="client-whatsapp" class="form-input-premium" placeholder="(00) 00000-0000">
+                </div>
+
+                <div class="form-group col-span-2">
+                  <label class="form-label" for="client-email">E-mail de Contato</label>
+                  <input type="email" id="client-email" class="form-input-premium" placeholder="cliente@provedor.com">
+                </div>
+              </div>
+              <div class="form-navigation-flex">
+                <button type="button" class="btn-primary btn-next-tab" data-next="qualificacao" style="width:auto; padding:12px 24px;">Avançar: Qualificação</button>
+              </div>
+            </div>
+
+            <!-- ABA 2: QUALIFICAÇÃO -->
+            <div class="form-tab-content" id="tab-qualificacao">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label" for="client-estado-civil">Estado Civil</label>
+                  <select id="client-estado-civil" class="form-input-premium">
+                    <option value="">Selecione...</option>
+                    <option value="Solteiro(a)">Solteiro(a)</option>
+                    <option value="Casado(a)">Casado(a)</option>
+                    <option value="Divorciado(a)">Divorciado(a)</option>
+                    <option value="Viúvo(a)">Viúvo(a)</option>
+                    <option value="União Estável">União Estável</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="client-profissao" id="lbl-profissao">Profissão</label>
+                  <input type="text" id="client-profissao" class="form-input-premium" placeholder="Ex: Engenheiro Civil">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="client-rg-ie" id="lbl-rg-ie">RG</label>
+                  <input type="text" id="client-rg-ie" class="form-input-premium" placeholder="Ex: 12.345.678-9">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="client-cep">CEP (Preenchimento Automático)</label>
+                  <input type="text" id="client-cep" class="form-input-premium" placeholder="00000-000">
+                </div>
+
+                <div class="form-group col-span-2">
+                  <label class="form-label" for="client-endereco-rua">Logradouro / Rua e Número</label>
+                  <input type="text" id="client-endereco-rua" class="form-input-premium" placeholder="Rua Nome da Rua, 123">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="client-endereco-comp">Complemento</label>
+                  <input type="text" id="client-endereco-comp" class="form-input-premium" placeholder="Apto 45, Bloco B">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="client-endereco-bairro">Bairro</label>
+                  <input type="text" id="client-endereco-bairro" class="form-input-premium" placeholder="Centro">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="client-endereco-cidade">Cidade</label>
+                  <input type="text" id="client-endereco-cidade" class="form-input-premium" placeholder="São Paulo">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="client-endereco-estado">Estado (UF)</label>
+                  <input type="text" id="client-endereco-estado" class="form-input-premium" placeholder="SP">
+                </div>
+              </div>
+              <div class="form-navigation-flex">
+                <button type="button" class="btn-secondary btn-prev-tab" data-prev="identificacao" style="padding:12px 24px;">Voltar</button>
+                <button type="button" class="btn-primary btn-next-tab" data-next="juridico" style="width:auto; padding:12px 24px;">Avançar: Dados Jurídicos</button>
+              </div>
+            </div>
+
+            <!-- ABA 3: DADOS JURÍDICOS -->
+            <div class="form-tab-content" id="tab-juridico">
+              <div class="form-grid">
+                <div class="form-group col-span-2">
+                  <label class="form-label">Área de Interesse Inicial</label>
+                  <div class="checkbox-grid">
+                    <label class="checkbox-label"><input type="checkbox" name="client-areas" value="Civil"> Civil</label>
+                    <label class="checkbox-label"><input type="checkbox" name="client-areas" value="Trabalhista"> Trabalhista</label>
+                    <label class="checkbox-label"><input type="checkbox" name="client-areas" value="Previdenciário"> Previdenciário</label>
+                    <label class="checkbox-label"><input type="checkbox" name="client-areas" value="Família"> Família</label>
+                    <label class="checkbox-label"><input type="checkbox" name="client-areas" value="Consumidor"> Consumidor</label>
+                    <label class="checkbox-label"><input type="checkbox" name="client-areas" value="Empresarial"> Empresarial</label>
+                  </div>
+                  <input type="text" id="client-areas-extra" class="form-input-premium" placeholder="Outras áreas ou observações de interesse" style="margin-top: 10px;">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Já possui processos em andamento?</label>
+                  <div class="radio-group-flex">
+                    <label class="radio-label">
+                      <input type="radio" name="client-tem-processo" value="sim"> Sim
+                    </label>
+                    <label class="radio-label">
+                      <input type="radio" name="client-tem-processo" value="nao" checked> Não
+                    </label>
+                  </div>
+                </div>
+
+                <div class="form-group" id="group-processos-andamento" style="display: none;">
+                  <label class="form-label" for="client-processos-andamento">Números dos Processos / Tribunais</label>
+                  <input type="text" id="client-processos-andamento" class="form-input-premium" placeholder="Ex: 1002345-42.2025.8.26.0100 (TJSP)">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="client-tipo-assistencia">Tipo de Assistência</label>
+                  <select id="client-tipo-assistencia" class="form-input-premium">
+                    <option value="">Selecione...</option>
+                    <option value="Consultoria Preventiva">Consultoria Preventiva</option>
+                    <option value="Contencioso/Processual">Contencioso/Processual</option>
+                    <option value="Assessoria Mensal">Assessoria Mensal</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="client-renda" id="lbl-renda">Renda Estimada / Faturamento</label>
+                  <div class="currency-wrapper">
+                    <span class="currency-prefix">R$</span>
+                    <input type="number" step="0.01" id="client-renda" class="form-input-premium" placeholder="0,00" style="padding-left: 44px;">
+                  </div>
+                </div>
+
+                <div class="form-group col-span-2">
+                  <label class="form-label" for="client-observacoes">Observações Gerais / Fatos Narrados</label>
+                  <textarea id="client-observacoes" class="form-textarea-premium" rows="5" placeholder="Digite aqui o relato dos fatos feito pelo cliente e anotações jurídicas gerais..."></textarea>
+                </div>
+              </div>
+
+              <div class="form-navigation-flex" style="margin-top:30px;">
+                <button type="button" class="btn-secondary btn-prev-tab" data-prev="qualificacao" style="padding:12px 24px;">Voltar</button>
+                <button type="submit" class="btn-primary" style="width:auto; padding:12px 30px;" id="btn-salvar-cliente">Salvar Cliente</button>
+              </div>
+            </div>
+
+          </form>
+        </div>
+
+        <!-- 3. PAINEL DE DETALHES DO CLIENTE (PERFIL) -->
+        <div id="clientes-detail-panel" style="display: none;">
+          <div class="panel-header-flex">
+            <div>
+              <button class="btn-back-arrow" id="btn-voltar-listagem-detail">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                Voltar à lista
+              </button>
+              <h2 class="panel-main-title" style="margin-top: 10px;">Perfil do Cliente: <span id="client-profile-title-name" style="color:var(--gold);">Nome</span></h2>
+              <p class="section-desc">Ficha Jurídica, qualificação civil e histórico em tempo real.</p>
+            </div>
+          </div>
+
+          <div class="profile-layout-grid">
+            
+            <!-- SEÇÃO 1: DADOS DO CLIENTE (EDITÁVEL) -->
+            <div class="detail-card-panel">
+              <div class="detail-card-header">
+                <h3>Dados & Qualificação (Editável)</h3>
+              </div>
+              
+              <div class="form-tabs" style="margin-bottom: 20px;">
+                <button type="button" class="profile-tab-btn active" data-tab="edit-identificacao">1. Identificação</button>
+                <button type="button" class="profile-tab-btn" data-tab="edit-qualificacao">2. Qualificação</button>
+                <button type="button" class="profile-tab-btn" data-tab="edit-juridico">3. Dados Jurídicos</button>
+              </div>
+
+              <form id="edit-cliente-form">
+                
+                <!-- ABA 1: IDENTIFICAÇÃO EDIT -->
+                <div class="profile-tab-content active" id="tab-edit-identificacao">
+                  <div class="form-grid">
+                    <div class="form-group col-span-2">
+                      <label class="form-label" for="edit-client-nome">Nome Completo / Razão Social *</label>
+                      <input type="text" id="edit-client-nome" class="form-input-premium" required>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label">Tipo de Pessoa</label>
+                      <div class="radio-group-flex">
+                        <label class="radio-label">
+                          <input type="radio" name="edit-client-tipo-pessoa" value="PF"> PF
+                        </label>
+                        <label class="radio-label">
+                          <input type="radio" name="edit-client-tipo-pessoa" value="PJ"> PJ
+                        </label>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label" for="edit-client-cpf-cnpj" id="edit-lbl-cpf-cnpj">CPF</label>
+                      <input type="text" id="edit-client-cpf-cnpj" class="form-input-premium">
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label" for="edit-client-data-nasc" id="edit-lbl-data-nasc">Data de Nascimento</label>
+                      <input type="date" id="edit-client-data-nasc" class="form-input-premium">
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label" for="edit-client-telefone">Telefone</label>
+                      <input type="text" id="edit-client-telefone" class="form-input-premium">
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label" for="edit-client-whatsapp">WhatsApp</label>
+                      <input type="text" id="edit-client-whatsapp" class="form-input-premium">
+                    </div>
+
+                    <div class="form-group col-span-2">
+                      <label class="form-label" for="edit-client-email">E-mail</label>
+                      <input type="email" id="edit-client-email" class="form-input-premium">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ABA 2: QUALIFICAÇÃO EDIT -->
+                <div class="profile-tab-content" id="tab-edit-qualificacao">
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <label class="form-label" for="edit-client-estado-civil">Estado Civil</label>
+                      <select id="edit-client-estado-civil" class="form-input-premium">
+                        <option value="">Selecione...</option>
+                        <option value="Solteiro(a)">Solteiro(a)</option>
+                        <option value="Casado(a)">Casado(a)</option>
+                        <option value="Divorciado(a)">Divorciado(a)</option>
+                        <option value="Viúvo(a)">Viúvo(a)</option>
+                        <option value="União Estável">União Estável</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label" for="edit-client-profissao" id="edit-lbl-profissao">Profissão</label>
+                      <input type="text" id="edit-client-profissao" class="form-input-premium">
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label" for="edit-client-rg-ie" id="edit-lbl-rg-ie">RG</label>
+                      <input type="text" id="edit-client-rg-ie" class="form-input-premium">
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label" for="edit-client-cep">CEP</label>
+                      <input type="text" id="edit-client-cep" class="form-input-premium">
+                    </div>
+
+                    <div class="form-group col-span-2">
+                      <label class="form-label" for="edit-client-endereco-rua">Logradouro / Rua e Número</label>
+                      <input type="text" id="edit-client-endereco-rua" class="form-input-premium">
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label" for="edit-client-endereco-comp">Complemento</label>
+                      <input type="text" id="edit-client-endereco-comp" class="form-input-premium">
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label" for="edit-client-endereco-bairro">Bairro</label>
+                      <input type="text" id="edit-client-endereco-bairro" class="form-input-premium">
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label" for="edit-client-endereco-cidade">Cidade</label>
+                      <input type="text" id="edit-client-endereco-cidade" class="form-input-premium">
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label" for="edit-client-endereco-estado">Estado (UF)</label>
+                      <input type="text" id="edit-client-endereco-estado" class="form-input-premium">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ABA 3: DADOS JURÍDICOS EDIT -->
+                <div class="profile-tab-content" id="tab-edit-juridico">
+                  <div class="form-grid">
+                    <div class="form-group col-span-2">
+                      <label class="form-label">Área de Interesse Inicial</label>
+                      <div class="checkbox-grid">
+                        <label class="checkbox-label"><input type="checkbox" name="edit-client-areas" value="Civil"> Civil</label>
+                        <label class="checkbox-label"><input type="checkbox" name="edit-client-areas" value="Trabalhista"> Trabalhista</label>
+                        <label class="checkbox-label"><input type="checkbox" name="edit-client-areas" value="Previdenciário"> Previdenciário</label>
+                        <label class="checkbox-label"><input type="checkbox" name="edit-client-areas" value="Família"> Família</label>
+                        <label class="checkbox-label"><input type="checkbox" name="edit-client-areas" value="Consumidor"> Consumidor</label>
+                        <label class="checkbox-label"><input type="checkbox" name="edit-client-areas" value="Empresarial"> Empresarial</label>
+                      </div>
+                      <input type="text" id="edit-client-areas-extra" class="form-input-premium" placeholder="Outras áreas ou observações adicionais" style="margin-top: 10px;">
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label">Já possui processos em andamento?</label>
+                      <div class="radio-group-flex">
+                        <label class="radio-label">
+                          <input type="radio" name="edit-client-tem-processo" value="sim"> Sim
+                        </label>
+                        <label class="radio-label">
+                          <input type="radio" name="edit-client-tem-processo" value="nao"> Não
+                        </label>
+                      </div>
+                    </div>
+
+                    <div class="form-group" id="edit-group-processos-andamento" style="display: none;">
+                      <label class="form-label" for="edit-client-processos-andamento">Números dos Processos / Tribunais</label>
+                      <input type="text" id="edit-client-processos-andamento" class="form-input-premium">
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label" for="edit-client-tipo-assistencia">Tipo de Assistência</label>
+                      <select id="edit-client-tipo-assistencia" class="form-input-premium">
+                        <option value="">Selecione...</option>
+                        <option value="Consultoria Preventiva">Consultoria Preventiva</option>
+                        <option value="Contencioso/Processual">Contencioso/Processual</option>
+                        <option value="Assessoria Mensal">Assessoria Mensal</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label" for="edit-client-renda" id="edit-lbl-renda">Renda Estimada / Faturamento</label>
+                      <div class="currency-wrapper">
+                        <span class="currency-prefix">R$</span>
+                        <input type="number" step="0.01" id="edit-client-renda" class="form-input-premium" style="padding-left: 44px;">
+                      </div>
+                    </div>
+
+                    <div class="form-group col-span-2">
+                      <label class="form-label" for="edit-client-observacoes">Observações Gerais / Fatos Narrados</label>
+                      <textarea id="edit-client-observacoes" class="form-textarea-premium" rows="5"></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Botão de submeter alterações -->
+                <button type="submit" class="btn-primary" style="margin-top: 24px;" id="btn-save-client-changes">Salvar Alterações</button>
+              </form>
+            </div>
+
+            <!-- COLUNA DA DIREITA: HISTÓRICO JURÍDICO & AGENDA -->
+            <div class="profile-history-column">
+              
+              <!-- SEÇÃO 2: ATENDIMENTOS E COMPROMISSOS -->
+              <div class="detail-card-panel" style="margin-bottom: 24px;">
+                <div class="panel-header-flex" style="margin-bottom: 16px;">
+                  <h3 style="font-size:16px; font-weight:600; color:var(--text-primary);">Atendimentos e Compromissos</h3>
+                  <button type="button" class="btn-primary" id="btn-novo-compromisso" style="width: auto; margin-top: 0; padding: 6px 12px; font-size: 12px;">+ Novo Compromisso</button>
+                </div>
+
+                <!-- Painel de Status de Compromissos -->
+                <div class="commitments-status-bar" id="commitments-status-bar">
+                  <span class="status-badge deadline" id="badge-prazos">0 Prazos</span>
+                  <span class="status-badge hearing" id="badge-audiencias">0 Audiências</span>
+                  <span class="status-badge meeting" id="badge-reunioes">0 Reuniões</span>
+                </div>
+
+                <div id="compromissos-empty-msg" class="inactive-empty" style="margin-top: 15px;">
+                  Nenhum compromisso ou atendimento registrado ainda.
+                </div>
+
+                <div class="compromissos-timeline" id="compromissos-timeline-list" style="display: none;">
+                  <!-- Inserido dinamicamente via JS -->
+                </div>
+              </div>
+
+              <!-- SEÇÃO 3: PROCESSOS VINCULADOS -->
+              <div class="detail-card-panel">
+                <div class="panel-header-flex" style="margin-bottom: 16px;">
+                  <h3 style="font-size:16px; font-weight:600; color:var(--text-primary);">Processos Vinculados</h3>
+                  <button type="button" class="btn-secondary" id="btn-criar-processo-trigger" style="width: auto; padding: 6px 12px; font-size: 12px;">Vincular / Criar Processo</button>
+                </div>
+
+                <div id="processos-empty-msg" class="inactive-empty" style="margin-top: 15px;">
+                  Nenhum processo judicial vinculado a este cliente ainda.
+                </div>
+
+                <div class="processos-timeline-list" id="processos-timeline-list-container" style="display: none; display:flex; flex-direction:column; gap:12px;">
+                  <!-- Inserido dinamicamente via JS -->
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- PROCESSOS VIEW -->
+      <section id="view-processos" class="content-view">
+        <div class="module-placeholder">
+          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--gold); margin-bottom: 16px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <h2>Pasta de Processos Virtuais</h2>
+          <p>Acesse o detalhamento completo dos seus processos judiciais CNJ, andamentos históricos e valores de causa diretamente a partir deste módulo.</p>
+        </div>
+      </section>
+
+      <!-- AGENDA VIEW -->
+      <section id="view-agenda" class="content-view">
+        <div class="module-placeholder">
+          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--gold); margin-bottom: 16px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <h2>Calendário e Compromissos</h2>
+          <p>Consulte todos os seus prazos processuais fatais, audiências virtuais e reuniões presenciais em uma agenda interativa inteligente.</p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 1: NOVO COMPROMISSO
+       ========================================================================= -->
+  <div class="modal-overlay" id="modal-compromisso" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Novo Compromisso</h3>
+        <button type="button" class="btn-close-modal" id="btn-close-modal-compromisso">&times;</button>
+      </div>
+      <form id="compromisso-form">
+        <div class="form-group">
+          <label class="form-label" for="comp-titulo">Título do compromisso *</label>
+          <input type="text" id="comp-titulo" class="form-input-premium" placeholder="Ex: Reunião de Alinhamento, Protocolar Contestação" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="comp-tipo">Tipo</label>
+          <select id="comp-tipo" class="form-input-premium" required>
+            <option value="Reunião">Reunião</option>
+            <option value="Audiência">Audiência</option>
+            <option value="Prazo Processual">Prazo Processual</option>
+            <option value="Atendimento">Atendimento</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="comp-data-hora">Data e Hora *</label>
+          <input type="datetime-local" id="comp-data-hora" class="form-input-premium" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="comp-local-link">Local ou Link</label>
+          <input type="text" id="comp-local-link" class="form-input-premium" placeholder="Ex: Sala 2, Link do Teams, Skype">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="comp-status">Status Inicial</label>
+          <select id="comp-status" class="form-input-premium" required>
+            <option value="Agendado" selected>Agendado</option>
+            <option value="Realizado">Realizado</option>
+            <option value="Cancelado">Cancelado</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="comp-anotacoes">Anotações / Resumo</label>
+          <textarea id="comp-anotacoes" class="form-textarea-premium" rows="3" placeholder="Insira o resumo ou notas sobre o compromisso..."></textarea>
+        </div>
+
+        <button type="submit" class="btn-primary" id="btn-save-compromisso">Salvar compromisso</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 2: DETALHES DO PROCESSO (HISTÓRICO ANDAMENTOS)
+       ========================================================================= -->
+  <div class="modal-overlay" id="modal-processo-detail" style="display: none;">
+    <div class="modal-card" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3>Detalhes do Processo</h3>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button type="button" class="btn-secondary" id="btn-edit-process-trigger" style="width: auto; padding: 4px 10px; font-size: 11px; margin-top: 0; background: var(--gold-light); color: var(--gold); border: 1px solid var(--gold); border-radius: 4px; cursor: pointer; transition: all 0.2s;">Editar Processo</button>
+          <button type="button" class="btn-close-modal" id="btn-close-modal-processo">&times;</button>
+        </div>
+      </div>
+      <div class="process-detail-body">
+        <div class="detail-info-list" style="margin-bottom: 24px;">
+          <div class="detail-info-item">
+            <span class="detail-info-label">Título:</span>
+            <span class="detail-info-value" id="proc-detail-titulo">-</span>
+          </div>
+          <div class="detail-info-item">
+            <span class="detail-info-label">Nº Processo:</span>
+            <span class="detail-info-value" id="proc-detail-numero">-</span>
+          </div>
+          <div class="detail-info-item">
+            <span class="detail-info-label">Área do Direito:</span>
+            <span class="detail-info-value" id="proc-detail-area">-</span>
+          </div>
+          <div class="detail-info-item">
+            <span class="detail-info-label">Tribunal:</span>
+            <span class="detail-info-value" id="proc-detail-tribunal">-</span>
+          </div>
+          <div class="detail-info-item">
+            <span class="detail-info-label">Vara:</span>
+            <span class="detail-info-value" id="proc-detail-vara">-</span>
+          </div>
+          <div class="detail-info-item">
+            <span class="detail-info-label">Valor da Causa:</span>
+            <span class="detail-info-value" id="proc-detail-valor" style="color:var(--gold); font-weight: 600;">-</span>
+          </div>
+          <div class="detail-info-item">
+            <span class="detail-info-label">Status:</span>
+            <span class="detail-info-value" id="proc-detail-status">-</span>
+          </div>
+        </div>
+        
+        <h4 style="margin-bottom: 12px; font-weight: 600; color: var(--text-primary);">Linha do Tempo de Andamentos</h4>
+        <div class="process-timeline" id="proc-detail-timeline">
+          <!-- Renderizado dinamicamente via JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 3: EDITAR PERFIL DO ADVOGADO
+       ========================================================================= -->
+  <div class="modal-overlay" id="modal-edit-lawyer" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Editar Perfil Profissional</h3>
+        <button type="button" class="btn-close-modal" id="btn-close-modal-lawyer">&times;</button>
+      </div>
+      <form id="edit-lawyer-form">
+        <div class="form-group">
+          <label class="form-label" for="edit-lawyer-treatment">Título de Tratamento</label>
+          <select id="edit-lawyer-treatment" class="form-input-premium" required>
+            <option value="Dr.">Dr.</option>
+            <option value="Dra.">Dra.</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="edit-lawyer-name">Nome completo *</label>
+          <input type="text" id="edit-lawyer-name" class="form-input-premium" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="edit-lawyer-oab">Número da OAB *</label>
+          <input type="text" id="edit-lawyer-oab" class="form-input-premium" placeholder="Ex: OAB/SP 123456" required>
+        </div>
+        <button type="submit" class="btn-primary" id="btn-save-lawyer-profile">Salvar Alterações</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 4: EDITAR PROCESSO JUDICIAL
+       ========================================================================= -->
+  <div class="modal-overlay" id="modal-edit-process" style="display: none;">
+    <div class="modal-card" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3>Editar Processo Judicial</h3>
+        <button type="button" class="btn-close-modal" id="btn-close-modal-edit-process">&times;</button>
+      </div>
+      <form id="edit-process-form">
+        <div class="form-group">
+          <label class="form-label" for="edit-proc-titulo">Título da Ação *</label>
+          <input type="text" id="edit-proc-titulo" class="form-input-premium" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="edit-proc-numero">Número do Processo (CNJ) *</label>
+          <input type="text" id="edit-proc-numero" class="form-input-premium" placeholder="0000000-00.0000.0.00.0000" required>
+        </div>
+        <div class="form-row-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label class="form-label" for="edit-proc-area">Área do Direito</label>
+            <input type="text" id="edit-proc-area" class="form-input-premium" placeholder="Ex: Civil, Trabalhista">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-proc-status">Status</label>
+            <select id="edit-proc-status" class="form-input-premium" required>
+              <option value="Ativo">Ativo</option>
+              <option value="Suspenso">Suspenso</option>
+              <option value="Arquivado">Arquivado</option>
+              <option value="Em Acordo">Em Acordo</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label class="form-label" for="edit-proc-tribunal">Tribunal</label>
+            <input type="text" id="edit-proc-tribunal" class="form-input-premium" placeholder="Ex: TJSP, TRT2">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-proc-vara">Vara</label>
+            <input type="text" id="edit-proc-vara" class="form-input-premium" placeholder="Ex: 2ª Vara Cível">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="edit-proc-valor">Valor da Causa (R$)</label>
+          <input type="number" step="0.01" id="edit-proc-valor" class="form-input-premium" placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="edit-proc-observacoes">Observações Internas</label>
+          <textarea id="edit-proc-observacoes" class="form-textarea-premium" rows="3" placeholder="Anotações privadas sobre o processo..."></textarea>
+        </div>
+        <button type="submit" class="btn-primary" id="btn-save-process-changes">Salvar Alterações</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 5: EDITAR COMPROMISSO
+       ========================================================================= -->
+  <div class="modal-overlay" id="modal-edit-compromisso" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Editar Compromisso</h3>
+        <button type="button" class="btn-close-modal" id="btn-close-modal-edit-compromisso">&times;</button>
+      </div>
+      <form id="edit-compromisso-form">
+        <div class="form-group">
+          <label class="form-label" for="edit-comp-titulo">Título *</label>
+          <input type="text" id="edit-comp-titulo" class="form-input-premium" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="edit-comp-tipo">Tipo</label>
+          <select id="edit-comp-tipo" class="form-input-premium" required>
+            <option value="Reunião">Reunião</option>
+            <option value="Audiência">Audiência</option>
+            <option value="Prazo Processual">Prazo Processual</option>
+            <option value="Atendimento">Atendimento</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="edit-comp-data-hora">Data e Hora *</label>
+          <input type="datetime-local" id="edit-comp-data-hora" class="form-input-premium" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="edit-comp-local-link">Local ou Link</label>
+          <input type="text" id="edit-comp-local-link" class="form-input-premium">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="edit-comp-status">Status</label>
+          <select id="edit-comp-status" class="form-input-premium" required>
+            <option value="Agendado">Agendado</option>
+            <option value="Realizado">Realizado</option>
+            <option value="Cancelado">Cancelado</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="edit-comp-anotacoes">Anotações / Resumo</label>
+          <textarea id="edit-comp-anotacoes" class="form-textarea-premium" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn-primary" id="btn-save-compromisso-changes">Salvar Alterações</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       IMPORTAÇÃO DO SDK DO SUPABASE E SCRIPT DA APLICAÇÃO
+       ========================================================================= -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="app.js"></script>
+</body>
 </html>
