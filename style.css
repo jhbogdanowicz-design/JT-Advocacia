@@ -2104,3 +2104,32 @@ body {
   color: var(--gold);
 }
 
+/* =========================================================================
+   📱 TOP-BAR ACTIONS MOBILE BUTTONS STYLING
+   ========================================================================= */
+.btn-logout-topbar, .btn-profile-topbar {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .btn-logout-topbar, .btn-profile-topbar {
+    display: flex !important;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 8px;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+  
+  .btn-logout-topbar:hover {
+    color: var(--error-color) !important;
+  }
+  
+  .btn-profile-topbar:hover {
+    color: var(--gold) !important;
+  }
+}
+

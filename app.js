@@ -55,6 +55,8 @@ const linksGoLanding = document.querySelectorAll(".link-go-landing");
 const btnLoginSubmit = document.getElementById("btn-login-submit");
 const btnSignupSubmit = document.getElementById("btn-signup-submit");
 const btnLogout = document.getElementById("btn-logout");
+const btnLogoutMobile = document.getElementById("btn-logout-mobile");
+const btnEditProfileMobile = document.getElementById("btn-edit-profile-mobile");
 
 // Caixas de Feedback
 const loginMessage = document.getElementById("login-message");
@@ -507,14 +509,18 @@ signupForm.addEventListener("submit", async (e) => {
 // =========================================================================
 // 🚪 CONTROLADOR: LOGOUT (SAIR)
 // =========================================================================
-btnLogout.addEventListener("click", async () => {
+const handleLogout = async () => {
   try {
     const { error } = await supabase.auth.signOut();
     if (error) console.error("Erro ao deslogar:", error.message);
   } catch (err) {
     console.error("Erro inesperado no logout:", err);
   }
-});
+};
+btnLogout.addEventListener("click", handleLogout);
+if (btnLogoutMobile) {
+  btnLogoutMobile.addEventListener("click", handleLogout);
+}
 
 function setLoadingState(button, isLoading, loadingText) {
   if (isLoading) {
@@ -1726,7 +1732,7 @@ supabase.auth.onAuthStateChange(async (event, session) => {
 // =========================================================================
 // ⚙️ SEÇÃO: EDIÇÃO DO PERFIL DO ADVOGADO
 // =========================================================================
-btnEditLawyerProfile.addEventListener("click", async () => {
+const handleEditProfile = async () => {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error("Advogado não está autenticado.");
@@ -1740,7 +1746,11 @@ btnEditLawyerProfile.addEventListener("click", async () => {
     console.error("Erro ao carregar dados do advogado:", err.message);
     alert("Erro ao abrir formulário de edição de perfil.");
   }
-});
+};
+btnEditLawyerProfile.addEventListener("click", handleEditProfile);
+if (btnEditProfileMobile) {
+  btnEditProfileMobile.addEventListener("click", handleEditProfile);
+}
 
 editLawyerForm.addEventListener("submit", async (e) => {
   e.preventDefault();
