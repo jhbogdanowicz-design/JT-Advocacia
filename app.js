@@ -331,6 +331,12 @@ function switchPublicView(viewName) {
 function switchPrivateView(viewId) {
   if (viewId === "clientes") {
     showClientesPanel("list");
+  } else if (viewId === "processos") {
+    showProcessosPanel("list");
+  } else if (viewId === "financeiro") {
+    loadFinanceiroData();
+  } else if (viewId === "agenda") {
+    loadAgendaData();
   }
 
   navItems.forEach(item => {
@@ -730,11 +736,11 @@ async function loadDashboardData() {
         const processNum = c.processos?.numero_processo || "Não informado";
 
         let article = "o nosso";
-        if (eventType === "audiência" || eventType === "reunião") {
+        if (eventType === "audiência" || eventType === "reunião" || eventType.includes("reunião")) {
           article = "a nossa";
         }
 
-        const msg = `Olá, ${clientName}. Passando para lembrar que ${article} ${eventType} referente ao processo nº ${processNum} está agendada para o dia ${formattedDate} às ${formattedTime}. Atenciosamente, JT Advocacia.`;
+        const msg = `Olá, ${clientName}. Passando para lembrar que ${article} ${eventType} referente ao processo nº ${processNum} está agendada para o dia ${formattedDate} às ${formattedTime}. Atenciosamente, JT - Janaina Tarabauca Advocacia.`;
         const encodedMsg = encodeURIComponent(msg);
         const whatsappUrl = `https://wa.me/${phone}?text=${encodedMsg}`;
 
@@ -1309,7 +1315,11 @@ clienteForm.addEventListener("submit", async (e) => {
 // =========================================================================
 // 🔄 CARREGADOR E RENDERIZADOR: LISTAGEM DE CLIENTES
 // =========================================================================
+let currentClientsLoadId = 0;
 async function loadClientesList(searchQuery = "") {
+  currentClientsLoadId++;
+  const localLoadId = currentClientsLoadId;
+
   gridListClientes.innerHTML = "";
   listEmptyClientes.style.display = "block";
   listEmptyClientes.innerText = "Carregando clientes...";
@@ -1326,6 +1336,7 @@ async function loadClientesList(searchQuery = "") {
     query = query.order("nome", { ascending: true });
 
     const { data: clients, error } = await query;
+    if (localLoadId !== currentClientsLoadId) return;
     if (error) throw error;
 
     if (clients && clients.length > 0) {
@@ -1334,6 +1345,7 @@ async function loadClientesList(searchQuery = "") {
 
       for (const c of clients) {
         const lastInteractionDate = await fetchLastInteractionDate(c.id);
+        if (localLoadId !== currentClientsLoadId) return;
 
         const card = document.createElement("div");
         card.className = "cliente-card";
@@ -1458,7 +1470,7 @@ profileTabButtons.forEach(btn => {
   });
 });
 
-async function openClientDetailsById(clientId) {
+async function openClientDetailsById(clientId, activeTab = null) {
   try {
     const { data, error } = await supabase
       .from("clientes")
@@ -1468,7 +1480,7 @@ async function openClientDetailsById(clientId) {
 
     if (error) throw error;
     if (data) {
-      openClientDetails(data);
+      openClientDetails(data, activeTab);
     }
   } catch (err) {
     console.error(err);
@@ -1476,7 +1488,7 @@ async function openClientDetailsById(clientId) {
   }
 }
 
-function openClientDetails(c) {
+function openClientDetails(c, activeTab = null) {
   showClientesPanel("detail");
   activeClientId = c.id; // Vincula o ID do cliente globalmente
   activeClientObject = c; // Salva o objeto do cliente globalmente
@@ -1586,8 +1598,17 @@ function openClientDetails(c) {
   // 4. Carregar Processos Vinculados (Seção 3)
   loadClientProcessesList();
   
-  // Reseta visualização de abas para a aba de Identificação
-  profileTabButtons[0].click();
+  // Reseta visualização de abas para a aba de Identificação ou a informada
+  if (activeTab) {
+    const targetTabBtn = Array.from(profileTabButtons).find(btn => btn.getAttribute("data-tab") === `edit-${activeTab}` || btn.getAttribute("data-tab") === activeTab);
+    if (targetTabBtn) {
+      targetTabBtn.click();
+    } else {
+      profileTabButtons[0].click();
+    }
+  } else {
+    profileTabButtons[0].click();
+  }
 }
 
 // Alternador de labels de edição
@@ -1748,10 +1769,226 @@ editClienteForm.addEventListener("submit", async (e) => {
 // =========================================================================
 // 📅 SEÇÃO 2: ATENDIMENTOS E COMPROMISSOS (MODAL & TIMELINE)
 // =========================================================================
+// --- LÓGICA DE SALA VIRTUAL SMART ---
+let selectedPlatform = "google_meet";
+let selectedEditPlatform = "google_meet";
+
+// Elementos Dinâmicos de Reunião Virtual (Criação)
+const compVirtualRoomConfig = document.getElementById("comp-virtual-room-config");
+const compLocalLinkGroup = document.getElementById("comp-local-link-group");
+const compMeetingLink = document.getElementById("comp-meeting-link");
+const compMeetingLinkLabel = document.getElementById("comp-meeting-link-label");
+const compValidationError = document.getElementById("comp-meeting-validation-error");
+const meetHelperContainer = document.getElementById("meet-helper-container");
+const compTipo = document.getElementById("comp-tipo");
+
+// Elementos Dinâmicos de Reunião Virtual (Edição)
+const editCompVirtualRoomConfig = document.getElementById("edit-comp-virtual-room-config");
+const editCompLocalLinkGroup = document.getElementById("edit-comp-local-link-group");
+const editCompMeetingLink = document.getElementById("edit-comp-meeting-link");
+const editCompMeetingLinkLabel = document.getElementById("edit-comp-meeting-link-label");
+const editCompValidationError = document.getElementById("edit-comp-meeting-validation-error");
+const editMeetHelperContainer = document.getElementById("edit-meet-helper-container");
+
+// Configurar Botões de Plataforma
+const setupPlatformSelect = (buttonsSelector, platformStateSetter, helperContainer, labelEl, inputEl, validationErrorEl) => {
+  const buttons = document.querySelectorAll(buttonsSelector);
+  buttons.forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      buttons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      const platform = btn.getAttribute("data-platform");
+      platformStateSetter(platform);
+      
+      // Ajustar UI com base na plataforma
+      validationErrorEl.style.display = "none";
+      inputEl.value = "";
+      
+      if (platform === "google_meet") {
+        helperContainer.style.display = "block";
+        labelEl.innerText = "Link do Google Meet *";
+        inputEl.placeholder = "meet.google.com/...";
+      } else if (platform === "zoom") {
+        helperContainer.style.display = "none";
+        labelEl.innerText = "Link do Zoom *";
+        inputEl.placeholder = "zoom.us/...";
+      } else if (platform === "teams") {
+        helperContainer.style.display = "none";
+        labelEl.innerText = "Link do Microsoft Teams *";
+        inputEl.placeholder = "teams.microsoft.com/...";
+      } else {
+        helperContainer.style.display = "none";
+        labelEl.innerText = "Link da Reunião *";
+        inputEl.placeholder = "Cole o link da reunião virtual";
+      }
+    });
+  });
+};
+
+// Inicializa seletores de plataforma
+setTimeout(() => {
+  setupPlatformSelect(
+    "#comp-virtual-room-config .btn-platform-select", 
+    (p) => { selectedPlatform = p; }, 
+    meetHelperContainer, 
+    compMeetingLinkLabel, 
+    compMeetingLink, 
+    compValidationError
+  );
+
+  setupPlatformSelect(
+    "#edit-comp-virtual-room-config .btn-platform-select", 
+    (p) => { selectedEditPlatform = p; }, 
+    editMeetHelperContainer, 
+    editCompMeetingLinkLabel, 
+    editCompMeetingLink, 
+    editCompValidationError
+  );
+}, 100);
+
+// Validador de Links Online via Regex
+const validateMeetingLink = (link, platform) => {
+  if (!link) return "O link da reunião é obrigatório.";
+  
+  if (platform === "google_meet") {
+    const meetRegex = /^(https?:\/\/)?(www\.)?meet\.google\.com\/[a-z]{3}-[a-z]{4}-[a-z]{3}$/;
+    if (!meetRegex.test(link.trim())) {
+      return "Formato de link inválido. O padrão deve ser meet.google.com/abc-defg-hij";
+    }
+  } else if (platform === "zoom") {
+    const zoomRegex = /zoom\.us/;
+    if (!zoomRegex.test(link.trim())) {
+      return "Link inválido. Deve conter zoom.us";
+    }
+  } else if (platform === "teams") {
+    const teamsRegex = /^(https?:\/\/)?(www\.)?teams\.microsoft\.com\/.+/;
+    if (!teamsRegex.test(link.trim())) {
+      return "Link inválido. Certifique-se de colar um link gerado pelo Microsoft Teams.";
+    }
+  }
+  return null;
+};
+
+// Monitoramento dos campos de tipo e Toggle de Reunião Online
+const compOnlineToggleContainer = document.getElementById("comp-online-toggle-container");
+const compOnlineToggle = document.getElementById("comp-online-toggle");
+const compOnlineToggleTitle = document.getElementById("comp-online-toggle-title");
+const compLocalGroup = document.getElementById("comp-local-group");
+const compLocalFisico = document.getElementById("comp-local-fisico");
+
+const editCompOnlineToggleContainer = document.getElementById("edit-comp-online-toggle-container");
+const editCompOnlineToggle = document.getElementById("edit-comp-online-toggle");
+const editCompOnlineToggleTitle = document.getElementById("edit-comp-online-toggle-title");
+const editCompLocalGroup = document.getElementById("edit-comp-local-group");
+const editCompLocalFisico = document.getElementById("edit-comp-local-fisico");
+
+// Lógica de alternância dinâmica do Toggle Switch (Outlook style)
+const handleToggleChange = (toggleEl, localGroupEl, virtualGroupEl, isOnline) => {
+  if (isOnline) {
+    localGroupEl.style.display = "none";
+    virtualGroupEl.style.display = "block";
+  } else {
+    localGroupEl.style.display = "block";
+    virtualGroupEl.style.display = "none";
+  }
+};
+
+compOnlineToggle.addEventListener("change", (e) => {
+  handleToggleChange(compOnlineToggle, compLocalGroup, compVirtualRoomConfig, e.target.checked);
+});
+
+editCompOnlineToggle.addEventListener("change", (e) => {
+  handleToggleChange(editCompOnlineToggle, editCompLocalGroup, editCompVirtualRoomConfig, e.target.checked);
+});
+
+// Monitoramento dos campos de tipo
+compTipo.addEventListener("change", (e) => {
+  const val = e.target.value;
+  compValidationError.style.display = "none";
+  
+  if (val === "Reunião Online") {
+    compOnlineToggleContainer.style.display = "flex";
+    compOnlineToggleTitle.innerText = "🎥 Reunião Online";
+    compOnlineToggle.checked = true;
+    handleToggleChange(compOnlineToggle, compLocalGroup, compVirtualRoomConfig, true);
+    document.getElementById("btn-platform-meet").click(); // Trigger Google Meet por padrão
+  } else if (val === "Audiência") {
+    compOnlineToggleContainer.style.display = "flex";
+    compOnlineToggleTitle.innerText = "🎥 Audiência Virtual";
+    compOnlineToggle.checked = false;
+    handleToggleChange(compOnlineToggle, compLocalGroup, compVirtualRoomConfig, false);
+  } else if (val === "Atendimento Presencial") {
+    compOnlineToggleContainer.style.display = "none";
+    compOnlineToggle.checked = false;
+    handleToggleChange(compOnlineToggle, compLocalGroup, compVirtualRoomConfig, false);
+  } else if (val === "Prazo Processual") {
+    compOnlineToggleContainer.style.display = "none";
+    compLocalGroup.style.display = "none";
+    compVirtualRoomConfig.style.display = "none";
+  }
+});
+
+editCompTipo.addEventListener("change", (e) => {
+  const val = e.target.value;
+  editCompValidationError.style.display = "none";
+  
+  if (val === "Reunião Online") {
+    editCompOnlineToggleContainer.style.display = "flex";
+    editCompOnlineToggleTitle.innerText = "🎥 Reunião Online";
+    editCompOnlineToggle.checked = true;
+    handleToggleChange(editCompOnlineToggle, editCompLocalGroup, editCompVirtualRoomConfig, true);
+  } else if (val === "Audiência") {
+    editCompOnlineToggleContainer.style.display = "flex";
+    editCompOnlineToggleTitle.innerText = "🎥 Audiência Virtual";
+    editCompOnlineToggle.checked = false;
+    handleToggleChange(editCompOnlineToggle, editCompLocalGroup, editCompVirtualRoomConfig, false);
+  } else if (val === "Atendimento Presencial") {
+    editCompOnlineToggleContainer.style.display = "none";
+    editCompOnlineToggle.checked = false;
+    handleToggleChange(editCompOnlineToggle, editCompLocalGroup, editCompVirtualRoomConfig, false);
+  } else if (val === "Prazo Processual") {
+    editCompOnlineToggleContainer.style.display = "none";
+    editCompLocalGroup.style.display = "none";
+    editCompVirtualRoomConfig.style.display = "none";
+  }
+});
+
+// Adicionar live validation
+compMeetingLink.addEventListener("input", (e) => {
+  const err = validateMeetingLink(e.target.value.trim(), selectedPlatform);
+  if (err) {
+    compValidationError.innerText = err;
+    compValidationError.style.display = "block";
+  } else {
+    compValidationError.style.display = "none";
+  }
+});
+
+editCompMeetingLink.addEventListener("input", (e) => {
+  const err = validateMeetingLink(e.target.value.trim(), selectedEditPlatform);
+  if (err) {
+    editCompValidationError.innerText = err;
+    editCompValidationError.style.display = "block";
+  } else {
+    editCompValidationError.style.display = "none";
+  }
+});
+
 // Abertura do Modal de Novo Compromisso
 btnNovoCompromisso.addEventListener("click", () => {
   modalCompromisso.style.display = "flex";
   compromissoForm.reset();
+  
+  // Reseta campos virtuais e toggle switch
+  compOnlineToggleContainer.style.display = "none";
+  compOnlineToggle.checked = false;
+  compLocalGroup.style.display = "block";
+  compVirtualRoomConfig.style.display = "none";
+  selectedPlatform = "google_meet";
+  compValidationError.style.display = "none";
+  compMeetingLink.value = "";
+  compLocalFisico.value = "";
   
   // Seta data e hora padrão para o momento atual arredondado
   const now = new Date();
@@ -1789,9 +2026,31 @@ compromissoForm.addEventListener("submit", async (e) => {
   const titulo = document.getElementById("comp-titulo").value.trim();
   const tipo = document.getElementById("comp-tipo").value;
   const dataHora = document.getElementById("comp-data-hora").value;
-  const localLink = document.getElementById("comp-local-link").value.trim();
   const status = document.getElementById("comp-status").value;
-  const anotacoes = document.getElementById("comp-anotacoes").value.trim();
+  const rawAnotacoes = document.getElementById("comp-anotacoes").value.trim();
+
+  let localLink = "";
+  let anotacoes = rawAnotacoes;
+
+  const isOnlineChecked = compOnlineToggle.checked && (tipo !== "Prazo Processual");
+
+  if (tipo === "Prazo Processual") {
+    localLink = "";
+    anotacoes = JSON.stringify({ online: false, anotacoes: rawAnotacoes });
+  } else if (isOnlineChecked) {
+    const meetLink = compMeetingLink.value.trim();
+    const validationErr = validateMeetingLink(meetLink, selectedPlatform);
+    if (validationErr) {
+      alert(`Erro de Validação: ${validationErr}`);
+      compMeetingLink.focus();
+      return;
+    }
+    localLink = meetLink;
+    anotacoes = JSON.stringify({ plataforma: selectedPlatform, online: true, anotacoes: rawAnotacoes });
+  } else {
+    localLink = compLocalFisico.value.trim();
+    anotacoes = JSON.stringify({ online: false, anotacoes: rawAnotacoes });
+  }
 
   try {
     setLoadingState(document.getElementById("btn-save-compromisso"), true, "Processando...");
@@ -1826,6 +2085,11 @@ compromissoForm.addEventListener("submit", async (e) => {
     // Recarrega o dashboard em background
     loadDashboardData();
 
+    // Recarrega a agenda
+    if (typeof loadAgendaData === "function") {
+      loadAgendaData();
+    }
+
   } catch (err) {
     console.error("Erro ao salvar compromisso:", err.message);
     alert(`Erro ao salvar compromisso: ${err.message}`);
@@ -1857,7 +2121,7 @@ async function loadClientCommitmentsList() {
         if (item.status === "Agendado") {
           if (item.tipo === "Prazo Processual") prazos++;
           else if (item.tipo === "Audiência") audiencias++;
-          else if (item.tipo === "Reunião") reunioes++;
+          else if (item.tipo === "Reunião Online" || item.tipo === "Reunião") reunioes++;
         }
       });
     }
@@ -1879,24 +2143,94 @@ async function loadClientCommitmentsList() {
         let typeClass = "service";
         if (item.tipo === "Prazo Processual") typeClass = "deadline";
         else if (item.tipo === "Audiência") typeClass = "hearing";
-        else if (item.tipo === "Reunião") typeClass = "meeting";
+        else if (item.tipo === "Reunião Online" || item.tipo === "Reunião") typeClass = "meeting";
 
         div.className = `timeline-item ${typeClass}`;
 
         const dt = new Date(item.data_hora);
         const formattedDate = dt.toLocaleDateString("pt-BR") + " às " + dt.toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' });
 
+        // Tenta fazer o parse das anotações se for reunião online
+        let plataforma = "";
+        let displayAnotacoes = item.anotacoes_pos_evento || "";
+        
+        if (item.anotacoes_pos_evento && item.anotacoes_pos_evento.startsWith("{") && item.anotacoes_pos_evento.endsWith("}")) {
+          try {
+            const parsed = JSON.parse(item.anotacoes_pos_evento);
+            plataforma = parsed.plataforma || "";
+            displayAnotacoes = parsed.anotacoes || "";
+          } catch (e) {
+            // ignore
+          }
+        }
+
+        // Se for reunião mas não tiver plataforma gravada no JSON, tenta adivinhar pelo URL
+        if ((item.tipo === "Reunião Online" || item.tipo === "Reunião") && !plataforma && item.local_link) {
+          if (item.local_link.includes("zoom.us")) plataforma = "zoom";
+          else if (item.local_link.includes("teams.microsoft.com")) plataforma = "teams";
+          else if (item.local_link.includes("meet.google.com") || item.local_link.includes("google.com")) plataforma = "google_meet";
+          else plataforma = "outro";
+        }
+
+        // Determina o nome da plataforma e o estilo do botão
+        let platformName = "";
+        let joinBtnHtml = "";
+        
+        if (plataforma && item.local_link) {
+          let btnColor = "var(--gold)";
+          let btnBg = "rgba(197, 168, 92, 0.1)";
+          let btnBorder = "var(--gold)";
+          
+          if (plataforma === "google_meet") {
+            platformName = "Google Meet";
+            btnColor = "#10B981";
+            btnBg = "rgba(16, 185, 129, 0.12)";
+            btnBorder = "rgba(16, 185, 129, 0.4)";
+          } else if (plataforma === "zoom") {
+            platformName = "Zoom";
+            btnColor = "#00BCFF";
+            btnBg = "rgba(0, 188, 255, 0.12)";
+            btnBorder = "rgba(0, 188, 255, 0.4)";
+          } else if (plataforma === "teams") {
+            platformName = "Teams";
+            btnColor = "#6366F1";
+            btnBg = "rgba(99, 102, 241, 0.12)";
+            btnBorder = "rgba(99, 102, 241, 0.4)";
+          } else {
+            platformName = "Sala Virtual";
+            btnColor = "var(--gold)";
+            btnBg = "rgba(212, 175, 55, 0.1)";
+            btnBorder = "var(--gold)";
+          }
+
+          joinBtnHtml = `
+            <div style="margin-top: 10px;">
+              <a href="${item.local_link}" target="_blank" class="btn-join-meeting" style="display: inline-flex; align-items: center; gap: 8px; color: ${btnColor}; background: ${btnBg}; border: 1px solid ${btnBorder}; padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none; cursor: pointer;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                <span>🎥 Entrar na Reunião Virtual (${platformName})</span>
+              </a>
+            </div>
+          `;
+        }
+
+        // Plataforma badge
+        let platBadge = "";
+        if (platformName) {
+          platBadge = `<span style="background: rgba(255,255,255,0.05); border: 1px solid var(--panel-border); font-size: 10px; padding: 2px 6px; border-radius: 4px; color: var(--text-secondary); margin-left: 6px;">${platformName}</span>`;
+        }
+
         div.innerHTML = `
           <div class="timeline-dot"></div>
           <span class="timeline-time">${formattedDate}</span>
-          <span class="timeline-title">${item.titulo}</span>
+          <span class="timeline-title">${item.titulo} ${platBadge}</span>
           <div class="timeline-meta">
             <span>Tipo: <strong>${item.tipo}</strong></span> | 
-            <span>Local: <strong>${item.local_link || 'Não informado'}</strong></span> | 
+            <span>Local/Link: <strong>${item.local_link || 'Não informado'}</strong></span> | 
             <span>Status: <strong style="color: ${item.status === 'Realizado' ? 'var(--success-color)' : (item.status === 'Cancelado' ? 'var(--error-color)' : 'var(--gold)')}">${item.status}</strong></span> | 
             <button type="button" class="btn-edit-comp-trigger" data-id="${item.id}" style="background: none; border: none; color: var(--gold); font-size: 11px; cursor: pointer; text-decoration: underline; font-weight: 600; padding: 0; vertical-align: middle; transition: color 0.2s;">Editar</button>
           </div>
-          ${item.anotacoes_pos_evento ? `<p class="timeline-desc">${item.anotacoes_pos_evento}</p>` : ''}
+          ${displayAnotacoes ? `<p class="timeline-desc">${displayAnotacoes}</p>` : ''}
+          ${joinBtnHtml}
         `;
 
         compromissosTimelineList.appendChild(div);
@@ -2318,6 +2652,10 @@ compromissosTimelineList.addEventListener("click", async (e) => {
   if (!btn) return;
 
   const id = btn.getAttribute("data-id");
+  openEditCompromisso(id);
+});
+
+async function openEditCompromisso(id) {
   activeCompromissoId = id;
 
   try {
@@ -2330,7 +2668,7 @@ compromissosTimelineList.addEventListener("click", async (e) => {
     if (error) throw error;
     if (comp) {
       editCompTitulo.value = comp.titulo || "";
-      editCompTipo.value = comp.tipo || "Reunião";
+      editCompTipo.value = comp.tipo || "Reunião Online";
       
       if (comp.data_hora) {
         const dateObj = new Date(comp.data_hora);
@@ -2340,9 +2678,90 @@ compromissosTimelineList.addEventListener("click", async (e) => {
         editCompDataHora.value = "";
       }
 
-      editCompLocalLink.value = comp.local_link || "";
       editCompStatus.value = comp.status || "Agendado";
-      editCompAnotacoes.value = comp.anotacoes_pos_evento || "";
+      editCompValidationError.style.display = "none";
+
+      // Determinar dados de Reunião Online
+      let isOnline = false;
+      let plat = "google_meet";
+      let notesText = comp.anotacoes_pos_evento || "";
+      
+      if (comp.anotacoes_pos_evento && comp.anotacoes_pos_evento.startsWith("{") && comp.anotacoes_pos_evento.endsWith("}")) {
+        try {
+          const parsed = JSON.parse(comp.anotacoes_pos_evento);
+          isOnline = parsed.online === true || (parsed.plataforma ? true : false);
+          plat = parsed.plataforma || "google_meet";
+          notesText = parsed.anotacoes || "";
+        } catch (e) {
+          // ignore
+        }
+      } else if (comp.tipo === "Reunião Online" || comp.tipo === "Reunião") {
+        isOnline = true;
+        if (comp.local_link) {
+          if (comp.local_link.includes("zoom.us")) plat = "zoom";
+          else if (comp.local_link.includes("teams.microsoft.com")) plat = "teams";
+          else if (comp.local_link.includes("meet.google.com") || comp.local_link.includes("google.com")) plat = "google_meet";
+          else plat = "outro";
+        }
+      }
+
+      // Lógica de Exibição Outlook-style baseada no Tipo
+      if (comp.tipo === "Prazo Processual") {
+        editCompOnlineToggleContainer.style.display = "none";
+        editCompLocalGroup.style.display = "none";
+        editCompVirtualRoomConfig.style.display = "none";
+      } else {
+        if (comp.tipo === "Reunião Online" || comp.tipo === "Reunião") {
+          editCompOnlineToggleContainer.style.display = "flex";
+          editCompOnlineToggleTitle.innerText = "🎥 Reunião Online";
+        } else if (comp.tipo === "Audiência") {
+          editCompOnlineToggleContainer.style.display = "flex";
+          editCompOnlineToggleTitle.innerText = "🎥 Audiência Virtual";
+        } else {
+          editCompOnlineToggleContainer.style.display = "none";
+        }
+
+        editCompOnlineToggle.checked = isOnline;
+        handleToggleChange(editCompOnlineToggle, editCompLocalGroup, editCompVirtualRoomConfig, isOnline);
+
+        if (isOnline) {
+          editCompMeetingLink.value = comp.local_link || "";
+          editCompLocalFisico.value = "";
+
+          // Ativar botão da plataforma
+          selectedEditPlatform = plat;
+          const platBtns = document.querySelectorAll("#edit-comp-virtual-room-config .btn-platform-select");
+          platBtns.forEach(b => b.classList.remove("active"));
+          const activeBtn = document.querySelector(`#edit-comp-virtual-room-config button[data-platform="${plat}"]`);
+          if (activeBtn) {
+            activeBtn.classList.add("active");
+          }
+          
+          // Ajustar visualização do meet helper
+          if (plat === "google_meet") {
+            editMeetHelperContainer.style.display = "block";
+            editCompMeetingLinkLabel.innerText = "Link do Google Meet *";
+            editCompMeetingLink.placeholder = "meet.google.com/...";
+          } else if (plat === "zoom") {
+            editMeetHelperContainer.style.display = "none";
+            editCompMeetingLinkLabel.innerText = "Link do Zoom *";
+            editCompMeetingLink.placeholder = "zoom.us/...";
+          } else if (plat === "teams") {
+            editMeetHelperContainer.style.display = "none";
+            editCompMeetingLinkLabel.innerText = "Link do Microsoft Teams *";
+            editCompMeetingLink.placeholder = "teams.microsoft.com/...";
+          } else {
+            editMeetHelperContainer.style.display = "none";
+            editCompMeetingLinkLabel.innerText = "Link da Reunião *";
+            editCompMeetingLink.placeholder = "Cole o link da reunião virtual";
+          }
+        } else {
+          editCompLocalFisico.value = comp.local_link || "";
+          editCompMeetingLink.value = "";
+        }
+      }
+
+      editCompAnotacoes.value = notesText;
 
       modalEditCompromisso.style.display = "flex";
     }
@@ -2350,7 +2769,7 @@ compromissosTimelineList.addEventListener("click", async (e) => {
     console.error("Erro ao buscar compromisso para edição:", err.message);
     alert("Não foi possível carregar os dados do compromisso.");
   }
-});
+}
 
 editCompromissoForm.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -2359,13 +2778,35 @@ editCompromissoForm.addEventListener("submit", async (e) => {
   const titulo = editCompTitulo.value.trim();
   const tipo = editCompTipo.value;
   const dataHora = editCompDataHora.value;
-  const localLink = editCompLocalLink.value.trim();
   const status = editCompStatus.value;
-  const anotacoes = editCompAnotacoes.value.trim();
+  const rawAnotacoes = editCompAnotacoes.value.trim();
 
   if (!titulo || !dataHora) {
     alert("O Título e a Data/Hora são obrigatórios.");
     return;
+  }
+
+  let localLink = "";
+  let anotacoes = rawAnotacoes;
+
+  const isOnlineChecked = editCompOnlineToggle.checked && (tipo !== "Prazo Processual");
+
+  if (tipo === "Prazo Processual") {
+    localLink = "";
+    anotacoes = JSON.stringify({ online: false, anotacoes: rawAnotacoes });
+  } else if (isOnlineChecked) {
+    const meetLink = editCompMeetingLink.value.trim();
+    const validationErr = validateMeetingLink(meetLink, selectedEditPlatform);
+    if (validationErr) {
+      alert(`Erro de Validação: ${validationErr}`);
+      editCompMeetingLink.focus();
+      return;
+    }
+    localLink = meetLink;
+    anotacoes = JSON.stringify({ plataforma: selectedEditPlatform, online: true, anotacoes: rawAnotacoes });
+  } else {
+    localLink = editCompLocalFisico.value.trim();
+    anotacoes = JSON.stringify({ online: false, anotacoes: rawAnotacoes });
   }
 
   try {
@@ -2958,7 +3399,7 @@ async function generateStrategyPDF(client, process) {
     pdf.setFont("times", "bold");
     pdf.setFontSize(12);
     pdf.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-    pdf.text("JT ADVOCACIA", marginX, 15);
+    pdf.text("JT - JANAINA TARABAUCA ADVOCACIA", marginX, 15);
 
     // Tagline / Slogan (Top-Right)
     pdf.setFont("times", "italic");
@@ -2974,7 +3415,7 @@ async function generateStrategyPDF(client, process) {
     pdf.setFont("times", "normal");
     pdf.setFontSize(7.5);
     pdf.setTextColor(150, 150, 150);
-    pdf.text("Documento Jurídico Confidencial • Direitos Reservados JT Advocacia", marginX, 285);
+    pdf.text("Documento Jurídico Confidencial • Direitos Reservados JT - Janaina Tarabauca Advocacia", marginX, 285);
     pdf.text(`Página ${pageNum}`, 210 - marginX, 285, { align: "right" });
   }
 
@@ -3170,7 +3611,7 @@ async function generateStrategyPDF(client, process) {
   doc.setFont("times", "bold");
   doc.setFontSize(9);
   doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.text("JT ADVOCACIA E ASSOCIADOS", 105, currentY, { align: "center" });
+  doc.text("JT - JANAINA TARABAUCA ADVOCACIA", 105, currentY, { align: "center" });
   currentY += 4;
 
   doc.setFont("times", "normal");
@@ -3182,7 +3623,7 @@ async function generateStrategyPDF(client, process) {
 
   // Dispara o download automático do PDF
   const safeClientName = client.nome.replace(/[^a-zA-Z0-9]/g, "_");
-  doc.save(`Estrategia_JT_Advocacia_${safeClientName}.pdf`);
+  doc.save(`Estrategia_JT_Janaina_Tarabauca_Advocacia_${safeClientName}.pdf`);
 }
 
 // =========================================================================
@@ -3391,4 +3832,1467 @@ if (btnVerFinanceiroAtrasado) {
   btnVerFinanceiroAtrasado.addEventListener("click", () => {
     switchPrivateView("clientes");
   });
+}
+
+// =========================================================================
+// ⚡ MÓDULO DE PROCESSOS GLOBAIS & LEITOR DE PROCESSOS COM GEMINI IA
+// =========================================================================
+
+let globalProcesses = [];
+let parsedAiResult = null;
+
+// Elementos de UI do Módulo Processos
+const processosListPanel = document.getElementById("processos-list-panel");
+const processosAiPanel = document.getElementById("processos-ai-panel");
+const gridListProcessos = document.getElementById("processos-grid-list");
+const listEmptyProcessos = document.getElementById("processos-list-empty");
+
+const btnNovoProcessoAiUploader = document.getElementById("btn-novo-processo-ai-uploader");
+const btnNovoProcessoGlobal = document.getElementById("btn-novo-processo-global");
+const btnProcessosAiVoltar = document.getElementById("btn-processos-ai-voltar");
+
+const processosSearchInput = document.getElementById("processos-search-input");
+const processosFilterArea = document.getElementById("processos-filter-area");
+const processosFilterStatus = document.getElementById("processos-filter-status");
+
+// Elementos da área do Uploader IA
+const dropzone = document.getElementById("processo-dropzone");
+const fileInput = document.getElementById("processo-file-input");
+const textInput = document.getElementById("processo-text-input");
+const selectClienteAi = document.getElementById("processo-ai-select-cliente");
+const btnAnalisarIa = document.getElementById("btn-processo-analisar-ia");
+
+const resultPlaceholder = document.getElementById("processo-ai-result-placeholder");
+const loadingIndicator = document.getElementById("processo-ai-loading-indicator");
+const loadingStatus = document.getElementById("processo-ai-loading-status");
+const resultContent = document.getElementById("processo-ai-result-content");
+
+const btnCopyMinuta = document.getElementById("btn-copy-ai-minuta");
+const btnCancelarAi = document.getElementById("btn-processo-ai-cancelar");
+const btnConfirmarGravar = document.getElementById("btn-processo-ai-gravar");
+
+// Função controladora de painéis
+function showProcessosPanel(panelType) {
+  if (panelType === "list") {
+    processosListPanel.style.display = "block";
+    processosAiPanel.style.display = "none";
+    loadGlobalProcessesList();
+  } else if (panelType === "ai") {
+    processosListPanel.style.display = "none";
+    processosAiPanel.style.display = "block";
+    resetAiAnalyzerPanel();
+  }
+}
+
+// Navegação do painel
+if (btnNovoProcessoAiUploader) {
+  btnNovoProcessoAiUploader.addEventListener("click", () => showProcessosPanel("ai"));
+}
+if (btnNovoProcessoGlobal) {
+  btnNovoProcessoGlobal.addEventListener("click", () => showProcessosPanel("ai"));
+}
+if (btnProcessosAiVoltar) {
+  btnProcessosAiVoltar.addEventListener("click", () => showProcessosPanel("list"));
+}
+
+// Eventos de Busca e Filtros
+if (processosSearchInput) {
+  processosSearchInput.addEventListener("input", handleProcessFilterSearch);
+}
+if (processosFilterArea) {
+  processosFilterArea.addEventListener("change", handleProcessFilterSearch);
+}
+if (processosFilterStatus) {
+  processosFilterStatus.addEventListener("change", handleProcessFilterSearch);
+}
+
+// Carregamento de Processos no Supabase
+async function loadGlobalProcessesList() {
+  listEmptyProcessos.style.display = "block";
+  listEmptyProcessos.innerText = "Carregando processos...";
+  gridListProcessos.style.display = "none";
+  gridListProcessos.innerHTML = "";
+
+  try {
+    const { data: processes, error } = await supabase
+      .from("processos")
+      .select("*, clientes(nome)")
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    if (processes && processes.length > 0) {
+      listEmptyProcessos.style.display = "none";
+      gridListProcessos.style.display = "grid";
+      globalProcesses = processes;
+      renderProcessesGrid(processes);
+    } else {
+      listEmptyProcessos.style.display = "block";
+      listEmptyProcessos.innerText = "Nenhum processo cadastrado ainda.";
+      gridListProcessos.style.display = "none";
+      globalProcesses = [];
+    }
+  } catch (err) {
+    console.error("Erro ao carregar lista global de processos:", err.message);
+    listEmptyProcessos.innerText = "Erro ao sincronizar processos do servidor.";
+  }
+}
+
+// Renderização dos cards de processos
+function renderProcessesGrid(processes) {
+  gridListProcessos.innerHTML = "";
+
+  processes.forEach(p => {
+    const clientName = p.clientes?.nome || "Cliente não vinculado";
+    const card = document.createElement("div");
+    card.className = "cliente-card";
+    card.style.cursor = "default";
+    card.style.display = "flex";
+    card.style.flexDirection = "column";
+    card.style.justify = "space-between";
+
+    // Extrair estágio e prioridade estimadas
+    let estagio = "Fase Inicial";
+    let prio = "Média";
+    let prioColor = "rgba(197, 168, 92, 0.15)";
+    let prioTextColor = "var(--gold)";
+
+    if (p.observacoes_internas) {
+      if (p.observacoes_internas.includes("Instrução")) estagio = "Instrução";
+      else if (p.observacoes_internas.includes("Sentença")) estagio = "Sentença";
+      else if (p.observacoes_internas.includes("Recurso")) estagio = "Recurso";
+      else if (p.observacoes_internas.includes("Execução")) estagio = "Execução";
+
+      if (p.observacoes_internas.includes("Urgente")) {
+        prio = "Urgente";
+        prioColor = "rgba(239, 68, 68, 0.2)";
+        prioTextColor = "var(--error-color)";
+      } else if (p.observacoes_internas.includes("Alta")) {
+        prio = "Alta";
+        prioColor = "rgba(239, 68, 68, 0.15)";
+        prioTextColor = "var(--error-color)";
+      } else if (p.observacoes_internas.includes("Baixa")) {
+        prio = "Baixa";
+        prioColor = "rgba(16, 185, 129, 0.15)";
+        prioTextColor = "var(--success-color)";
+      }
+    }
+
+    const valorFormatado = p.valor_causa
+      ? parseFloat(p.valor_causa).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+      : "Não informado";
+
+    card.innerHTML = `
+      <div class="cliente-card-header" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+        <span class="badge-tipo" style="background: rgba(197, 168, 92, 0.1); border-color: rgba(197, 168, 92, 0.2); font-size: 10px; margin: 0;">CNJ: ${p.numero_processo || "Não informado"}</span>
+        <h3 class="cliente-card-title" title="${p.titulo}" style="font-size: 15px; margin: 4px 0; font-family:'Outfit'; font-weight:600; color:var(--text-primary);">${p.titulo}</h3>
+        <span style="font-size: 12px; color: var(--gold); font-weight: 500;">👤 Cliente: <strong>${clientName}</strong></span>
+      </div>
+      <div class="cliente-card-body" style="padding-top: 8px; border-top: 1px solid var(--panel-border); margin-top: 8px; flex-grow: 1;">
+        <div class="cliente-card-item" style="margin-bottom: 6px;">
+          <span>Área Jurídica:</span>
+          <strong>${p.area_direito || "Não informada"}</strong>
+        </div>
+        <div class="cliente-card-item" style="margin-bottom: 6px;">
+          <span>Estágio Atual:</span>
+          <strong style="color: var(--text-primary); font-weight: 600;">${estagio}</strong>
+        </div>
+        <div class="cliente-card-item" style="margin-bottom: 6px;">
+          <span>Valor da Causa:</span>
+          <strong>${valorFormatado}</strong>
+        </div>
+        <div class="cliente-card-item" style="margin-bottom: 6px;">
+          <span>Tribunal/Vara:</span>
+          <strong>${p.tribunal || "Não informado"} • ${p.vara || "Não cadastrada"}</strong>
+        </div>
+      </div>
+      <div class="cliente-card-meta" style="justify-content: space-between; border-top: 1px solid var(--panel-border); margin-top: 12px; padding-top: 8px; display: flex; align-items: center;">
+        <span class="badge-tipo" style="background: ${prioColor}; color: ${prioTextColor}; border-color: transparent; margin: 0;">Prioridade: ${prio}</span>
+        <span class="badge-tipo" style="background: rgba(255,255,255,0.03); margin: 0; color:var(--text-secondary);">${p.status}</span>
+      </div>
+    `;
+
+    gridListProcessos.appendChild(card);
+  });
+}
+
+// Filtro e Busca em Tempo Real
+function handleProcessFilterSearch() {
+  const searchQ = processosSearchInput.value.toLowerCase().trim();
+  const filterArea = processosFilterArea.value;
+  const filterStatus = processosFilterStatus.value;
+
+  const filtered = globalProcesses.filter(p => {
+    const matchSearch = !searchQ ||
+      (p.titulo && p.titulo.toLowerCase().includes(searchQ)) ||
+      (p.numero_processo && p.numero_processo.toLowerCase().includes(searchQ)) ||
+      (p.clientes?.nome && p.clientes.nome.toLowerCase().includes(searchQ));
+
+    const matchArea = !filterArea || p.area_direito === filterArea;
+    const matchStatus = !filterStatus || p.status === filterStatus;
+
+    return matchSearch && matchArea && matchStatus;
+  });
+
+  if (filtered.length > 0) {
+    listEmptyProcessos.style.display = "none";
+    gridListProcessos.style.display = "grid";
+    renderProcessesGrid(filtered);
+  } else {
+    listEmptyProcessos.style.display = "block";
+    listEmptyProcessos.innerText = "Nenhum processo atende aos critérios de pesquisa.";
+    gridListProcessos.style.display = "none";
+  }
+}
+
+// Lógica de Leitura e Arraste de Arquivos
+if (fileInput) {
+  fileInput.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (file) handleSelectedTxtFile(file);
+  });
+}
+
+if (dropzone) {
+  dropzone.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    dropzone.style.borderColor = "var(--gold)";
+    dropzone.style.background = "rgba(197, 168, 92, 0.05)";
+  });
+
+  dropzone.addEventListener("dragleave", (e) => {
+    e.preventDefault();
+    dropzone.style.borderColor = "var(--gold)";
+    dropzone.style.background = "rgba(197, 168, 92, 0.02)";
+  });
+
+  dropzone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dropzone.style.borderColor = "var(--gold)";
+    dropzone.style.background = "rgba(197, 168, 92, 0.02)";
+    const file = e.dataTransfer.files[0];
+    if (file) handleSelectedTxtFile(file);
+  });
+}
+
+function handleSelectedTxtFile(file) {
+  if (!file.name.endsWith(".txt")) {
+    alert("Por favor, envie apenas arquivos de texto (.txt). Para outros formatos, copie e cole o texto no campo abaixo.");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    textInput.value = e.target.result;
+    document.getElementById("dropzone-text-main").innerText = `✓ Arquivo carregado: ${file.name}`;
+    document.getElementById("dropzone-text-sub").innerText = `${(file.size / 1024).toFixed(1)} KB - Texto pronto para análise`;
+  };
+  reader.readAsText(file);
+}
+
+// Popular dropdown de Clientes no painel IA
+async function populateAiClientsSelect() {
+  selectClienteAi.innerHTML = '<option value="" disabled selected>Selecione o cliente...</option>';
+  try {
+    const { data: clients, error } = await supabase
+      .from("clientes")
+      .select("id, nome")
+      .order("nome", { ascending: true });
+
+    if (error) throw error;
+
+    if (clients && clients.length > 0) {
+      clients.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c.id;
+        opt.innerText = c.nome;
+        selectClienteAi.appendChild(opt);
+      });
+    } else {
+      selectClienteAi.innerHTML = '<option value="" disabled>Nenhum cliente cadastrado ainda.</option>';
+    }
+  } catch (err) {
+    console.error("Erro ao preencher clientes no select de IA:", err.message);
+  }
+}
+
+// Reset do Workspace de IA
+function resetAiAnalyzerPanel() {
+  resultPlaceholder.style.display = "block";
+  loadingIndicator.style.display = "none";
+  resultContent.style.display = "none";
+  textInput.value = "";
+  document.getElementById("processo-ai-input-numero").value = "";
+  document.getElementById("processo-ai-input-valor").value = "";
+  document.getElementById("processo-ai-input-tribunal").value = "";
+  document.getElementById("processo-ai-input-vara").value = "";
+  document.getElementById("dropzone-text-main").innerText = "Arraste e solte o arquivo do processo (.txt)";
+  document.getElementById("dropzone-text-sub").innerText = "Ou clique aqui para selecionar do computador";
+  parsedAiResult = null;
+  populateAiClientsSelect();
+}
+
+// Chamada à API IA do Gemini
+if (btnAnalisarIa) {
+  btnAnalisarIa.addEventListener("click", handleAnalisarProcessoIa);
+}
+
+async function handleAnalisarProcessoIa() {
+  const textContent = textInput.value.trim();
+  const clienteId = selectClienteAi.value;
+
+  if (!textContent) {
+    alert("Por favor, faça upload de um arquivo .txt ou cole o teor do processo no campo de texto.");
+    return;
+  }
+  if (!clienteId) {
+    alert("Por favor, selecione um cliente para vincular esta análise processual.");
+    return;
+  }
+
+  resultPlaceholder.style.display = "none";
+  resultContent.style.display = "none";
+  loadingIndicator.style.display = "block";
+
+  const loadingMessages = [
+    "Lendo arquivo do processo...",
+    "Consultando jurisprudência e fundamentos legais com Gemini...",
+    "Estruturando teses jurídicas robustas...",
+    "Esboçando a minuta inicial de petição com rigor técnico...",
+    "Quase pronto! Organizando a análise jurídica analítica..."
+  ];
+  let msgIdx = 0;
+  loadingStatus.innerText = loadingMessages[0];
+  const msgTimer = setInterval(() => {
+    msgIdx = (msgIdx + 1) % loadingMessages.length;
+    loadingStatus.innerText = loadingMessages[msgIdx];
+  }, 2500);
+
+  try {
+    const response = await fetch("/api/analisar-processo", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ textoDocumento: textContent })
+    });
+
+    clearInterval(msgTimer);
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error || "Erro desconhecido na análise.");
+    }
+
+    const result = await response.json();
+    parsedAiResult = result;
+
+    // Renderizar resultados da análise
+    document.getElementById("badge-ai-estagio").innerText = result.classificacao.estagio;
+    document.getElementById("badge-ai-prioridade").innerText = result.classificacao.prioridade;
+
+    const prioBadge = document.getElementById("badge-ai-prioridade");
+    if (result.classificacao.prioridade === "Urgente" || result.classificacao.prioridade === "Alta") {
+      prioBadge.style.background = "rgba(239, 68, 68, 0.15)";
+      prioBadge.style.color = "var(--error-color)";
+    } else if (result.classificacao.prioridade === "Baixa") {
+      prioBadge.style.background = "rgba(16, 185, 129, 0.15)";
+      prioBadge.style.color = "var(--success-color)";
+    } else {
+      prioBadge.style.background = "rgba(197, 168, 92, 0.15)";
+      prioBadge.style.color = "var(--gold)";
+    }
+
+    document.getElementById("ai-result-resumo-text").innerText = result.resumo_executivo;
+    document.getElementById("ai-result-tese-text").innerText = result.tese_sugerida;
+    document.getElementById("ai-result-minuta-text").value = result.minuta_inicial_rascunho;
+
+    // Ativar aba resumo por padrão
+    document.querySelectorAll("#processo-ai-result-content .ia-strategy-tab-btn").forEach(b => {
+      if (b.getAttribute("data-result-tab") === "resumo") b.classList.add("active");
+      else b.classList.remove("active");
+    });
+    document.getElementById("ai-result-resumo-pane").style.display = "block";
+    document.getElementById("ai-result-tese-pane").style.display = "none";
+    document.getElementById("ai-result-minuta-pane").style.display = "none";
+
+    loadingIndicator.style.display = "none";
+    resultContent.style.display = "block";
+  } catch (err) {
+    clearInterval(msgTimer);
+    console.error("Erro na chamada de análise da IA:", err.message);
+    alert(`Falha na análise analítica da IA: ${err.message}`);
+    loadingIndicator.style.display = "none";
+    resultPlaceholder.style.display = "block";
+  }
+}
+
+// Abas de visualização de resultados de IA
+document.querySelectorAll("#processo-ai-result-content .ia-strategy-tab-btn").forEach(btn => {
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+    document.querySelectorAll("#processo-ai-result-content .ia-strategy-tab-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    const target = btn.getAttribute("data-result-tab");
+    document.getElementById("ai-result-resumo-pane").style.display = target === "resumo" ? "block" : "none";
+    document.getElementById("ai-result-tese-pane").style.display = target === "tese" ? "block" : "none";
+    document.getElementById("ai-result-minuta-pane").style.display = target === "minuta" ? "block" : "none";
+  });
+});
+
+// Ação de copiar minuta
+if (btnCopyMinuta) {
+  btnCopyMinuta.addEventListener("click", () => {
+    const textarea = document.getElementById("ai-result-minuta-text");
+    textarea.select();
+    navigator.clipboard.writeText(textarea.value);
+    btnCopyMinuta.innerText = "✓ Copiado!";
+    setTimeout(() => {
+      btnCopyMinuta.innerText = "Copiar Minuta";
+    }, 2000);
+  });
+}
+
+// Cancelar/limpar IA
+if (btnCancelarAi) {
+  btnCancelarAi.addEventListener("click", () => resetAiAnalyzerPanel());
+}
+
+// Salvar processo IA no banco de dados
+if (btnConfirmarGravar) {
+  btnConfirmarGravar.addEventListener("click", handleConfirmarGravarProcessoIa);
+}
+
+async function handleConfirmarGravarProcessoIa() {
+  if (!parsedAiResult) return;
+
+  const clienteId = selectClienteAi.value;
+  const numero = document.getElementById("processo-ai-input-numero").value.trim() || null;
+  const valor = document.getElementById("processo-ai-input-valor").value.trim() || null;
+  const tribunal = document.getElementById("processo-ai-input-tribunal").value.trim() || null;
+  const vara = document.getElementById("processo-ai-input-vara").value.trim() || null;
+
+  if (!clienteId) {
+    alert("Por favor, selecione um cliente.");
+    return;
+  }
+
+  try {
+    setLoadingState(btnConfirmarGravar, true, "Processando...");
+
+    // Estimar título e área com base no resumo/tese
+    let area = "Civil";
+    const resumoLower = parsedAiResult.resumo_executivo.toLowerCase();
+    const teseLower = parsedAiResult.tese_sugerida.toLowerCase();
+    
+    if (resumoLower.includes("trabalho") || teseLower.includes("clt") || teseLower.includes("trabalhista")) {
+      area = "Trabalhista";
+    } else if (resumoLower.includes("inss") || teseLower.includes("aposentadoria") || teseLower.includes("previdenciário")) {
+      area = "Previdenciário";
+    } else if (resumoLower.includes("divórcio") || teseLower.includes("pensão") || teseLower.includes("guarda") || teseLower.includes("família")) {
+      area = "Família";
+    } else if (resumoLower.includes("relação de consumo") || teseLower.includes("cdc") || teseLower.includes("consumidor")) {
+      area = "Consumidor";
+    } else if (resumoLower.includes("societário") || teseLower.includes("empresa") || teseLower.includes("empresarial")) {
+      area = "Empresarial";
+    }
+
+    const titulo = `Ação IA - Estágio: ${parsedAiResult.classificacao.estagio}`;
+
+    const { error } = await supabase
+      .from("processos")
+      .insert({
+        cliente_id: clienteId,
+        numero_processo: numero,
+        titulo: titulo,
+        area_direito: area,
+        status: "Ativo",
+        tribunal: tribunal,
+        vara: vara,
+        valor_causa: valor ? parseFloat(valor) : null,
+        observacoes_internas: `RESUMO EXECUTIVO IA:\n${parsedAiResult.resumo_executivo}\n\nTESE RECOMENDADA:\n${parsedAiResult.tese_sugerida}\n\nESTÁGIO ESTIMADO: ${parsedAiResult.classificacao.estagio}\nPRIORIDADE IA: ${parsedAiResult.classificacao.prioridade}\n\nMINUTA INICIAL GERADA EM ANEXO: \n${parsedAiResult.minuta_inicial_rascunho}`,
+        historico_andamentos: [
+          {
+            data: new Date().toLocaleDateString("pt-BR"),
+            titulo: "Análise Analítica IA Concluída",
+            descricao: "Fatos, tese recomendada e minuta formal de petição gerados com Gemini-2.5-Flash."
+          }
+        ]
+      });
+
+    if (error) throw error;
+
+    alert("Processo judicial com inteligência jurídica estruturada gravado com sucesso na base do Supabase!");
+    showProcessosPanel("list");
+  } catch (err) {
+    console.error("Erro ao persistir processo IA na base de dados:", err.message);
+    alert(`Erro ao gravar processo IA: ${err.message}`);
+  } finally {
+    setLoadingState(btnConfirmarGravar, false, "💾 Confirmar e Gravar Processo");
+  }
+}
+
+// =========================================================================
+// 📅 MÓDULO DA AGENDA AVANÇADA (CALENDÁRIO & KANBAN)
+// =========================================================================
+let agendaCompromissos = [];
+let currentAgendaView = "calendar";
+let currentAgendaTab = "month";
+let currentAgendaDate = new Date();
+let currentAgendaFilter = "todos";
+
+// Elementos da Interface Agenda
+const btnAgendaViewCalendar = document.getElementById("btn-agenda-view-calendar");
+const btnAgendaViewKanban = document.getElementById("btn-agenda-view-kanban");
+const agendaCalendarControls = document.getElementById("agenda-calendar-controls");
+const btnAgendaToday = document.getElementById("btn-agenda-today");
+const btnAgendaPrev = document.getElementById("btn-agenda-prev");
+const btnAgendaNext = document.getElementById("btn-agenda-next");
+const agendaCalendarTitle = document.getElementById("agenda-calendar-title");
+const btnAgendaTabMonth = document.getElementById("btn-agenda-tab-month");
+const btnAgendaTabWeek = document.getElementById("btn-agenda-tab-week");
+const agendaCalendarView = document.getElementById("agenda-calendar-view");
+const agendaKanbanView = document.getElementById("agenda-kanban-view");
+const agendaCalendarRender = document.getElementById("agenda-calendar-render");
+const agendaTypeFilter = document.getElementById("agenda-type-filter");
+const kanbanListPendente = document.getElementById("kanban-list-pendente");
+const kanbanListHoje = document.getElementById("kanban-list-hoje");
+const kanbanListConcluido = document.getElementById("kanban-list-concluido");
+const kanbanCountPendente = document.getElementById("kanban-count-pendente");
+const kanbanCountHoje = document.getElementById("kanban-count-hoje");
+const kanbanCountConcluido = document.getElementById("kanban-count-concluido");
+
+// Alternar entre Calendário e Kanban
+if (btnAgendaViewCalendar) {
+  btnAgendaViewCalendar.addEventListener("click", () => {
+    currentAgendaView = "calendar";
+    btnAgendaViewCalendar.classList.add("active");
+    btnAgendaViewCalendar.style.background = "var(--gold)";
+    btnAgendaViewCalendar.style.color = "var(--navy)";
+    btnAgendaViewKanban.classList.remove("active");
+    btnAgendaViewKanban.style.background = "none";
+    btnAgendaViewKanban.style.color = "var(--text-secondary)";
+    
+    agendaCalendarControls.style.display = "flex";
+    agendaCalendarView.classList.remove("hidden");
+    agendaKanbanView.classList.add("hidden");
+    renderAgenda();
+  });
+}
+
+if (btnAgendaViewKanban) {
+  btnAgendaViewKanban.addEventListener("click", () => {
+    currentAgendaView = "kanban";
+    btnAgendaViewKanban.classList.add("active");
+    btnAgendaViewKanban.style.background = "var(--gold)";
+    btnAgendaViewKanban.style.color = "var(--navy)";
+    btnAgendaViewCalendar.classList.remove("active");
+    btnAgendaViewCalendar.style.background = "none";
+    btnAgendaViewCalendar.style.color = "var(--text-secondary)";
+    
+    agendaCalendarControls.style.display = "none";
+    agendaCalendarView.classList.add("hidden");
+    agendaKanbanView.classList.remove("hidden");
+    renderAgenda();
+  });
+}
+
+// Sub-tabs (Mensal / Semanal)
+if (btnAgendaTabMonth) {
+  btnAgendaTabMonth.addEventListener("click", () => {
+    currentAgendaTab = "month";
+    btnAgendaTabMonth.classList.add("active");
+    btnAgendaTabMonth.style.background = "var(--navy-light)";
+    btnAgendaTabMonth.style.color = "var(--text-primary)";
+    btnAgendaTabWeek.classList.remove("active");
+    btnAgendaTabWeek.style.background = "none";
+    btnAgendaTabWeek.style.color = "var(--text-secondary)";
+    renderAgenda();
+  });
+}
+
+if (btnAgendaTabWeek) {
+  btnAgendaTabWeek.addEventListener("click", () => {
+    currentAgendaTab = "week";
+    btnAgendaTabWeek.classList.add("active");
+    btnAgendaTabWeek.style.background = "var(--navy-light)";
+    btnAgendaTabWeek.style.color = "var(--text-primary)";
+    btnAgendaTabMonth.classList.remove("active");
+    btnAgendaTabMonth.style.background = "none";
+    btnAgendaTabMonth.style.color = "var(--text-secondary)";
+    renderAgenda();
+  });
+}
+
+// Filtro de Categoria
+if (agendaTypeFilter) {
+  agendaTypeFilter.addEventListener("change", (e) => {
+    currentAgendaFilter = e.target.value;
+    renderAgenda();
+  });
+}
+
+// Controles de Navegação das Datas
+if (btnAgendaToday) {
+  btnAgendaToday.addEventListener("click", () => {
+    currentAgendaDate = new Date();
+    renderAgenda();
+  });
+}
+
+if (btnAgendaPrev) {
+  btnAgendaPrev.addEventListener("click", () => {
+    if (currentAgendaTab === "month") {
+      currentAgendaDate.setMonth(currentAgendaDate.getMonth() - 1);
+    } else {
+      currentAgendaDate.setDate(currentAgendaDate.getDate() - 7);
+    }
+    renderAgenda();
+  });
+}
+
+if (btnAgendaNext) {
+  btnAgendaNext.addEventListener("click", () => {
+    if (currentAgendaTab === "month") {
+      currentAgendaDate.setMonth(currentAgendaDate.getMonth() + 1);
+    } else {
+      currentAgendaDate.setDate(currentAgendaDate.getDate() + 7);
+    }
+    renderAgenda();
+  });
+}
+
+// Sincronizar e buscar dados Supabase de agenda
+async function loadAgendaData() {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    // Buscar com RLS ativo na tabela
+    const { data, error } = await supabase
+      .from("compromissos")
+      .select(`
+        *,
+        clientes ( nome, whatsapp ),
+        processos ( numero_processo, titulo )
+      `)
+      .order("data_hora", { ascending: true });
+
+    if (error) throw error;
+    
+    // Type-cast e sanitização de dados aninhados
+    agendaCompromissos = (data || []).map(item => {
+      const clientesObj = Array.isArray(item.clientes) ? item.clientes[0] : item.clientes;
+      const processosObj = Array.isArray(item.processos) ? item.processos[0] : item.processos;
+      return {
+        ...item,
+        clientes: clientesObj || null,
+        processos: processosObj || null
+      };
+    });
+
+    renderAgenda();
+  } catch (err) {
+    console.error("Erro ao carregar dados do painel de agenda:", err.message);
+  }
+}
+
+// Obter estilo dinâmico por categoria
+function getAgendaStyle(tipo) {
+  const t = tipo ? tipo.toLowerCase() : "";
+  if (t.includes("audiência") || t.includes("audiencia")) {
+    return {
+      borderClass: "border-l-4 border-red-500",
+      bgClass: "rgba(239, 68, 68, 0.05)",
+      hoverClass: "rgba(239, 68, 68, 0.1)",
+      textClass: "#ef4444",
+      badge: "🔴 Audiência"
+    };
+  } else if (t.includes("prazo")) {
+    return {
+      borderClass: "border-l-4 border-[#d4af37]",
+      bgClass: "rgba(212, 175, 55, 0.05)",
+      hoverClass: "rgba(212, 175, 55, 0.1)",
+      textClass: "var(--gold)",
+      badge: "⚜️ Prazo Processual"
+    };
+  } else {
+    return {
+      borderClass: "border-l-4 border-blue-500",
+      bgClass: "rgba(59, 130, 246, 0.05)",
+      hoverClass: "rgba(59, 130, 246, 0.1)",
+      textClass: "#3b82f6",
+      badge: "🔵 Reunião / Atendimento"
+    };
+  }
+}
+
+// Filtro rápido de compromissos
+function getFilteredAgendaCompromissos() {
+  if (currentAgendaFilter === "todos") return agendaCompromissos;
+  return agendaCompromissos.filter(c => {
+    const style = getAgendaStyle(c.tipo);
+    if (currentAgendaFilter === "audiencia") return style.badge.includes("Audiência");
+    if (currentAgendaFilter === "prazo") return style.badge.includes("Prazo");
+    if (currentAgendaFilter === "reuniao") return style.badge.includes("Reunião");
+    return true;
+  });
+}
+
+// Chavear renderização
+function renderAgenda() {
+  if (currentAgendaView === "calendar") {
+    renderCalendar();
+  } else {
+    renderKanban();
+  }
+}
+
+// Renderizar Calendário
+function renderCalendar() {
+  const filtered = getFilteredAgendaCompromissos();
+  const year = currentAgendaDate.getFullYear();
+  const month = currentAgendaDate.getMonth();
+
+  if (currentAgendaTab === "month") {
+    const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+    agendaCalendarTitle.innerText = `${monthNames[month]} ${year}`.toUpperCase();
+
+    const firstDayIndex = new Date(year, month, 1).getDay();
+    const lastDay = new Date(year, month + 1, 0).getDate();
+    const prevLastDay = new Date(year, month, 0).getDate();
+    
+    let gridHtml = `
+      <div style="min-width: 700px;">
+        <div style="display: grid; grid-template-columns: repeat(7, 1fr); border-b: 1px solid var(--panel-border); background: var(--navy);">
+          ${["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map(day => `
+            <div style="padding: 10px 0; text-align: center; font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px;">${day}</div>
+          `).join("")}
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(7, 1fr); grid-auto-rows: minmax(100px, auto);">
+    `;
+
+    // Dias do mês anterior
+    for (let i = firstDayIndex - 1; i >= 0; i--) {
+      const dayNum = prevLastDay - i;
+      const cellDate = new Date(year, month - 1, dayNum);
+      gridHtml += renderCalendarCell(dayNum, false, cellDate, filtered);
+    }
+
+    // Dias do mês atual
+    for (let i = 1; i <= lastDay; i++) {
+      const cellDate = new Date(year, month, i);
+      const isToday = new Date().toDateString() === cellDate.toDateString();
+      gridHtml += renderCalendarCell(i, true, cellDate, filtered, isToday);
+    }
+
+    // Dias do próximo mês
+    const totalCells = firstDayIndex + lastDay;
+    const remainingCells = 42 - totalCells;
+    for (let i = 1; i <= remainingCells; i++) {
+      const cellDate = new Date(year, month + 1, i);
+      gridHtml += renderCalendarCell(i, false, cellDate, filtered);
+    }
+
+    gridHtml += `
+        </div>
+      </div>
+    `;
+    agendaCalendarRender.innerHTML = gridHtml;
+
+  } else {
+    // Grade Semanal
+    const startOfWeek = new Date(currentAgendaDate);
+    startOfWeek.setDate(currentAgendaDate.getDate() - currentAgendaDate.getDay());
+    
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+    const formatTitle = `${startOfWeek.getDate()}/${startOfWeek.getMonth()+1} a ${endOfWeek.getDate()}/${endOfWeek.getMonth()+1} - ${year}`;
+    agendaCalendarTitle.innerText = formatTitle.toUpperCase();
+
+    let gridHtml = `
+      <div style="display: grid; grid-template-columns: repeat(7, 1fr); divide-x: 1px; background: var(--navy); min-width: 750px;">
+    `;
+
+    for (let i = 0; i < 7; i++) {
+      const day = new Date(startOfWeek);
+      day.setDate(startOfWeek.getDate() + i);
+      const isToday = new Date().toDateString() === day.toDateString();
+      const diaNome = day.toLocaleDateString("pt-BR", { weekday: "short" });
+      const dayComps = filtered.filter(c => {
+        const cDate = new Date(c.data_hora);
+        return cDate.toDateString() === day.toDateString();
+      });
+
+      gridHtml += `
+        <div style="padding: 16px; min-height: 400px; border-right: 1px solid var(--panel-border); background: ${isToday ? "rgba(197, 168, 92, 0.03)" : "none"}; display: flex; flex-direction: column; gap: 12px;">
+          <div style="border-bottom: 1px solid var(--panel-border); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; flex-direction: column;">
+              <span style="font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">${diaNome}</span>
+              <span style="font-size: 14px; font-weight: 800; color: ${isToday ? "var(--gold)" : "var(--text-primary)"};">${day.getDate()} / ${day.getMonth()+1}</span>
+            </div>
+            ${dayComps.length > 0 ? `<span style="font-size: 9px; font-weight: 700; background: var(--navy); border: 1px solid var(--panel-border); padding: 2px 6px; border-radius: 20px; color: var(--text-secondary);">${dayComps.length}</span>` : ""}
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 10px; overflow-y: auto; max-height: 350px;">
+            ${dayComps.length === 0 ? `
+              <div style="text-align: center; padding: 20px 0; font-size: 10px; color: var(--text-secondary); font-style: italic;">Sem compromissos</div>
+            ` : dayComps.map(c => {
+              const style = getAgendaStyle(c.tipo);
+              const isOnline = c.tipo === "Reunião Online" || (c.local_link && (c.local_link.includes("meet.google.com") || c.local_link.includes("teams.microsoft.com")));
+              const dTime = new Date(c.data_hora).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+              return `
+                <div class="agenda-mini-card btn-edit-comp-trigger" data-id="${c.id}" style="padding: 10px; border-radius: 8px; border-left: 3px solid ${style.textClass}; background: ${style.bgClass}; border: 1px solid rgba(255,255,255,0.03); border-left-width: 3px; display: flex; flex-direction: column; gap: 6px; cursor: pointer; transition: all 0.2s;">
+                  <div style="display: flex; justify-content: space-between; font-size: 8px; font-weight: 700; color: var(--text-secondary);">
+                    <span>⏱️ ${dTime}</span>
+                    <span style="color: ${style.textClass};">${c.status}</span>
+                  </div>
+                  <h4 style="font-size: 11px; font-weight: 700; margin: 0; color: var(--text-primary); line-clamp: 2;" class="truncate-2-lines">
+                    ${isOnline ? "🎥 " : ""}${c.titulo}
+                  </h4>
+                  ${c.clientes ? `<span style="font-size: 9px; color: var(--text-secondary);">👤 ${c.clientes.nome}</span>` : ""}
+                </div>
+              `;
+            }).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    gridHtml += `</div>`;
+    agendaCalendarRender.innerHTML = gridHtml;
+  }
+}
+
+// Renderizar Célula Mensal
+function renderCalendarCell(dayNum, isCurrentMonth, cellDate, commitmentsList, isToday = false) {
+  const dayComps = commitmentsList.filter(c => {
+    const cDate = new Date(c.data_hora);
+    return cDate.toDateString() === cellDate.toDateString();
+  });
+
+  let cellStyle = `padding: 10px; border-right: 1px solid rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.03); display: flex; flex-direction: column; gap: 6px; min-height: 110px; position: relative;`;
+  if (!isCurrentMonth) cellStyle += ` background: rgba(0,0,0,0.2); opacity: 0.35;`;
+  if (isToday) cellStyle += ` background: rgba(197, 168, 92, 0.02);`;
+
+  let cellHtml = `
+    <div style="${cellStyle}">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 11px; font-weight: 700; font-family: 'Outfit'; color: ${isToday ? "var(--navy)" : "var(--text-secondary)"}; background: ${isToday ? "var(--gold)" : "none"}; padding: 2px 6px; border-radius: 4px;">${dayNum}</span>
+        ${dayComps.length > 0 ? `<span style="font-size: 8px; font-weight: 700; background: var(--navy); border: 1px solid var(--panel-border); color: var(--text-secondary); padding: 1px 4px; border-radius: 20px;">${dayComps.length}</span>` : ""}
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 4px; flex-grow: 1; overflow: hidden;">
+  `;
+
+  dayComps.slice(0, 3).forEach(c => {
+    const style = getAgendaStyle(c.tipo);
+    const dTime = new Date(c.data_hora).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    const isOnline = c.tipo === "Reunião Online" || (c.local_link && (c.local_link.includes("meet.google.com") || c.local_link.includes("teams.microsoft.com")));
+    cellHtml += `
+      <div class="btn-edit-comp-trigger" data-id="${c.id}" style="padding: 2px 6px; font-size: 9px; font-weight: 600; border-left: 2px solid ${style.textClass}; background: ${style.bgClass}; border-radius: 3px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s;" title="${c.titulo} - ${dTime}">
+        <span class="truncate" style="flex-grow: 1; text-align: left;">${isOnline ? "🎥 " : ""}${c.titulo}</span>
+        <span style="font-size: 7px; color: var(--text-secondary); font-family: monospace; margin-left: 4px; shrink-0;">${dTime}</span>
+      </div>
+    `;
+  });
+
+  if (dayComps.length > 3) {
+    cellHtml += `
+      <div style="font-size: 8px; font-weight: 700; color: var(--gold); text-align: center; margin-top: 2px;">
+        + ${dayComps.length - 3} mais
+      </div>
+    `;
+  }
+
+  cellHtml += `
+      </div>
+    </div>
+  `;
+  return cellHtml;
+}
+
+// Renderizar Quadro Kanban
+function renderKanban() {
+  const filtered = getFilteredAgendaCompromissos();
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+
+  const pendentes = [];
+  const emAndamento = [];
+  const concluidos = [];
+
+  filtered.forEach(c => {
+    if (c.status === "Realizado" || c.status === "Cancelado") {
+      concluidos.push(c);
+    } else {
+      const cDate = new Date(c.data_hora);
+      const cDateZero = new Date(cDate);
+      cDateZero.setHours(0, 0, 0, 0);
+
+      if (cDateZero.getTime() === hoje.getTime()) {
+        emAndamento.push(c);
+      } else {
+        pendentes.push(c);
+      }
+    }
+  });
+
+  // Atualizar contadores
+  kanbanCountPendente.innerText = pendentes.length;
+  kanbanCountHoje.innerText = emAndamento.length;
+  kanbanCountConcluido.innerText = concluidos.length;
+
+  // Renderizar listas
+  kanbanListPendente.innerHTML = pendentes.length === 0 ? `<div style="text-align: center; padding: 40px 0; font-size: 12px; color: var(--text-secondary); font-style: italic;">Sem compromissos pendentes</div>` : pendentes.map(c => renderKanbanCard(c)).join("");
+  kanbanListHoje.innerHTML = emAndamento.length === 0 ? `<div style="text-align: center; padding: 40px 0; font-size: 12px; color: var(--text-secondary); font-style: italic;">Nenhum compromisso agendado para hoje</div>` : emAndamento.map(c => renderKanbanCard(c)).join("");
+  kanbanListConcluido.innerHTML = concluidos.length === 0 ? `<div style="text-align: center; padding: 40px 0; font-size: 12px; color: var(--text-secondary); font-style: italic;">Nenhum compromisso finalizado</div>` : concluidos.map(c => renderKanbanCard(c)).join("");
+}
+
+// Renderizar Card do Kanban
+function renderKanbanCard(c) {
+  const style = getAgendaStyle(c.tipo);
+  const isOnline = c.tipo === "Reunião Online" || (c.local_link && (c.local_link.includes("meet.google.com") || c.local_link.includes("teams.microsoft.com")));
+  const dTime = new Date(c.data_hora).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  const dDate = new Date(c.data_hora).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+
+  let actionHtml = "";
+  if (c.status === "Agendado") {
+    actionHtml = `
+      <div style="display: flex; gap: 10px; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.03);" class="kanban-card-actions">
+        <button type="button" class="btn-kanban-complete" data-id="${c.id}" style="background: none; border: none; color: #10b981; font-size: 10px; font-weight: 700; cursor: pointer; padding: 0;">✓ Cumprir</button>
+        <button type="button" class="btn-kanban-cancel" data-id="${c.id}" style="background: none; border: none; color: #ef4444; font-size: 10px; font-weight: 700; cursor: pointer; padding: 0;">✕ Cancelar</button>
+      </div>
+    `;
+  }
+
+  let joinLinkHtml = "";
+  if (isOnline && c.local_link) {
+    joinLinkHtml = `
+      <div style="margin-top: 6px; padding: 6px 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--panel-border); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
+        <span style="color: var(--text-secondary); text-overflow: ellipsis; white-space: nowrap; overflow: hidden; max-width: 170px;" class="font-mono text-[10px]">🔗 ${c.local_link}</span>
+        <a href="${c.local_link}" target="_blank" style="color: var(--gold); font-weight: 700; text-decoration: none; font-size: 10px;">Entrar ↗</a>
+      </div>
+    `;
+  } else if (c.local_link) {
+    joinLinkHtml = `
+      <div style="margin-top: 6px; padding: 6px 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--panel-border); border-radius: 6px; font-size: 10px; color: var(--text-secondary);" class="truncate">
+        📍 Local: <strong style="color: var(--text-primary);">${c.local_link}</strong>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="agenda-kanban-card btn-edit-comp-trigger" data-id="${c.id}" style="background: ${style.bgClass}; border-left: 4px solid ${style.textClass}; border: 1px solid rgba(255,255,255,0.03); border-left-width: 4px; padding: 16px; border-radius: 12px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; position: relative; transition: all 0.25s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.2)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 8px; font-weight: 700; color: ${style.textClass}; text-transform: uppercase; background: rgba(255,255,255,0.02); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.04);">${style.badge}</span>
+        <span style="font-size: 9px; font-weight: 700; color: var(--text-secondary); background: var(--navy); border: 1px solid var(--panel-border); padding: 1px 6px; border-radius: 4px;">⏱️ ${dDate} às ${dTime}</span>
+      </div>
+      
+      <h4 style="font-size: 13px; font-weight: 700; margin: 4px 0 0 0; color: var(--text-primary);">${isOnline ? "🎥 " : ""}${c.titulo}</h4>
+      
+      ${joinLinkHtml}
+
+      <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 6px; font-size: 10px; color: var(--text-secondary);">
+        ${c.clientes ? `<div>👤 Cliente: <strong style="color: var(--text-primary);">${c.clientes.nome}</strong></div>` : ""}
+        ${c.processos ? `<div>⚖️ Proc: <strong style="color: var(--text-primary);" class="font-mono text-[9px]">${c.processos.numero_processo}</strong></div>` : ""}
+      </div>
+
+      ${actionHtml}
+    </div>
+  `;
+}
+
+// Vincular ações rápidas dentro da agenda (Kanban e Calendário)
+const viewAgendaSection = document.getElementById("view-agenda");
+if (viewAgendaSection) {
+  viewAgendaSection.addEventListener("click", async (e) => {
+    const card = e.target.closest(".btn-edit-comp-trigger");
+    const isActionButton = e.target.closest(".btn-kanban-complete") || e.target.closest(".btn-kanban-cancel") || e.target.closest("a");
+    
+    if (card && !isActionButton) {
+      const id = card.getAttribute("data-id");
+      openEditCompromisso(id);
+      return;
+    }
+
+    const btnComplete = e.target.closest(".btn-kanban-complete");
+    if (btnComplete) {
+      e.stopPropagation();
+      const id = btnComplete.getAttribute("data-id");
+      try {
+        const { error } = await supabase
+          .from("compromissos")
+          .update({ status: "Realizado" })
+          .eq("id", id);
+        
+        if (error) throw error;
+        loadAgendaData();
+        loadDashboardData();
+      } catch (err) {
+        console.error("Erro ao cumprir compromisso:", err.message);
+      }
+      return;
+    }
+
+    const btnCancel = e.target.closest(".btn-kanban-cancel");
+    if (btnCancel) {
+      e.stopPropagation();
+      if (!window.confirm("Deseja realmente cancelar este compromisso?")) return;
+      const id = btnCancel.getAttribute("data-id");
+      try {
+        const { error } = await supabase
+          .from("compromissos")
+          .update({ status: "Cancelado" })
+          .eq("id", id);
+        
+        if (error) throw error;
+        loadAgendaData();
+        loadDashboardData();
+      } catch (err) {
+        console.error("Erro ao cancelar compromisso:", err.message);
+      }
+      return;
+    }
+  });
+}
+
+// =========================================================================
+// MÓDULO FINANCEIRO CENTRAL - GESTÃO DE HONORÁRIOS E CAIXA UNIFICADO
+// =========================================================================
+let financeiroDataCache = [];
+
+async function loadFinanceiroData() {
+  const tableLoading = document.getElementById("financeiro-table-loading");
+  const tableContainer = document.getElementById("financeiro-table-container");
+  const tableEmpty = document.getElementById("financeiro-table-empty");
+  const launchesCount = document.getElementById("financeiro-launches-count");
+
+  const totalRecebidoEl = document.getElementById("financeiro-total-recebido");
+  const totalInadimplenciaEl = document.getElementById("financeiro-total-inadimplencia");
+  const totalProjecaoEl = document.getElementById("financeiro-total-projecao");
+
+  try {
+    if (tableLoading) tableLoading.style.display = "flex";
+    if (tableContainer) tableContainer.style.display = "none";
+    if (tableEmpty) tableEmpty.style.display = "none";
+
+    const { data: finData, error: finError } = await supabase
+      .from("financeiro")
+      .select("*, clientes(id, nome, whatsapp), processos(id, titulo, numero_processo, status)")
+      .order("data_vencimento", { ascending: false });
+
+    if (finError) throw finError;
+
+    financeiroDataCache = (finData || []).map(item => {
+      const clientObj = Array.isArray(item.clientes) ? item.clientes[0] : item.clientes;
+      const processObj = Array.isArray(item.processos) ? item.processos[0] : item.processos;
+      return {
+        ...item,
+        clientes: clientObj || null,
+        processos: processObj || null
+      };
+    });
+
+    // 1. Calcular Métricas Financeiras Consolidadas em Tempo Real
+    const metrics = calculateFinanceiroMetrics(financeiroDataCache);
+    if (totalRecebidoEl) totalRecebidoEl.innerText = formatBrl(metrics.totalRecebido);
+    if (totalInadimplenciaEl) totalInadimplenciaEl.innerText = formatBrl(metrics.totalInadimplencia);
+    if (totalProjecaoEl) totalProjecaoEl.innerText = formatBrl(metrics.totalProjecao);
+
+    // 2. Renderizar a Tabela com Filtros
+    renderFinanceiroTable();
+
+    // 3. Sincronizar em Tempo Real os Indicadores com o Dashboard
+    syncDashboardWithCache(metrics, financeiroDataCache);
+
+  } catch (err) {
+    console.error("Erro ao carregar faturamento geral:", err.message);
+    if (tableLoading) tableLoading.style.display = "none";
+    if (tableEmpty) {
+      tableEmpty.style.display = "block";
+      tableEmpty.innerText = "Erro ao sincronizar lançamentos financeiros: " + err.message;
+    }
+  }
+}
+
+function calculateFinanceiroMetrics(list) {
+  const agora = new Date();
+  const anoCorrente = agora.getFullYear();
+  const mesCorrente = agora.getMonth(); // 0-indexed
+
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+  const hojeStr = hoje.toISOString().split("T")[0];
+
+  const proximo30Dias = new Date();
+  proximo30Dias.setDate(proximo30Dias.getDate() + 30);
+  proximo30Dias.setHours(23, 59, 59, 999);
+  const proximo30DiasStr = proximo30Dias.toISOString().split("T")[0];
+
+  let totalRecebido = 0;
+  let totalInadimplencia = 0;
+  let totalProjecao = 0;
+
+  list.forEach(item => {
+    const valor = parseFloat(item.valor_total) || 0;
+    const status = (item.status_pagamento || "").toLowerCase();
+    
+    const date = new Date(item.data_vencimento);
+    const dataVencAno = date.getUTCFullYear();
+    const dataVencMes = date.getUTCMonth();
+
+    // Total Recebido no Mês Corrente
+    if (status === "pago" && dataVencAno === anoCorrente && dataVencMes === mesCorrente) {
+      totalRecebido += valor;
+    }
+
+    // Inadimplência
+    if (status !== "pago" && item.data_vencimento < hojeStr) {
+      totalInadimplencia += valor;
+    }
+
+    // Previsão de Entrada (próximos 30 dias)
+    if (status !== "pago" && item.data_vencimento >= hojeStr && item.data_vencimento <= proximo30DiasStr) {
+      totalProjecao += valor;
+    }
+  });
+
+  return { totalRecebido, totalInadimplencia, totalProjecao };
+}
+
+function syncDashboardWithCache(metrics, list) {
+  const finTotalRecebidoDashboard = document.getElementById("fin-total-recebido-dashboard");
+  if (!finTotalRecebidoDashboard) return;
+
+  let totalPagoHistorico = 0;
+  let sumFixo = 0;
+  let sumMensal = 0;
+  let sumExito = 0;
+  let overdueCount = 0;
+  const todayStr = new Date().toISOString().split("T")[0];
+
+  list.forEach(item => {
+    const val = parseFloat(item.valor_total) || 0;
+    const status = (item.status_pagamento || "").toLowerCase();
+    const tipo = (item.tipo_honorario || "").toLowerCase();
+
+    if (status === "pago") {
+      totalPagoHistorico += val;
+    }
+
+    if (tipo === "fixo") {
+      sumFixo += val;
+    } else if (tipo === "mensal") {
+      sumMensal += val;
+    } else if (tipo === "êxito" || tipo === "exito") {
+      sumExito += val;
+    }
+
+    if (status !== "pago" && item.data_vencimento < todayStr) {
+      overdueCount++;
+    }
+  });
+
+  finTotalRecebidoDashboard.innerText = formatBrl(totalPagoHistorico);
+
+  const chartValFixo = document.getElementById("chart-val-fixo");
+  const chartValMensal = document.getElementById("chart-val-mensal");
+  const chartValExito = document.getElementById("chart-val-exito");
+  if (chartValFixo) chartValFixo.innerText = formatBrl(sumFixo);
+  if (chartValMensal) chartValMensal.innerText = formatBrl(sumMensal);
+  if (chartValExito) chartValExito.innerText = formatBrl(sumExito);
+
+  const chartBarFixo = document.getElementById("chart-bar-fixo");
+  const chartBarMensal = document.getElementById("chart-bar-mensal");
+  const chartBarExito = document.getElementById("chart-bar-exito");
+
+  const maxVal = Math.max(sumFixo, sumMensal, sumExito, 1);
+  const pctFixo = Math.round((sumFixo / maxVal) * 100);
+  const pctMensal = Math.round((sumMensal / maxVal) * 100);
+  const pctExito = Math.round((sumExito / maxVal) * 100);
+
+  if (chartBarFixo) chartBarFixo.style.width = `${pctFixo}%`;
+  if (chartBarMensal) chartBarMensal.style.width = `${pctMensal}%`;
+  if (chartBarExito) chartBarExito.style.width = `${pctExito}%`;
+
+  const financialOverdueAlert = document.getElementById("financial-overdue-alert");
+  if (financialOverdueAlert) {
+    financialOverdueAlert.style.display = overdueCount > 0 ? "flex" : "none";
+  }
+}
+
+function renderFinanceiroTable() {
+  const tableLoading = document.getElementById("financeiro-table-loading");
+  const tableContainer = document.getElementById("financeiro-table-container");
+  const tableEmpty = document.getElementById("financeiro-table-empty");
+  const tableBody = document.getElementById("financeiro-table-body");
+  const launchesCount = document.getElementById("financeiro-launches-count");
+
+  if (!tableBody) return;
+
+  const searchInput = document.getElementById("financeiro-search-input");
+  const statusSelect = document.getElementById("financeiro-filter-status");
+  const monthSelect = document.getElementById("financeiro-filter-month");
+
+  const searchQuery = searchInput ? (searchInput.value || "").toLowerCase() : "";
+  const statusFilter = statusSelect ? statusSelect.value : "todos";
+  const monthFilter = monthSelect ? monthSelect.value : "todos";
+
+  const filtered = financeiroDataCache.filter(item => {
+    const nomeCliente = (item.clientes?.nome || "").toLowerCase();
+    const tituloProcesso = (item.processos?.titulo || "").toLowerCase();
+    const numProcesso = (item.processos?.numero_processo || "").toLowerCase();
+
+    const matchSearch = nomeCliente.includes(searchQuery) || tituloProcesso.includes(searchQuery) || numProcesso.includes(searchQuery);
+    const matchStatus = statusFilter === "todos" || (item.status_pagamento || "").toLowerCase() === statusFilter.toLowerCase();
+
+    let matchMonth = true;
+    if (monthFilter !== "todos") {
+      const d = new Date(item.data_vencimento);
+      const mesIndex = d.getUTCMonth() + 1;
+      matchMonth = mesIndex.toString() === monthFilter;
+    }
+
+    return matchSearch && matchStatus && matchMonth;
+  });
+
+  if (tableLoading) tableLoading.style.display = "none";
+  if (launchesCount) launchesCount.innerText = `${filtered.length} lançamentos`;
+
+  if (filtered.length === 0) {
+    if (tableContainer) tableContainer.style.display = "none";
+    if (tableEmpty) tableEmpty.style.display = "block";
+    return;
+  }
+
+  if (tableEmpty) tableEmpty.style.display = "none";
+  if (tableContainer) tableContainer.style.display = "block";
+  tableBody.innerHTML = "";
+
+  filtered.forEach(item => {
+    const tr = document.createElement("tr");
+    tr.style.borderBottom = "1px solid var(--input-border)";
+    tr.style.transition = "background-color 0.2s";
+    tr.className = "finance-table-row";
+
+    // 1. Cliente Clicável
+    const tdCliente = document.createElement("td");
+    tdCliente.style.padding = "12px 16px";
+    const btnCliente = document.createElement("button");
+    btnCliente.type = "button";
+    btnCliente.innerText = item.clientes?.nome || "Cliente Removido";
+    btnCliente.style.background = "none";
+    btnCliente.style.border = "none";
+    btnCliente.style.padding = "0";
+    btnCliente.style.color = "var(--gold)";
+    btnCliente.style.fontWeight = "bold";
+    btnCliente.style.cursor = "pointer";
+    btnCliente.style.fontFamily = "'Outfit', sans-serif";
+    btnCliente.style.fontSize = "13px";
+    btnCliente.style.textDecoration = "underline";
+    btnCliente.addEventListener("click", () => {
+      redirectToClienteFinanceiro(item.cliente_id);
+    });
+    tdCliente.appendChild(btnCliente);
+
+    // 2. Processo Vinculado
+    const tdProcesso = document.createElement("td");
+    tdProcesso.style.padding = "12px 16px";
+    tdProcesso.style.color = "var(--text-secondary)";
+    if (item.processos) {
+      tdProcesso.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+          <span style="color: var(--text-primary); font-weight: 600;">${item.processos.titulo}</span>
+          <span style="font-family: monospace; font-size: 10.5px; color: var(--text-secondary); opacity: 0.8;">${item.processos.numero_processo}</span>
+        </div>
+      `;
+    } else {
+      tdProcesso.innerHTML = `<span style="font-style: italic; opacity: 0.5;">Sem vínculo</span>`;
+    }
+
+    // 3. Tipo + Alerta Cobrável
+    const tdTipo = document.createElement("td");
+    tdTipo.style.padding = "12px 16px";
+    tdTipo.style.fontWeight = "500";
+    tdTipo.style.textTransform = "capitalize";
+
+    const isExito = (item.tipo_honorario || "").toLowerCase() === "êxito" || (item.tipo_honorario || "").toLowerCase() === "exito";
+    const procStatus = (item.processos?.status || "").toLowerCase();
+    const isCobravel = isExito && (procStatus === "arquivado" || procStatus === "em acordo" || procStatus === "suspenso");
+
+    if (isCobravel) {
+      tdTipo.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span>${item.tipo_honorario}</span>
+          <span class="badge-exito-cobravel animate-pulse" style="background: rgba(197, 168, 92, 0.15); border: 1px solid var(--gold); color: var(--gold); padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 800;" title="Processo concluído! O valor de êxito já está liberado para cobrança.">
+            💰 Êxito Cobrável!
+          </span>
+        </div>
+      `;
+    } else {
+      tdTipo.innerText = item.tipo_honorario;
+    }
+
+    // 4. Valor
+    const tdValor = document.createElement("td");
+    tdValor.style.padding = "12px 16px";
+    tdValor.style.fontFamily = "monospace";
+    tdValor.style.fontWeight = "bold";
+    tdValor.innerText = formatBrl(parseFloat(item.valor_total) || 0);
+
+    // 5. Vencimento
+    const tdVenc = document.createElement("td");
+    tdVenc.style.padding = "12px 16px";
+    tdVenc.style.fontFamily = "monospace";
+    tdVenc.innerText = formatDataBr(item.data_vencimento);
+
+    // 6. Status
+    const tdStatus = document.createElement("td");
+    tdStatus.style.padding = "12px 16px";
+    tdStatus.style.textAlign = "center";
+    
+    const status = (item.status_pagamento || "").toLowerCase();
+    let statusColor = "var(--gold)";
+    let statusBg = "rgba(197, 168, 92, 0.1)";
+
+    if (status === "pago") {
+      statusColor = "var(--success-color)";
+      statusBg = "rgba(16, 185, 129, 0.1)";
+    } else if (status === "atrasado") {
+      statusColor = "var(--error-color)";
+      statusBg = "rgba(239, 68, 68, 0.1)";
+    }
+
+    tdStatus.innerHTML = `
+      <span style="display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; color: ${statusColor}; background: ${statusBg}; border: 1px solid ${statusColor}33;">
+        ● ${status.charAt(0).toUpperCase() + status.slice(1)}
+      </span>
+    `;
+
+    // 7. Ações
+    const tdAcoes = document.createElement("td");
+    tdAcoes.style.padding = "12px 16px";
+    tdAcoes.style.textAlign = "right";
+
+    const actionsContainer = document.createElement("div");
+    actionsContainer.style.display = "inline-flex";
+    actionsContainer.style.alignItems = "center";
+    actionsContainer.style.gap = "10px";
+
+    if (status !== "pago") {
+      const btnMarkPaid = document.createElement("button");
+      btnMarkPaid.type = "button";
+      btnMarkPaid.innerText = "✓ Recebido";
+      btnMarkPaid.style.background = "none";
+      btnMarkPaid.style.border = "none";
+      btnMarkPaid.style.color = "var(--success-color)";
+      btnMarkPaid.style.fontWeight = "bold";
+      btnMarkPaid.style.cursor = "pointer";
+      btnMarkPaid.style.fontSize = "12px";
+      btnMarkPaid.addEventListener("click", async () => {
+        try {
+          const { error } = await supabase
+            .from("financeiro")
+            .update({ status_pagamento: "pago" })
+            .eq("id", item.id);
+
+          if (error) throw error;
+          loadFinanceiroData();
+          loadDashboardData();
+        } catch (err) {
+          alert("Erro ao faturar honorário: " + err.message);
+        }
+      });
+      actionsContainer.appendChild(btnMarkPaid);
+    }
+
+    const btnDelete = document.createElement("button");
+    btnDelete.type = "button";
+    btnDelete.innerText = "✕";
+    btnDelete.style.background = "none";
+    btnDelete.style.border = "none";
+    btnDelete.style.color = "var(--error-color)";
+    btnDelete.style.fontWeight = "bold";
+    btnDelete.style.cursor = "pointer";
+    btnDelete.style.fontSize = "13px";
+    btnDelete.style.opacity = "0.5";
+    btnDelete.style.transition = "opacity 0.2s";
+    btnDelete.addEventListener("mouseover", () => btnDelete.style.opacity = "1");
+    btnDelete.addEventListener("mouseout", () => btnDelete.style.opacity = "0.5");
+    btnDelete.addEventListener("click", async () => {
+      if (!window.confirm("Deseja realmente excluir este lançamento permanentemente?")) return;
+      try {
+        const { error } = await supabase
+          .from("financeiro")
+          .delete()
+          .eq("id", item.id);
+
+        if (error) throw error;
+        loadFinanceiroData();
+        loadDashboardData();
+      } catch (err) {
+        alert("Erro ao excluir lançamento: " + err.message);
+      }
+    });
+    actionsContainer.appendChild(btnDelete);
+
+    tdAcoes.appendChild(actionsContainer);
+
+    tr.appendChild(tdCliente);
+    tr.appendChild(tdProcesso);
+    tr.appendChild(tdTipo);
+    tr.appendChild(tdValor);
+    tr.appendChild(tdVenc);
+    tr.appendChild(tdStatus);
+    tr.appendChild(tdAcoes);
+
+    tableBody.appendChild(tr);
+  });
+}
+
+function redirectToClienteFinanceiro(clientId) {
+  switchPrivateView("clientes");
+  openClientDetailsById(clientId, "financeiro");
+}
+
+function formatBrl(num) {
+  return parseFloat(num || 0).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL"
+  });
+}
+
+function formatDataBr(dataStr) {
+  if (!dataStr) return "";
+  const partes = dataStr.split("-");
+  if (partes.length === 3) {
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+  }
+  return new Date(dataStr + "T00:00:00").toLocaleDateString("pt-BR");
+}
+
+// Inicializar Filtros do Painel Financeiro
+function initFinanceiroFilters() {
+  const searchInput = document.getElementById("financeiro-search-input");
+  const statusSelect = document.getElementById("financeiro-filter-status");
+  const monthSelect = document.getElementById("financeiro-filter-month");
+
+  if (searchInput) searchInput.addEventListener("input", renderFinanceiroTable);
+  if (statusSelect) statusSelect.addEventListener("change", renderFinanceiroTable);
+  if (monthSelect) monthSelect.addEventListener("change", renderFinanceiroTable);
+  
+  const btnVerFinanceiroAtrasado = document.getElementById("btn-ver-financeiro-atrasado");
+  if (btnVerFinanceiroAtrasado) {
+    btnVerFinanceiroAtrasado.addEventListener("click", () => {
+      switchPrivateView("financeiro");
+    });
+  }
+}
+
+// Chamar a inicialização ao carregar a página
+document.addEventListener("DOMContentLoaded", () => {
+  initFinanceiroFilters();
+});
+// Caso o DOMContentLoaded já tenha disparado, rodamos imediatamente
+if (document.readyState === "complete" || document.readyState === "interactive") {
+  initFinanceiroFilters();
 }

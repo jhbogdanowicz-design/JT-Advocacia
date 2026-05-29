@@ -167,7 +167,7 @@ export const EditarPerfil: React.FC = () => {
               Perfil Profissional
             </h2>
             <p className="text-xs text-slate-400 mt-1 font-light">
-              Gerencie suas informações profissionais no ecossistema JT Advocacia.
+              Gerencie suas informações profissionais no ecossistema JT - Janaina Tarabauca Advocacia.
             </p>
           </div>
           <span className="text-xs font-bold text-[#D4AF37] border border-[#D4AF37]/30 px-3 py-1.5 rounded-full bg-[#D4AF37]/5 uppercase tracking-wider select-none">

@@ -1,5 +1,5 @@
 /**
- * JT ADVOCACIA - VALIDATÓRIOS E FORMATADORES DE DOCUMENTOS
+ * JT - JANAINA TARABAUCA ADVOCACIA - VALIDATÓRIOS E FORMATADORES DE DOCUMENTOS
  * Este arquivo contém funções puras escritas em TypeScript para formatação e 
  * validação matemática real de CPF e CNPJ através de cálculo de dígitos verificadores.
  */

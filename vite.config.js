@@ -9,9 +9,19 @@ export default defineConfig({
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         // Intercepta requisições locais para a API do projeto
-        if (req.url && req.url.startsWith("/api/gerar-estrategia")) {
+        if (req.url && (req.url.startsWith("/api/gerar-estrategia") || req.url.startsWith("/api/analisar-processo"))) {
           try {
-            // Só aceitamos método POST
+            // Só aceitamos método POST ou OPTIONS (CORS)
+            if (req.method === "OPTIONS") {
+              res.writeHead(200, {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type"
+              });
+              res.end();
+              return;
+            }
+
             if (req.method !== "POST") {
               res.writeHead(405, { "Content-Type": "application/json" });
               res.end(JSON.stringify({ error: "Method Not Allowed. Use POST." }));
@@ -62,7 +72,10 @@ export default defineConfig({
             };
 
             // Importa dinamicamente a serverless function local para processar a chamada
-            const { default: handler } = await import("./api/gerar-estrategia.js");
+            const handlerPath = req.url.startsWith("/api/gerar-estrategia") 
+              ? "./api/gerar-estrategia.js" 
+              : "./api/analisar-processo.js";
+            const { default: handler } = await import(handlerPath);
             await handler(adaptedReq, adaptedRes);
             return;
           } catch (error) {

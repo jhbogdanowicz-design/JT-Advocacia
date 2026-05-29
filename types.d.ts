@@ -1,5 +1,5 @@
 /**
- * JT ADVOCACIA - DEFINIÇÕES DE TIPOS TYPESCRIPT
+ * JT - JANAINA TARABAUCA ADVOCACIA - DEFINIÇÕES DE TIPOS TYPESCRIPT
  * Este arquivo define as estruturas de dados para a estratégia jurídica gerada por IA
  * e o mapeamento das tabelas do banco de dados no Supabase.
  */
@@ -77,6 +77,13 @@ export interface AndamentoProcessual {
   observacoes?: string;
 }
 
+export type PlataformaReuniao = "google_meet" | "zoom" | "teams" | "outro";
+
+export interface AnotacoesCompromisso {
+  plataforma?: PlataformaReuniao;
+  anotacoes?: string;
+}
+
 export interface Compromisso {
   id: string; // UUID
   advogado_id: string; // FK -> Advogado
@@ -87,6 +94,7 @@ export interface Compromisso {
   data_hora: string; // ISO Timestamp
   local_link?: string;
   status: "Agendado" | "Realizado" | "Cancelado";
+  // anotacoes_pos_evento pode conter um objeto JSON serializado do tipo AnotacoesCompromisso
   anotacoes_pos_evento?: string;
   created_at: string;
 }

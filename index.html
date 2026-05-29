@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JT Advocacia</title>
+  <title>JT - Janaina Tarabauca Advocacia</title>
   <meta name="description" content="Sistema sofisticado de gestão jurídica para advocacia moderna. Acesse seus processos, clientes e compromissos com segurança.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,7 +26,7 @@
       <div class="landing-nav-wrapper">
         <div class="landing-logo">
           <img src="logo.jpg" alt="Logo JT Advocacia" class="landing-logo-img">
-          <span class="landing-logo-text">JT Advocacia</span>
+          <span class="landing-logo-text">JT - Janaina Tarabauca Advocacia</span>
         </div>
         <nav class="landing-nav">
           <a href="#inicio" class="landing-nav-link">Início</a>
@@ -223,11 +223,11 @@
     <footer class="landing-footer">
       <div class="landing-footer-wrapper">
         <div class="landing-footer-brand">
-          <span class="landing-footer-logo">JT Advocacia</span>
+          <span class="landing-footer-logo">JT - Janaina Tarabauca Advocacia</span>
           <p class="landing-footer-about">Gestão jurídica moderna e orientada a resultados.</p>
         </div>
         <div class="landing-footer-info">
-          <span style="opacity: 0.5;">© 2026 JT Advocacia. Todos os direitos reservados.</span>
+          <span style="opacity: 0.5;">© 2026 JT - Janaina Tarabauca Advocacia. Todos os direitos reservados.</span>
         </div>
       </div>
     </footer>
@@ -260,7 +260,7 @@
         
         <div class="logo-container">
           <img src="logo.jpg" alt="Logo JT Advocacia" style="height: 80px; width: auto; margin-bottom: 12px; filter: drop-shadow(0 0 8px rgba(197, 168, 92, 0.15)); border-radius: 8px;">
-          <h2 class="logo-text">JT Advocacia</h2>
+          <h2 class="logo-text">JT - Janaina Tarabauca Advocacia</h2>
         </div>
 
         <h3 class="form-title">Acesse sua conta</h3>
@@ -306,7 +306,7 @@
         
         <div class="logo-container">
           <img src="logo.jpg" alt="Logo JT Advocacia" style="height: 80px; width: auto; margin-bottom: 12px; filter: drop-shadow(0 0 8px rgba(197, 168, 92, 0.15)); border-radius: 8px;">
-          <h2 class="logo-text">JT Advocacia</h2>
+          <h2 class="logo-text">JT - Janaina Tarabauca Advocacia</h2>
           <span class="logo-subtext">Criar Conta</span>
         </div>
 
@@ -438,6 +438,10 @@
         <a href="#" class="nav-item" data-view="processos">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
           <span>Processos</span>
+        </a>
+        <a href="#" class="nav-item" data-view="financeiro">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          <span>Financeiro</span>
         </a>
         <a href="#" class="nav-item" data-view="agenda">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -1191,19 +1195,416 @@
 
       <!-- PROCESSOS VIEW -->
       <section id="view-processos" class="content-view">
-        <div class="module-placeholder">
-          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--gold); margin-bottom: 16px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-          <h2>Pasta de Processos Virtuais</h2>
-          <p>Acesse o detalhamento completo dos seus processos judiciais CNJ, andamentos históricos e valores de causa diretamente a partir deste módulo.</p>
+        <!-- 1. GLOBAL PROCESS LIST PANEL -->
+        <div id="processos-list-panel">
+          <div class="panel-header-flex">
+            <div>
+              <h2 class="panel-main-title">Painel de Processos</h2>
+              <p class="section-desc">Gerencie suas ações judiciais e utilize inteligência artificial para acelerar petições.</p>
+            </div>
+            <div style="display: flex; gap: 12px;">
+              <button class="btn-secondary" id="btn-novo-processo-ai-uploader" style="width: auto; margin-top: 0; padding: 10px 20px; display: flex; align-items: center; gap: 8px; border-color: var(--gold); color: var(--gold); font-weight: 600; cursor: pointer;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.2 15v3.8a2 2 0 0 1-2 2H4.8a2 2 0 0 1-2-2V15"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <span>✨ Upload e IA</span>
+              </button>
+              <button class="btn-primary" id="btn-novo-processo-global" style="width: auto; margin-top: 0; padding: 10px 20px; font-weight: 600; cursor: pointer;">+ Novo Processo</button>
+            </div>
+          </div>
+
+          <!-- Barra de busca e filtros -->
+          <div class="search-filter-row" style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+            <div class="search-bar-wrapper" style="margin-bottom: 0;">
+              <span class="search-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              </span>
+              <input type="text" id="processos-search-input" class="search-input" placeholder="Pesquisar por nº de processo CNJ, título ou cliente...">
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 0;">
+              <select id="processos-filter-area" class="form-input-premium" style="height: 48px;">
+                <option value="">Todas as Áreas</option>
+                <option value="Civil">Civil</option>
+                <option value="Trabalhista">Trabalhista</option>
+                <option value="Previdenciário">Previdenciário</option>
+                <option value="Família">Família</option>
+                <option value="Consumidor">Consumidor</option>
+                <option value="Empresarial">Empresarial</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+              <select id="processos-filter-status" class="form-input-premium" style="height: 48px;">
+                <option value="">Todos os Status</option>
+                <option value="Ativo">Ativo</option>
+                <option value="Suspenso">Suspenso</option>
+                <option value="Arquivado">Arquivado</option>
+                <option value="Em Acordo">Em Acordo</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Listagem física de processos -->
+          <div id="processos-list-empty" class="inactive-empty" style="margin-top: 20px;">
+            Carregando processos...
+          </div>
+          <div class="processos-grid" id="processos-grid-list" style="display: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">
+            <!-- Renderizado dinamicamente via JS -->
+          </div>
+        </div>
+
+        <!-- 2. PAINEL DE LEITURA & ANÁLISE IA -->
+        <div id="processos-ai-panel" style="display: none;">
+          <div class="panel-header-flex" style="margin-bottom: 24px;">
+            <div>
+              <h2 class="panel-main-title">✨ Leitor e Analisador de Processos por IA</h2>
+              <p class="section-desc">Faça upload de arquivos textuais de processos ou cole-os para gerar resumos, teses e minutas instantaneamente.</p>
+            </div>
+            <button class="btn-secondary" id="btn-processos-ai-voltar" style="padding: 10px 20px; cursor: pointer;">← Voltar para Painel</button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;">
+            <!-- Lado Esquerdo: Upload e Entrada de dados -->
+            <div class="modal-card" style="margin: 0; max-width: 100%; border-color: rgba(197, 168, 92, 0.2);">
+              <div class="form-section-title" style="margin-bottom: 16px; font-weight: 600; color: var(--gold); border-bottom: 1px solid var(--input-border); padding-bottom: 4px; font-family: 'Outfit';">1. Entrada de Documento</div>
+              
+              <!-- Uploader Drag & Drop -->
+              <div id="processo-dropzone" style="border: 2px dashed var(--gold); border-radius: 8px; padding: 24px; text-align: center; background: rgba(197, 168, 92, 0.02); cursor: pointer; transition: all 0.2s; margin-bottom: 16px; position: relative;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--gold); margin-bottom: 12px; margin-left: auto; margin-right: auto;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <h5 style="color: var(--text-primary); margin-bottom: 4px; font-weight: 500;" id="dropzone-text-main">Arraste e solte o arquivo do processo (.txt)</h5>
+                <span style="font-size: 11px; color: var(--text-secondary);" id="dropzone-text-sub">Ou clique aqui para selecionar do computador</span>
+                <input type="file" id="processo-file-input" accept=".txt" style="position: absolute; inset: 0; opacity: 0; cursor: pointer;">
+              </div>
+
+              <!-- Alternativa: Colar Texto -->
+              <div class="form-group">
+                <label class="form-label" for="processo-text-input">Ou cole o texto completo da petição/processo abaixo:</label>
+                <textarea id="processo-text-input" class="form-textarea-premium" rows="5" placeholder="Cole o teor do documento, petição inicial ou andamento processual aqui..."></textarea>
+              </div>
+
+              <div class="form-section-title" style="margin-top: 24px; margin-bottom: 16px; font-weight: 600; color: var(--gold); border-bottom: 1px solid var(--input-border); padding-bottom: 4px; font-family: 'Outfit';">2. Associação Jurídica</div>
+
+              <div class="form-group">
+                <label class="form-label" for="processo-ai-select-cliente">Vincular a qual Cliente? *</label>
+                <select id="processo-ai-select-cliente" class="form-input-premium" required>
+                  <option value="" disabled selected>Carregando carteira de clientes...</option>
+                </select>
+              </div>
+
+              <div class="form-row-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                  <label class="form-label" for="processo-ai-input-numero">Número do Processo (CNJ - Opcional)</label>
+                  <input type="text" id="processo-ai-input-numero" class="form-input-premium" placeholder="0000000-00.0000.0.00.0000">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="processo-ai-input-valor">Valor da Causa (R$ - Opcional)</label>
+                  <input type="number" step="0.01" id="processo-ai-input-valor" class="form-input-premium" placeholder="0.00">
+                </div>
+              </div>
+
+              <div class="form-row-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px;">
+                <div class="form-group">
+                  <label class="form-label" for="processo-ai-input-tribunal">Tribunal (Opcional)</label>
+                  <input type="text" id="processo-ai-input-tribunal" class="form-input-premium" placeholder="Ex: TJSP, TRT2, TRF3">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="processo-ai-input-vara">Vara (Opcional)</label>
+                  <input type="text" id="processo-ai-input-vara" class="form-input-premium" placeholder="Ex: 1ª Vara Cível, 3ª Vara Família">
+                </div>
+              </div>
+
+              <div style="margin-top: 24px;">
+                <button type="button" class="btn-primary" id="btn-processo-analisar-ia" style="width: 100%; height: 48px; font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;">
+                  <span>⚡ Analisar com Gemini-2.5-Flash</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Lado Direito: Resultados e Ações -->
+            <div id="processo-ai-result-panel" class="modal-card" style="margin: 0; max-width: 100%; min-height: 520px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-color: rgba(197, 168, 92, 0.15);">
+              
+              <!-- Placeholder Inicial -->
+              <div id="processo-ai-result-placeholder" style="text-align: center; padding: 40px; display: block;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="color: var(--text-secondary); opacity: 0.5; margin-bottom: 16px; margin-left: auto; margin-right: auto;"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                <h4 style="color: var(--text-primary); font-weight: 500; margin-bottom: 8px;">Aguardando Análise</h4>
+                <p style="font-size: 13px; color: var(--text-secondary); max-width: 320px; line-height: 1.4; margin-left: auto; margin-right: auto;">Insira as informações processuais e o texto do documento à esquerda, e clique em analisar para gerar a inteligência jurídica.</p>
+              </div>
+
+              <!-- Loading Visual -->
+              <div id="processo-ai-loading-indicator" style="display: none; text-align: center; padding: 40px;">
+                <div class="ia-spinner" style="width: 48px; height: 48px; border: 4px solid rgba(197, 168, 92, 0.1); border-left-color: var(--gold); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px; margin-left: auto; margin-right: auto;"></div>
+                <div id="processo-ai-loading-status" style="font-weight: 600; color: var(--gold); font-size: 16px; margin-bottom: 8px; font-family: 'Outfit';">Lendo arquivo enviado...</div>
+                <p style="font-size: 12px; color: var(--text-secondary); max-width: 350px; line-height: 1.4; margin-left: auto; margin-right: auto;">O Gemini-2.5-Flash está processando o teor processual para resumir os fatos, sugerir a tese ideal e redigir a minuta inicial de petição.</p>
+              </div>
+
+              <!-- Conteúdo da Análise Renderizado -->
+              <div id="processo-ai-result-content" style="display: none; width: 100%; height: 100%;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--input-border); padding-bottom: 12px;">
+                  <h4 style="color: var(--gold); font-weight: 600; margin: 0; font-family: 'Outfit'; font-size: 16px; display: flex; align-items: center; gap: 8px;">
+                    <span>⚡ Resultados da Análise Analítica</span>
+                  </h4>
+                  <div style="display: flex; gap: 6px;">
+                    <span id="badge-ai-estagio" class="badge-tipo" style="background: rgba(197, 168, 92, 0.15); color: var(--gold); border-color: rgba(197, 168, 92, 0.3);">Fase Inicial</span>
+                    <span id="badge-ai-prioridade" class="badge-tipo" style="background: rgba(239, 68, 68, 0.15); color: var(--error-color); border-color: rgba(239, 68, 68, 0.3);">Alta</span>
+                  </div>
+                </div>
+
+                <div class="result-tabs" style="display: flex; gap: 8px; border-bottom: 1px solid var(--input-border); padding-bottom: 8px; margin-bottom: 16px;">
+                  <button type="button" class="ia-strategy-tab-btn active" data-result-tab="resumo" style="background: none; border: none; padding: 6px 12px; border-radius: 4px; color: var(--text-primary); cursor: pointer; font-weight: 600; font-family: 'Outfit'; font-size: 12px;">Resumo Executivo</button>
+                  <button type="button" class="ia-strategy-tab-btn" data-result-tab="tese" style="background: none; border: none; padding: 6px 12px; border-radius: 4px; color: var(--text-secondary); cursor: pointer; font-weight: 600; font-family: 'Outfit'; font-size: 12px;">Tese Recomendada</button>
+                  <button type="button" class="ia-strategy-tab-btn" data-result-tab="minuta" style="background: none; border: none; padding: 6px 12px; border-radius: 4px; color: var(--text-secondary); cursor: pointer; font-weight: 600; font-family: 'Outfit'; font-size: 12px;">Manifestação/Petição</button>
+                </div>
+
+                <!-- Tab 1: Resumo Executivo -->
+                <div id="ai-result-resumo-pane" class="result-pane" style="display: block;">
+                  <p id="ai-result-resumo-text" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary); background: rgba(255,255,255,0.01); padding: 12px; border: 1px solid var(--panel-border); border-radius: 6px; white-space: pre-wrap; max-height: 320px; overflow-y: auto;"></p>
+                </div>
+
+                <!-- Tab 2: Tese Recomendada -->
+                <div id="ai-result-tese-pane" class="result-pane" style="display: none;">
+                  <p id="ai-result-tese-text" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary); background: rgba(255,255,255,0.01); padding: 12px; border: 1px solid var(--panel-border); border-radius: 6px; white-space: pre-wrap; max-height: 320px; overflow-y: auto;"></p>
+                </div>
+
+                <!-- Tab 3: Minuta Inicial -->
+                <div id="ai-result-minuta-pane" class="result-pane" style="display: none;">
+                  <div style="position: relative;">
+                    <textarea id="ai-result-minuta-text" readonly class="form-textarea-premium" rows="12" style="font-family: 'Courier New', Courier, monospace; font-size: 12px; line-height: 1.5; color: var(--text-primary); background: rgba(0,0,0,0.2); cursor: text;"></textarea>
+                    <button type="button" id="btn-copy-ai-minuta" style="position: absolute; top: 10px; right: 10px; padding: 6px 12px; font-size: 11px; background: rgba(197, 168, 92, 0.15); border: 1px solid var(--gold); color: var(--gold); border-radius: 4px; cursor: pointer; font-weight: 600;">Copiar Minuta</button>
+                  </div>
+                </div>
+
+                <!-- Ações Finais -->
+                <div style="display: flex; gap: 12px; margin-top: 20px; border-top: 1px solid var(--input-border); padding-top: 16px;">
+                  <button type="button" class="btn-secondary" id="btn-processo-ai-cancelar" style="width: auto; flex-grow: 1; padding: 12px; cursor: pointer;">Limpar Análise</button>
+                  <button type="button" class="btn-primary" id="btn-processo-ai-gravar" style="width: auto; flex-grow: 2; padding: 12px; font-weight: 600; cursor: pointer;">💾 Confirmar e Gravar Processo</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================================
+           FINANCEIRO VIEW
+           ========================================================================= -->
+      <section id="view-financeiro" class="content-view" style="display: none;">
+        <!-- 1. HEADER DO PANEL -->
+        <div class="panel-header-flex" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+          <div>
+            <h2 class="panel-main-title" style="display: flex; align-items: center; gap: 8px;">
+              <span>💼</span> Fluxo de Caixa & Honorários
+            </h2>
+            <p class="section-desc">Painel unificado de controle geral e auditoria de faturamento do escritório.</p>
+          </div>
+          
+          <!-- FILTROS E BUSCA -->
+          <div class="filters-flex" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <div class="search-box-premium" style="position: relative; display: flex; align-items: center;">
+              <span class="search-icon" style="position: absolute; left: 14px; color: var(--text-secondary); display: flex; align-items: center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              </span>
+              <input type="text" id="financeiro-search-input" class="search-input" placeholder="Pesquisar por cliente..." style="padding-left: 42px; height: 48px; border-radius: 8px; border: 1px solid var(--input-border); background: rgba(0,0,0,0.2); color: var(--text-primary); width: 220px; font-size: 13px; font-family: 'Outfit'; transition: border-color 0.3s;" onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--input-border)'">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+              <select id="financeiro-filter-status" class="form-input-premium" style="height: 48px; min-width: 150px; font-size: 13px;">
+                <option value="todos">🔍 Todos Status</option>
+                <option value="pago">🟢 Pago</option>
+                <option value="pendente">🟡 Pendente</option>
+                <option value="atrasado">🔴 Atrasado</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+              <select id="financeiro-filter-month" class="form-input-premium" style="height: 48px; min-width: 150px; font-size: 13px;">
+                <option value="todos">📅 Todos Meses</option>
+                <option value="1">Janeiro</option>
+                <option value="2">Fevereiro</option>
+                <option value="3">Março</option>
+                <option value="4">Abril</option>
+                <option value="5">Maio</option>
+                <option value="6">Junho</option>
+                <option value="7">Julho</option>
+                <option value="8">Agosto</option>
+                <option value="9">Setembro</option>
+                <option value="10">Outubro</option>
+                <option value="11">Novembro</option>
+                <option value="12">Dezembro</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. CARDS DE MÉTRICA -->
+        <div class="metrics-grid" style="margin-bottom: 24px;">
+          <!-- CARD 1: Total Recebido -->
+          <div class="metrics-card hover-glow" style="border: 1px solid var(--panel-border); background: var(--panel-bg); border-radius: 12px; padding: 20px; display: flex; gap: 16px; align-items: center; transition: all 0.3s;">
+            <div class="card-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success-color); border-radius: 8px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold;">
+              💵
+            </div>
+            <div class="card-info" style="display: flex; flex-direction: column;">
+              <span style="font-size: 11px; text-transform: uppercase; tracking-widest: 1px; color: var(--text-secondary); font-weight: bold;">Total Recebido (Mês)</span>
+              <h3 id="financeiro-total-recebido" class="metric-number" style="font-size: 24px; font-weight: 800; color: var(--success-color); font-family: 'Courier New', monospace; margin: 4px 0 0 0;">R$ 0,00</h3>
+              <span style="font-size: 10px; color: var(--text-secondary); margin-top: 4px; font-weight: 300;">Faturamento quitado no mês corrente.</span>
+            </div>
+          </div>
+
+          <!-- CARD 2: Inadimplência -->
+          <div class="metrics-card hover-glow" style="border: 1px solid var(--panel-border); background: var(--panel-bg); border-radius: 12px; padding: 20px; display: flex; gap: 16px; align-items: center; transition: all 0.3s;">
+            <div class="card-icon" style="background: rgba(239, 68, 68, 0.1); color: var(--error-color); border-radius: 8px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold;">
+              ⚠️
+            </div>
+            <div class="card-info" style="display: flex; flex-direction: column;">
+              <span style="font-size: 11px; text-transform: uppercase; tracking-widest: 1px; color: var(--text-secondary); font-weight: bold;">Inadimplência</span>
+              <h3 id="financeiro-total-inadimplencia" class="metric-number" style="font-size: 24px; font-weight: 800; color: var(--error-color); font-family: 'Courier New', monospace; margin: 4px 0 0 0;">R$ 0,00</h3>
+              <span style="font-size: 10px; color: var(--text-secondary); margin-top: 4px; font-weight: 300;">Honorários vencidos e não pagos.</span>
+            </div>
+          </div>
+
+          <!-- CARD 3: Previsão de Entrada -->
+          <div class="metrics-card hover-glow" style="border: 1px solid var(--panel-border); background: var(--panel-bg); border-radius: 12px; padding: 20px; display: flex; gap: 16px; align-items: center; transition: all 0.3s;">
+            <div class="card-icon" style="background: rgba(197, 168, 92, 0.1); color: var(--gold); border-radius: 8px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold;">
+              🔮
+            </div>
+            <div class="card-info" style="display: flex; flex-direction: column;">
+              <span style="font-size: 11px; text-transform: uppercase; tracking-widest: 1px; color: var(--text-secondary); font-weight: bold;">Previsão de Entrada</span>
+              <h3 id="financeiro-total-projecao" class="metric-number" style="font-size: 24px; font-weight: 800; color: var(--gold); font-family: 'Courier New', monospace; margin: 4px 0 0 0;">R$ 0,00</h3>
+              <span style="font-size: 10px; color: var(--text-secondary); margin-top: 4px; font-weight: 300;">Pendente com vencimento nos próximos 30 dias.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. TABELA UNIFICADA -->
+        <div class="detail-card-panel" style="background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 16px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.25);">
+          <div class="panel-header-flex" style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--input-border); padding-bottom: 16px;">
+            <h3 style="font-size: 16px; font-weight: 600; color: var(--text-primary); font-family: 'Playfair Display'; tracking: 0.5px;">Lançamentos de Honorários</h3>
+            <span id="financeiro-launches-count" class="badge-custom" style="background: rgba(255,255,255,0.05); border: 1px solid var(--input-border); color: var(--text-secondary); padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;">0 lançamentos</span>
+          </div>
+
+          <!-- Loading state -->
+          <div id="financeiro-table-loading" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 0; gap: 12px;">
+            <div class="spinner-premium" style="width: 36px; height: 36px; border: 4px solid rgba(255,255,255,0.05); border-top-color: var(--gold); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+            <p style="font-size: 12px; color: var(--text-secondary); font-weight: 300;">Carregando fluxo de caixa e honorários...</p>
+          </div>
+
+          <!-- Empty state -->
+          <div id="financeiro-table-empty" style="display: none; text-align: center; padding: 60px 0; color: var(--text-secondary); font-size: 13px; font-style: italic; font-weight: 300;">
+            Nenhum honorário contratual registrado ou localizado sob os filtros informados.
+          </div>
+
+          <!-- Table Container -->
+          <div id="financeiro-table-container" style="display: none; overflow-x: auto;">
+            <table class="table-premium" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; font-family: 'Outfit';">
+              <thead>
+                <tr style="border-bottom: 1.5px solid var(--input-border); color: var(--text-secondary); font-weight: 600;">
+                  <th style="padding: 12px 16px;">Cliente</th>
+                  <th style="padding: 12px 16px;">Processo Vinculado</th>
+                  <th style="padding: 12px 16px;">Tipo</th>
+                  <th style="padding: 12px 16px;">Valor</th>
+                  <th style="padding: 12px 16px;">Vencimento</th>
+                  <th style="padding: 12px 16px; text-align: center;">Status</th>
+                  <th style="padding: 12px 16px; text-align: right;">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="financeiro-table-body" style="color: var(--text-primary);">
+                <!-- Preenchido dinamicamente via JS -->
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
 
       <!-- AGENDA VIEW -->
       <section id="view-agenda" class="content-view">
-        <div class="module-placeholder">
-          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--gold); margin-bottom: 16px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          <h2>Calendário e Compromissos</h2>
-          <p>Consulte todos os seus prazos processuais fatais, audiências virtuais e reuniões presenciais em uma agenda interativa inteligente.</p>
+        <!-- HEADER DO PAINEL -->
+        <div class="panel-header-flex" style="margin-bottom: 24px;">
+          <div>
+            <h2 class="panel-main-title">Agenda & Prazos Judiciais</h2>
+            <p class="section-desc">Painel integrado de controle para a Dra. Janaina Tarabauca Advocacia.</p>
+          </div>
+          <div class="flex-wrap-controls" style="display: flex; align-items: center; gap: 12px;">
+            <!-- Seletor de Categoria -->
+            <select id="agenda-type-filter" class="form-input-premium" style="width: auto; margin-top: 0; padding: 8px 16px; font-size: 13px;">
+              <option value="todos">🔍 Todos Eventos</option>
+              <option value="audiencia">🔴 Audiências</option>
+              <option value="reuniao">🔵 Reuniões</option>
+              <option value="prazo">⚜️ Prazos</option>
+            </select>
+            
+            <!-- Alternador de Modos (Calendário / Kanban) -->
+            <div class="mode-toggle-group" style="display: inline-flex; background: var(--navy-light); border: 1px solid var(--panel-border); padding: 4px; border-radius: 12px; gap: 4px;">
+              <button type="button" id="btn-agenda-view-calendar" class="btn-toggle-mode active" style="background: var(--gold); color: var(--navy); border: none; font-size: 12px; font-weight: 600; padding: 6px 16px; border-radius: 8px; cursor: pointer; transition: all 0.25s ease;">📅 Calendário</button>
+              <button type="button" id="btn-agenda-view-kanban" class="btn-toggle-mode" style="background: none; color: var(--text-secondary); border: none; font-size: 12px; font-weight: 600; padding: 6px 16px; border-radius: 8px; cursor: pointer; transition: all 0.25s ease;">📋 Quadro Kanban</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONTROLES DE NAVEGAÇÃO DO CALENDÁRIO -->
+        <div id="agenda-calendar-controls" class="panel-header-flex" style="background: var(--navy-light); border: 1px solid var(--panel-border); padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <button type="button" id="btn-agenda-today" class="btn-secondary-premium" style="padding: 6px 14px; font-size: 12px; border-radius: 8px;">Hoje</button>
+            <div style="display: inline-flex; border: 1px solid var(--panel-border); border-radius: 8px; overflow: hidden; background: var(--navy);">
+              <button type="button" id="btn-agenda-prev" style="background: none; border: none; color: var(--text-secondary); padding: 6px 12px; font-weight: bold; cursor: pointer;" title="Voltar">◀</button>
+              <button type="button" id="btn-agenda-next" style="background: none; border: none; color: var(--text-secondary); padding: 6px 12px; font-weight: bold; cursor: pointer;" title="Avançar">▶</button>
+            </div>
+            <h3 id="agenda-calendar-title" style="margin: 0 0 0 10px; font-family: 'Playfair Display'; font-weight: 600; color: var(--gold); font-size: 16px; letter-spacing: 0.5px; text-transform: uppercase;">MAIO 2026</h3>
+          </div>
+          
+          <!-- Seletor Mês / Semana -->
+          <div style="display: inline-flex; background: var(--navy); border: 1px solid var(--panel-border); border-radius: 8px; padding: 2px;">
+            <button type="button" id="btn-agenda-tab-month" class="btn-sub-tab active" style="background: var(--navy-light); color: var(--text-primary); border: none; font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 6px; cursor: pointer;">Mensal</button>
+            <button type="button" id="btn-agenda-tab-week" class="btn-sub-tab" style="background: none; color: var(--text-secondary); border: none; font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 6px; cursor: pointer;">Semanal</button>
+          </div>
+        </div>
+
+        <!-- AREA DO CALENDÁRIO -->
+        <div id="agenda-calendar-view" class="agenda-workspace" style="background: var(--navy-light); border: 1px solid var(--panel-border); border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+          <!-- A SER RENDERIZADO VIA JS -->
+          <div id="agenda-calendar-render" style="width: 100%; overflow-x: auto;"></div>
+        </div>
+
+        <!-- AREA DO KANBAN -->
+        <div id="agenda-kanban-view" class="agenda-workspace hidden" style="display: grid; grid-template-columns: repeat(3, minmax(300px, 1fr)); gap: 20px; overflow-x: auto;">
+          <!-- COLUNA 1: PENDENTES -->
+          <div class="kanban-column" style="background: var(--navy-light); border: 1px solid var(--panel-border); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 16px; min-height: 500px;">
+            <div class="kanban-column-header" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-b: 1px solid var(--panel-border);">
+              <div style="display: flex; align-items: center; gap: 8px; color: var(--gold);">
+                <span>📋</span>
+                <h3 style="font-size: 14px; font-weight: 700; margin: 0;">Pendentes / Agendados</h3>
+              </div>
+              <span id="kanban-count-pendente" class="kanban-badge" style="font-size: 11px; font-weight: 700; background: var(--navy); border: 1px solid var(--panel-border); padding: 2px 8px; border-radius: 20px; color: var(--text-secondary);">0</span>
+            </div>
+            <div id="kanban-list-pendente" class="kanban-cards-list" style="display: flex; flex-direction: column; gap: 14px; flex-grow: 1; overflow-y: auto; max-h: 600px;">
+              <!-- Renderizado dinamicamente -->
+            </div>
+          </div>
+
+          <!-- COLUNA 2: EM ANDAMENTO (FOCO DE HOJE) -->
+          <div class="kanban-column" style="background: var(--navy-light); border: 1px solid var(--panel-border); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 16px; min-height: 500px; box-shadow: 0 0 15px rgba(197, 168, 92, 0.05); border-color: rgba(197, 168, 92, 0.2);">
+            <div class="kanban-column-header" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-b: 1px solid rgba(197, 168, 92, 0.2);">
+              <div style="display: flex; align-items: center; gap: 8px; color: var(--text-primary);">
+                <span>⚡</span>
+                <h3 style="font-size: 14px; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 6px;">Foco de Hoje <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; bg-color: var(--success-color); background: var(--success-color); box-shadow: 0 0 8px var(--success-color);" class="pulse-indicator"></span></h3>
+              </div>
+              <span id="kanban-count-hoje" class="kanban-badge" style="font-size: 11px; font-weight: 700; background: rgba(197, 168, 92, 0.1); border: 1px solid rgba(197, 168, 92, 0.3); padding: 2px 8px; border-radius: 20px; color: var(--gold);">0</span>
+            </div>
+            <div id="kanban-list-hoje" class="kanban-cards-list" style="display: flex; flex-direction: column; gap: 14px; flex-grow: 1; overflow-y: auto; max-h: 600px;">
+              <!-- Renderizado dinamicamente -->
+            </div>
+          </div>
+
+          <!-- COLUNA 3: CONCLUÍDOS -->
+          <div class="kanban-column" style="background: var(--navy-light); border: 1px solid var(--panel-border); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 16px; min-height: 500px;">
+            <div class="kanban-column-header" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-b: 1px solid var(--panel-border);">
+              <div style="display: flex; align-items: center; gap: 8px; color: var(--success-color);">
+                <span>✓</span>
+                <h3 style="font-size: 14px; font-weight: 700; margin: 0;">Concluídos / Histórico</h3>
+              </div>
+              <span id="kanban-count-concluido" class="kanban-badge" style="font-size: 11px; font-weight: 700; background: var(--navy); border: 1px solid var(--panel-border); padding: 2px 8px; border-radius: 20px; color: var(--text-secondary);">0</span>
+            </div>
+            <div id="kanban-list-concluido" class="kanban-cards-list" style="display: flex; flex-direction: column; gap: 14px; flex-grow: 1; overflow-y: auto; max-h: 600px;">
+              <!-- Renderizado dinamicamente -->
+            </div>
+          </div>
         </div>
       </section>
 
@@ -1228,10 +1629,10 @@
         <div class="form-group">
           <label class="form-label" for="comp-tipo">Tipo</label>
           <select id="comp-tipo" class="form-input-premium" required>
-            <option value="Reunião">Reunião</option>
+            <option value="Atendimento Presencial">Atendimento Presencial</option>
+            <option value="Reunião Online">🎥 Reunião Online</option>
             <option value="Audiência">Audiência</option>
             <option value="Prazo Processual">Prazo Processual</option>
-            <option value="Atendimento">Atendimento</option>
           </select>
         </div>
 
@@ -1240,9 +1641,66 @@
           <input type="datetime-local" id="comp-data-hora" class="form-input-premium" required>
         </div>
 
-        <div class="form-group">
-          <label class="form-label" for="comp-local-link">Local ou Link</label>
-          <input type="text" id="comp-local-link" class="form-input-premium" placeholder="Ex: Sala 2, Link do Teams, Skype">
+        <!-- Outlook-style Toggle Switch Container -->
+        <div class="outlook-toggle-container" id="comp-online-toggle-container" style="display: none;">
+          <div class="outlook-toggle-label">
+            <span class="outlook-toggle-title" id="comp-online-toggle-title">🎥 Reunião Online</span>
+            <span class="outlook-toggle-subtitle">Habilitar salas de videoconferência</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="comp-online-toggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <!-- Local Físico Group -->
+        <div class="form-group" id="comp-local-group">
+          <label class="form-label" for="comp-local-fisico">📍 Local / Sala / Fórum</label>
+          <input type="text" id="comp-local-fisico" class="form-input-premium" placeholder="Ex: Sala de Reuniões Principal, Fórum Cível Vara 2">
+        </div>
+
+        <!-- Bloco de Configuração da Sala Virtual (exibido apenas para tipo Reunião) -->
+        <div id="comp-virtual-room-config" style="display: none; margin-bottom: 20px; padding: 18px; background: var(--navy-light); border: 1px solid var(--panel-border); border-radius: 10px; border-left: 4px solid var(--gold);">
+          <label class="form-label" style="color: var(--gold); font-weight: 600; font-family: 'Outfit'; display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+            <span>Configuração da Sala Virtual</span>
+          </label>
+          
+          <label class="form-label" style="font-size: 12px; margin-bottom: 8px;">Selecione a Plataforma</label>
+          <div class="platform-selector-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px;">
+            <button type="button" class="btn-platform-select active" data-platform="google_meet" id="btn-platform-meet">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>
+              <span style="font-size: 11px; margin-top: 4px; font-weight: 500;">Google Meet</span>
+            </button>
+            <button type="button" class="btn-platform-select" data-platform="zoom" id="btn-platform-zoom">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7a2 2 0 0 0-2.45-1.45L16 7V5a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2l4.55 1.45A2 2 0 0 0 23 17V7z"/></svg>
+              <span style="font-size: 11px; margin-top: 4px; font-weight: 500;">Zoom</span>
+            </button>
+            <button type="button" class="btn-platform-select" data-platform="teams" id="btn-platform-teams">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <span style="font-size: 11px; margin-top: 4px; font-weight: 500;">Teams</span>
+            </button>
+            <button type="button" class="btn-platform-select" data-platform="outro" id="btn-platform-outro">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>
+              <span style="font-size: 11px; margin-top: 4px; font-weight: 500;">Outro</span>
+            </button>
+          </div>
+
+          <!-- Botão Auxiliar para Google Meet -->
+          <div id="meet-helper-container" style="display: block; margin-bottom: 16px; padding: 12px; background: rgba(255,255,255,0.02); border: 1px dashed var(--panel-border); border-radius: 8px; text-align: center;">
+            <span style="font-size: 11px; color: var(--text-secondary); display: block; margin-bottom: 8px;">Gere a sala de videoconferência instantaneamente:</span>
+            <a href="https://meet.google.com/new" target="_blank" class="btn-meet-helper" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; color: var(--success-color); padding: 8px 16px; font-size: 12px; font-weight: 600; text-decoration: none; cursor: pointer; transition: all 0.2s;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+              <span>Abrir Google Calendar/Meet ↗</span>
+            </a>
+          </div>
+
+          <!-- Input do Link da Reunião -->
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="comp-meeting-link" id="comp-meeting-link-label">Link do Google Meet *</label>
+            <input type="url" id="comp-meeting-link" class="form-input-premium" placeholder="meet.google.com/...">
+            <span id="comp-meeting-validation-error" style="color: var(--error-color); font-size: 11px; margin-top: 4px; display: none;"></span>
+          </div>
         </div>
 
         <div class="form-group">
@@ -1460,19 +1918,76 @@
         <div class="form-group">
           <label class="form-label" for="edit-comp-tipo">Tipo</label>
           <select id="edit-comp-tipo" class="form-input-premium" required>
-            <option value="Reunião">Reunião</option>
+            <option value="Atendimento Presencial">Atendimento Presencial</option>
+            <option value="Reunião Online">🎥 Reunião Online</option>
             <option value="Audiência">Audiência</option>
             <option value="Prazo Processual">Prazo Processual</option>
-            <option value="Atendimento">Atendimento</option>
           </select>
         </div>
         <div class="form-group">
           <label class="form-label" for="edit-comp-data-hora">Data e Hora *</label>
           <input type="datetime-local" id="edit-comp-data-hora" class="form-input-premium" required>
         </div>
-        <div class="form-group">
-          <label class="form-label" for="edit-comp-local-link">Local ou Link</label>
-          <input type="text" id="edit-comp-local-link" class="form-input-premium">
+        <!-- Outlook-style Toggle Switch Container -->
+        <div class="outlook-toggle-container" id="edit-comp-online-toggle-container" style="display: none;">
+          <div class="outlook-toggle-label">
+            <span class="outlook-toggle-title" id="edit-comp-online-toggle-title">🎥 Reunião Online</span>
+            <span class="outlook-toggle-subtitle">Habilitar salas de videoconferência</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="edit-comp-online-toggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <!-- Local Físico Group -->
+        <div class="form-group" id="edit-comp-local-group">
+          <label class="form-label" for="edit-comp-local-fisico">📍 Local / Sala / Fórum</label>
+          <input type="text" id="edit-comp-local-fisico" class="form-input-premium" placeholder="Ex: Sala de Reuniões Principal, Fórum Cível Vara 2">
+        </div>
+
+        <!-- Bloco de Configuração da Sala Virtual Edit (exibido apenas para tipo Reunião) -->
+        <div id="edit-comp-virtual-room-config" style="display: none; margin-bottom: 20px; padding: 18px; background: var(--navy-light); border: 1px solid var(--panel-border); border-radius: 10px; border-left: 4px solid var(--gold);">
+          <label class="form-label" style="color: var(--gold); font-weight: 600; font-family: 'Outfit'; display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+            <span>Configuração da Sala Virtual</span>
+          </label>
+          
+          <label class="form-label" style="font-size: 12px; margin-bottom: 8px;">Selecione a Plataforma</label>
+          <div class="platform-selector-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px;">
+            <button type="button" class="btn-platform-select active" data-platform="google_meet" id="btn-edit-platform-meet">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>
+              <span style="font-size: 11px; margin-top: 4px; font-weight: 500;">Google Meet</span>
+            </button>
+            <button type="button" class="btn-platform-select" data-platform="zoom" id="btn-edit-platform-zoom">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7a2 2 0 0 0-2.45-1.45L16 7V5a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2l4.55 1.45A2 2 0 0 0 23 17V7z"/></svg>
+              <span style="font-size: 11px; margin-top: 4px; font-weight: 500;">Zoom</span>
+            </button>
+            <button type="button" class="btn-platform-select" data-platform="teams" id="btn-edit-platform-teams">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <span style="font-size: 11px; margin-top: 4px; font-weight: 500;">Teams</span>
+            </button>
+            <button type="button" class="btn-platform-select" data-platform="outro" id="btn-edit-platform-outro">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>
+              <span style="font-size: 11px; margin-top: 4px; font-weight: 500;">Outro</span>
+            </button>
+          </div>
+
+          <!-- Botão Auxiliar para Google Meet Edit -->
+          <div id="edit-meet-helper-container" style="display: block; margin-bottom: 16px; padding: 12px; background: rgba(255,255,255,0.02); border: 1px dashed var(--panel-border); border-radius: 8px; text-align: center;">
+            <span style="font-size: 11px; color: var(--text-secondary); display: block; margin-bottom: 8px;">Gere a sala de videoconferência instantaneamente:</span>
+            <a href="https://meet.google.com/new" target="_blank" class="btn-meet-helper" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; color: var(--success-color); padding: 8px 16px; font-size: 12px; font-weight: 600; text-decoration: none; cursor: pointer; transition: all 0.2s;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+              <span>Abrir Google Calendar/Meet ↗</span>
+            </a>
+          </div>
+
+          <!-- Input do Link da Reunião Edit -->
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="edit-comp-meeting-link" id="edit-comp-meeting-link-label">Link do Google Meet *</label>
+            <input type="url" id="edit-comp-meeting-link" class="form-input-premium" placeholder="meet.google.com/...">
+            <span id="edit-comp-meeting-validation-error" style="color: var(--error-color); font-size: 11px; margin-top: 4px; display: none;"></span>
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label" for="edit-comp-status">Status</label>
