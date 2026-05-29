@@ -161,6 +161,22 @@ Agenda unificada de audiências, prazos, reuniões e atendimentos do escritório
 
 ---
 
+### 5. Tabela `financeiro`
+Lançamento de honorários cobrados, acompanhamento de status de vencimento e valores devidos por clientes.
+
+| Nome do Campo | Tipo de Dado | Restrições | Descrição |
+| :--- | :--- | :--- | :--- |
+| `id` | `UUID` | `PRIMARY KEY`, `DEFAULT gen_random_uuid()` | Identificador único do lançamento. |
+| `cliente_id` | `UUID` | `NOT NULL`, `REFERENCES clientes(id) ON DELETE CASCADE` | Cliente pagador do honorário. |
+| `processo_id` | `UUID` | `REFERENCES processos(id) ON DELETE SET NULL` | Processo associado ao honorário (opcional). |
+| `valor_total` | `NUMERIC` | `NOT NULL`, `CHECK (valor_total >= 0)` | Valor financeiro do honorário lançado. |
+| `tipo_honorario` | `TEXT` | `NOT NULL`, `CHECK (tipo_honorario IN ('fixo', 'mensal', 'êxito'))` | Modelo de honorário contratado. |
+| `status_pagamento` | `TEXT` | `NOT NULL`, `CHECK (status_pagamento IN ('pago', 'pendente'))` | Estado do pagamento do honorário. |
+| `data_vencimento` | `DATE` | `NOT NULL` | Data limite acordada para o vencimento do pagamento. |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL`, `DEFAULT now()` | Data de criação do lançamento financeiro. |
+
+---
+
 ## 🔒 Segurança em Nível de Linha (Row Level Security - RLS)
 
 Para garantir o estrito cumprimento do segredo de justiça e do dever ético de sigilo do advogado, o banco possui políticas de **RLS** ativadas em todas as tabelas.
@@ -209,4 +225,15 @@ $$ LANGUAGE sql SECURITY DEFINER;
    * **Fórmula SQL**:
      ```sql
      (advogado_id = public.get_current_advogado_id())
+     ```
+
+5. **Políticas para a tabela `financeiro`**:
+   * **Segurança**: Restringe o acesso aos registros financeiros associados aos clientes gerenciados pelo advogado logado.
+   * **Fórmula SQL**:
+     ```sql
+     EXISTS (
+         SELECT 1 FROM public.clientes
+         WHERE clientes.id = financeiro.cliente_id
+         AND clientes.advogado_id = public.get_current_advogado_id()
+     )
      ```

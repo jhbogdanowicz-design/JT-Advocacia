@@ -196,6 +196,27 @@ const commitmentsBadgeCount = document.getElementById("commitments-badge-count")
 const commitmentsDashboardPlaceholder = document.getElementById("commitments-dashboard-placeholder");
 const commitmentsDashboardList = document.getElementById("commitments-dashboard-list");
 
+// Módulo Financeiro (Honorários)
+const formLancarHonorario = document.getElementById("form-lancar-honorario");
+const finProcessoId = document.getElementById("fin-processo-id");
+const finValorTotal = document.getElementById("fin-valor-total");
+const finTipoHonorario = document.getElementById("fin-tipo-honorario");
+const finStatusPagamento = document.getElementById("fin-status-pagamento");
+const finDataVencimento = document.getElementById("fin-data-vencimento");
+const finLancamentosEmpty = document.getElementById("fin-lancamentos-empty");
+const finLancamentosList = document.getElementById("fin-lancamentos-list");
+
+// Elementos do Gráfico Financeiro no Dashboard
+const financialOverdueAlert = document.getElementById("financial-overdue-alert");
+const btnVerFinanceiroAtrasado = document.getElementById("btn-ver-financeiro-atrasado");
+const finTotalRecebidoDashboard = document.getElementById("fin-total-recebido-dashboard");
+const chartBarFixo = document.getElementById("chart-bar-fixo");
+const chartBarMensal = document.getElementById("chart-bar-mensal");
+const chartBarExito = document.getElementById("chart-bar-exito");
+const chartValFixo = document.getElementById("chart-val-fixo");
+const chartValMensal = document.getElementById("chart-val-mensal");
+const chartValExito = document.getElementById("chart-val-exito");
+
 // Novos Modais e Elementos de Edição
 const btnEditLawyerProfile = document.getElementById("btn-edit-lawyer-profile");
 const modalEditLawyer = document.getElementById("modal-edit-lawyer");
@@ -823,6 +844,67 @@ async function loadDashboardData() {
 
     inactiveBadgeCount.innerText = inactiveCount;
 
+    // === CARREGAMENTO DOS DADOS FINANCEIROS DO DASHBOARD ===
+    try {
+      const { data: finData, error: finError } = await supabase
+        .from("financeiro")
+        .select("*");
+
+      if (!finError && finData) {
+        let totalRecebido = 0;
+        let sumFixo = 0;
+        let sumMensal = 0;
+        let sumExito = 0;
+        let overdueCount = 0;
+        const todayStr = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+
+        finData.forEach(item => {
+          const val = parseFloat(item.valor_total) || 0;
+          if (item.status_pagamento === "pago") {
+            totalRecebido += val;
+          }
+
+          if (item.tipo_honorario === "fixo") {
+            sumFixo += val;
+          } else if (item.tipo_honorario === "mensal") {
+            sumMensal += val;
+          } else if (item.tipo_honorario === "êxito") {
+            sumExito += val;
+          }
+
+          if (item.status_pagamento === "pendente" && item.data_vencimento < todayStr) {
+            overdueCount++;
+          }
+        });
+
+        // Atualiza os valores em reais
+        finTotalRecebidoDashboard.innerText = `R$ ${totalRecebido.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
+        chartValFixo.innerText = `R$ ${sumFixo.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
+        chartValMensal.innerText = `R$ ${sumMensal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
+        chartValExito.innerText = `R$ ${sumExito.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
+
+        // Calcula a escala do gráfico
+        const maxVal = Math.max(sumFixo, sumMensal, sumExito, 1); // evita divisão por zero
+        const pctFixo = Math.round((sumFixo / maxVal) * 100);
+        const pctMensal = Math.round((sumMensal / maxVal) * 100);
+        const pctExito = Math.round((sumExito / maxVal) * 100);
+
+        // Aplica a largura com transição suave
+        chartBarFixo.style.width = `${pctFixo}%`;
+        chartBarMensal.style.width = `${pctMensal}%`;
+        chartBarExito.style.width = `${pctExito}%`;
+
+        // Exibe ou esconde o alerta de parcelas atrasadas
+        if (overdueCount > 0) {
+          financialOverdueAlert.style.display = "flex";
+        } else {
+          financialOverdueAlert.style.display = "none";
+        }
+      }
+    } catch (errFin) {
+      console.warn("Erro ao buscar dados financeiros do Dashboard:", errFin);
+    }
+
   } catch (err) {
     console.error("Erro ao carregar dados do Dashboard:", err.message);
     inactiveListPlaceholder.innerText = "Falha ao sincronizar dados com o servidor Supabase.";
@@ -1369,6 +1451,10 @@ profileTabButtons.forEach(btn => {
     profileTabContents.forEach(content => {
       content.classList.toggle("active", content.id === `tab-${tabId}`);
     });
+
+    if (tabId === "edit-financeiro") {
+      loadClientFinancialData();
+    }
   });
 });
 
@@ -3097,4 +3183,212 @@ async function generateStrategyPDF(client, process) {
   // Dispara o download automático do PDF
   const safeClientName = client.nome.replace(/[^a-zA-Z0-9]/g, "_");
   doc.save(`Estrategia_JT_Advocacia_${safeClientName}.pdf`);
+}
+
+// =========================================================================
+// 💰 SEÇÃO: GESTÃO FINANCEIRA & HONORÁRIOS (Dra. Janaina)
+// =========================================================================
+
+// Carrega as informações financeiras e a lista de honorários de um cliente
+async function loadClientFinancialData() {
+  if (!activeClientId) return;
+
+  try {
+    // 1. Popular os processos do cliente na caixa de seleção (dropdown)
+    finProcessoId.innerHTML = '<option value="">Não vinculado a processo (Geral)</option>';
+    const { data: processes } = await supabase
+      .from("processos")
+      .select("id, titulo, numero_processo")
+      .eq("cliente_id", activeClientId);
+
+    if (processes && processes.length > 0) {
+      processes.forEach(p => {
+        const option = document.createElement("option");
+        option.value = p.id;
+        option.innerText = `${p.titulo} (${p.numero_processo || 'Sem número'})`;
+        finProcessoId.appendChild(option);
+      });
+    }
+
+    // 2. Buscar lançamentos financeiros do cliente
+    const { data: finLaunches, error: finError } = await supabase
+      .from("financeiro")
+      .select("*, processos(titulo)")
+      .eq("cliente_id", activeClientId)
+      .order("data_vencimento", { ascending: true });
+
+    if (finError) throw finError;
+
+    finLancamentosList.innerHTML = "";
+
+    if (finLaunches && finLaunches.length > 0) {
+      finLancamentosEmpty.style.display = "none";
+      finLancamentosList.style.display = "flex";
+
+      finLaunches.forEach(launch => {
+        const item = document.createElement("div");
+        item.className = "doc-item-card";
+        item.style.cursor = "default";
+
+        const valFormatted = parseFloat(launch.valor_total).toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+        const dateFormatted = new Date(launch.data_vencimento + "T00:00:00").toLocaleDateString("pt-BR");
+        
+        const isPago = launch.status_pagamento === "pago";
+        const isAtrasado = launch.status_pagamento === "pendente" && launch.data_vencimento < new Date().toISOString().split("T")[0];
+
+        let badgeStyle = "background: rgba(245, 158, 11, 0.1); color: var(--gold); border: 1px solid var(--gold);";
+        let statusText = "Pendente";
+        
+        if (isPago) {
+          badgeStyle = "background: rgba(16, 185, 129, 0.1); color: var(--success-color); border: 1px solid var(--success-color);";
+          statusText = "Pago";
+        } else if (isAtrasado) {
+          badgeStyle = "background: rgba(239, 68, 68, 0.1); color: var(--error-color); border: 1px solid var(--error-color);";
+          statusText = "Atrasado";
+        }
+
+        const procTitle = launch.processos?.titulo || "Lançamento Geral";
+
+        item.innerHTML = `
+          <div class="doc-item-icon-wrapper" style="background: ${isPago ? 'rgba(16, 185, 129, 0.1)' : 'rgba(212, 175, 55, 0.1)'}; color: ${isPago ? 'var(--success-color)' : 'var(--gold)'}; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+            <span>$</span>
+          </div>
+          <div class="doc-item-details" style="margin-left: 12px; flex-grow: 1;">
+            <span class="doc-item-title" style="font-size: 14px; font-weight: 600; color: var(--text-primary);">R$ ${valFormatted} <span style="font-size: 10px; font-weight: 500; padding: 2px 6px; border-radius: 4px; margin-left: 8px; ${badgeStyle}">${statusText}</span></span>
+            <span class="doc-item-meta" style="font-size: 11px; color: var(--text-secondary);">
+              Modelo: <strong>${launch.tipo_honorario.toUpperCase()}</strong> | Vencimento: <strong>${dateFormatted}</strong> | Ref: <strong>${procTitle}</strong>
+            </span>
+          </div>
+          <div style="display: flex; gap: 8px; flex-shrink: 0; align-items: center;">
+            <button type="button" class="btn-generate-pdf-doc btn-toggle-payment" data-id="${launch.id}" data-status="${launch.status_pagamento}" style="background: rgba(255, 255, 255, 0.04); border-color: var(--panel-border); color: var(--text-primary); padding: 5px 10px; font-size: 10px; cursor: pointer;">
+              Marcar como ${isPago ? 'Pendente' : 'Pago'}
+            </button>
+            <button type="button" class="btn-generate-pdf-doc btn-delete-financial" data-id="${launch.id}" style="background: rgba(239, 68, 68, 0.08); border-color: var(--error-color); color: var(--error-color); padding: 5px 10px; font-size: 10px; cursor: pointer;">
+              Excluir
+            </button>
+          </div>
+        `;
+
+        // Manipulador para alternar status do pagamento
+        item.querySelector(".btn-toggle-payment").addEventListener("click", async (e) => {
+          e.stopPropagation();
+          const launchId = e.target.getAttribute("data-id");
+          const currentStatus = e.target.getAttribute("data-status");
+          const nextStatus = currentStatus === "pago" ? "pendente" : "pago";
+
+          try {
+            const { error: updateError } = await supabase
+              .from("financeiro")
+              .update({ status_pagamento: nextStatus })
+              .eq("id", launchId);
+
+            if (updateError) throw updateError;
+            
+            // Recarrega os dados locais e o dashboard principal
+            loadClientFinancialData();
+            loadDashboardData();
+          } catch (updateErr) {
+            console.error("Erro ao atualizar pagamento:", updateErr.message);
+            alert("Erro ao alterar status do pagamento.");
+          }
+        });
+
+        // Manipulador para excluir lançamento financeiro
+        item.querySelector(".btn-delete-financial").addEventListener("click", async (e) => {
+          e.stopPropagation();
+          if (!confirm("Tem certeza de que deseja excluir este lançamento financeiro permanentemente?")) return;
+
+          const launchId = e.target.getAttribute("data-id");
+
+          try {
+            const { error: deleteError } = await supabase
+              .from("financeiro")
+              .delete()
+              .eq("id", launchId);
+
+            if (deleteError) throw deleteError;
+            
+            loadClientFinancialData();
+            loadDashboardData();
+          } catch (deleteErr) {
+            console.error("Erro ao excluir lançamento financeiro:", deleteErr.message);
+            alert("Erro ao excluir lançamento financeiro.");
+          }
+        });
+
+        finLancamentosList.appendChild(item);
+      });
+    } else {
+      finLancamentosEmpty.style.display = "block";
+      finLancamentosList.style.display = "none";
+    }
+  } catch (err) {
+    console.error("Erro ao carregar dados financeiros do cliente:", err.message);
+  }
+}
+
+// Manipulador do formulário de novos lançamentos financeiros
+if (formLancarHonorario) {
+  formLancarHonorario.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    if (!activeClientId) {
+      alert("Erro: Nenhum cliente selecionado.");
+      return;
+    }
+
+    const valor = parseFloat(finValorTotal.value);
+    const tipo = finTipoHonorario.value;
+    const status = finStatusPagamento.value;
+    const vencimento = finDataVencimento.value;
+    const processoId = finProcessoId.value || null;
+
+    if (isNaN(valor) || valor <= 0) {
+      alert("O valor do honorário deve ser um número positivo.");
+      return;
+    }
+
+    if (!vencimento) {
+      alert("Selecione a data de vencimento do honorário.");
+      return;
+    }
+
+    try {
+      setLoadingState(document.getElementById("btn-save-honorario"), true, "Lançando...");
+
+      const { error: insertError } = await supabase
+        .from("financeiro")
+        .insert({
+          cliente_id: activeClientId,
+          processo_id: processoId,
+          valor_total: valor,
+          tipo_honorario: tipo,
+          status_pagamento: status,
+          data_vencimento: vencimento
+        });
+
+      if (insertError) throw insertError;
+
+      // Limpa formulário
+      formLancarHonorario.reset();
+      
+      // Recarrega dados e estatísticas
+      loadClientFinancialData();
+      loadDashboardData();
+      
+      alert("Honorário lançado com sucesso!");
+    } catch (insertErr) {
+      console.error("Erro ao lançar honorário:", insertErr.message);
+      alert(`Falha ao lançar honorário: ${insertErr.message}`);
+    } finally {
+      setLoadingState(document.getElementById("btn-save-honorario"), false, "Lançar Honorário");
+    }
+  });
+}
+
+// Manipulador para redirecionar para pendências a partir do banner de alertas
+if (btnVerFinanceiroAtrasado) {
+  btnVerFinanceiroAtrasado.addEventListener("click", () => {
+    switchPrivateView("clientes");
+  });
 }

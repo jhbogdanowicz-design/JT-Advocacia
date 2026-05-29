@@ -499,6 +499,15 @@
            ========================================================================= -->
       <section id="view-dashboard" class="content-view active">
         
+        <!-- Bloco de Alertas Financeiros Atrasados (Exibido dinamicamente se houver) -->
+        <div id="financial-overdue-alert" class="message-box error" style="display: none; margin-bottom: 24px; padding: 16px 20px; font-size: 13px; font-weight: 500; align-items: center; justify-content: space-between; border-color: var(--error-color);">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 18px;">⚠️</span>
+            <span><strong>Atenção Financeiro:</strong> Existem parcelas de honorários com pagamento em atraso!</span>
+          </div>
+          <button type="button" class="btn-primary" id="btn-ver-financeiro-atrasado" style="width: auto; margin-top: 0; padding: 6px 12px; font-size: 11px; background: var(--error-color); border: none; cursor: pointer; border-radius: 4px;">Visualizar Pendências</button>
+        </div>
+
         <!-- Grade de Métricas (Cards 1 e 2) -->
         <div class="metrics-grid">
           
@@ -526,6 +535,53 @@
             </div>
           </div>
 
+        </div>
+
+        <!-- CARD GRÁFICO: Receitas & Honorários por Categoria (Gráfico Simples) -->
+        <div class="inactive-processes-card" style="margin-bottom: 24px;">
+          <div class="card-header-flex">
+            <div>
+              <h3>Estatísticas Financeiras & Receitas</h3>
+              <p class="section-desc">Valores consolidados de honorários fixos, mensais e no êxito em sua carteira de clientes.</p>
+            </div>
+            <div style="text-align: right;">
+              <span style="font-size: 12px; color: var(--text-secondary);">Total Recebido:</span>
+              <strong id="fin-total-recebido-dashboard" style="color: var(--success-color); font-size: 18px; display: block;">R$ 0,00</strong>
+            </div>
+          </div>
+
+          <!-- Gráfico de Barras Customizado via HTML/CSS de Alto Padrão -->
+          <div class="financial-chart-container" style="display: flex; flex-direction: column; gap: 16px; margin-top: 10px;">
+            <div id="chart-bar-fixo-wrapper" style="display: flex; flex-direction: column; gap: 6px;">
+              <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 500;">
+                <span style="color: var(--text-primary);">Honorários Fixos / Contratuais</span>
+                <span id="chart-val-fixo" style="color: var(--gold);">R$ 0,00</span>
+              </div>
+              <div style="width: 100%; height: 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; overflow: hidden; border: 1px solid var(--panel-border);">
+                <div id="chart-bar-fixo" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--gold-light), var(--gold)); border-radius: 4px; transition: width 0.8s ease;"></div>
+              </div>
+            </div>
+
+            <div id="chart-bar-mensal-wrapper" style="display: flex; flex-direction: column; gap: 6px;">
+              <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 500;">
+                <span style="color: var(--text-primary);">Honorários Mensais / Assessoria</span>
+                <span id="chart-val-mensal" style="color: var(--gold);">R$ 0,00</span>
+              </div>
+              <div style="width: 100%; height: 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; overflow: hidden; border: 1px solid var(--panel-border);">
+                <div id="chart-bar-mensal" style="width: 0%; height: 100%; background: linear-gradient(90deg, #A5B4FC, #6366F1); border-radius: 4px; transition: width 0.8s ease;"></div>
+              </div>
+            </div>
+
+            <div id="chart-bar-exito-wrapper" style="display: flex; flex-direction: column; gap: 6px;">
+              <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 500;">
+                <span style="color: var(--text-primary);">Honorários de Êxito (Ad Exitum)</span>
+                <span id="chart-val-exito" style="color: var(--gold);">R$ 0,00</span>
+              </div>
+              <div style="width: 100%; height: 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; overflow: hidden; border: 1px solid var(--panel-border);">
+                <div id="chart-bar-exito" style="width: 0%; height: 100%; background: linear-gradient(90deg, #34D399, #10B981); border-radius: 4px; transition: width 0.8s ease;"></div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- GRID DE DETALHES DO DASHBOARD (PROCESSOS PARADOS & COMPROMISSOS) -->
@@ -833,6 +889,7 @@
                 <button type="button" class="profile-tab-btn active" data-tab="edit-identificacao">1. Identificação</button>
                 <button type="button" class="profile-tab-btn" data-tab="edit-qualificacao">2. Qualificação</button>
                 <button type="button" class="profile-tab-btn" data-tab="edit-juridico">3. Dados Jurídicos</button>
+                <button type="button" class="profile-tab-btn" data-tab="edit-financeiro">4. Financeiro</button>
               </div>
 
               <form id="edit-cliente-form">
@@ -1002,6 +1059,72 @@
                 <!-- Botão de submeter alterações -->
                 <button type="submit" class="btn-primary" style="margin-top: 24px;" id="btn-save-client-changes">Salvar Alterações</button>
               </form>
+
+              <!-- ABA 4: FINANCEIRO -->
+              <div class="profile-tab-content" id="tab-edit-financeiro" style="display: none;">
+                <div class="financial-section">
+                  <h3 style="font-size:16px; font-weight:600; color:var(--gold); margin-bottom:16px; display:flex; align-items:center; gap:8px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="12" y1="4" x2="12" y2="20"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+                    <span>Lançar Honorário Profissional</span>
+                  </h3>
+                  
+                  <form id="form-lancar-honorario" class="form-grid" style="margin-bottom:28px;">
+                    <div class="form-group col-span-2">
+                      <label class="form-label" for="fin-processo-id">Processo Judicial Relacionado</label>
+                      <select id="fin-processo-id" class="form-input-premium">
+                        <option value="">Não vinculado a processo (Geral)</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label" for="fin-valor-total">Valor do Honorário *</label>
+                      <div class="currency-wrapper">
+                        <span class="currency-prefix">R$</span>
+                        <input type="number" step="0.01" id="fin-valor-total" class="form-input-premium" placeholder="0,00" style="padding-left: 44px;" required>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label" for="fin-tipo-honorario">Tipo de Honorário *</label>
+                      <select id="fin-tipo-honorario" class="form-input-premium" required>
+                        <option value="fixo">Fixo / Contratual</option>
+                        <option value="mensal">Mensal / Assessoria</option>
+                        <option value="êxito">Ad Exitum (Êxito)</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label" for="fin-status-pagamento">Status do Pagamento *</label>
+                      <select id="fin-status-pagamento" class="form-input-premium" required>
+                        <option value="pendente">Pendente / Em Aberto</option>
+                        <option value="pago">Pago / Liquidado</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label" for="fin-data-vencimento">Data de Vencimento *</label>
+                      <input type="date" id="fin-data-vencimento" class="form-input-premium" required>
+                    </div>
+
+                    <div class="form-group col-span-2" style="margin-top: 10px;">
+                      <button type="submit" class="btn-primary" style="width:auto; padding:10px 24px;" id="btn-save-honorario">Lançar Honorário</button>
+                    </div>
+                  </form>
+
+                  <div style="border-top:1px solid var(--panel-border); padding-top:24px;">
+                    <h3 style="font-size:16px; font-weight:600; color:var(--text-primary); margin-bottom:16px; display:flex; align-items:center; gap:8px;">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                      <span>Honorários Lançados</span>
+                    </h3>
+                    <div id="fin-lancamentos-empty" class="inactive-empty">
+                      Nenhum lançamento financeiro registrado para este cliente.
+                    </div>
+                    <div id="fin-lancamentos-list" class="documentos-list" style="display:none; display:flex; flex-direction:column; gap:12px;">
+                      <!-- Lançamentos criados via JS -->
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- COLUNA DA DIREITA: HISTÓRICO JURÍDICO & AGENDA -->
