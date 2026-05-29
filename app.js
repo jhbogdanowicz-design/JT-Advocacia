@@ -191,6 +191,11 @@ const documentosEmptyMsg = document.getElementById("documentos-empty-msg");
 const documentosListContainer = document.getElementById("documentos-list-container");
 const btnExportarPdfEstrategia = document.getElementById("btn-exportar-pdf-estrategia");
 
+// Dashboard Compromissos
+const commitmentsBadgeCount = document.getElementById("commitments-badge-count");
+const commitmentsDashboardPlaceholder = document.getElementById("commitments-dashboard-placeholder");
+const commitmentsDashboardList = document.getElementById("commitments-dashboard-list");
+
 // Novos Modais e Elementos de Edição
 const btnEditLawyerProfile = document.getElementById("btn-edit-lawyer-profile");
 const modalEditLawyer = document.getElementById("modal-edit-lawyer");
@@ -664,13 +669,90 @@ async function loadDashboardData() {
 
     const { data: commitments, error: commitmentsError } = await supabase
       .from("compromissos")
-      .select("id")
+      .select("*, clientes(nome, whatsapp, telefone), processos(numero_processo)")
       .gte("data_hora", monday.toISOString())
-      .lte("data_hora", sunday.toISOString());
+      .lte("data_hora", sunday.toISOString())
+      .order("data_hora", { ascending: true });
 
     if (commitmentsError) throw commitmentsError;
     const weeklyCommitmentsCount = commitments ? commitments.length : 0;
     metricEventsCount.innerText = weeklyCommitmentsCount;
+    commitmentsBadgeCount.innerText = weeklyCommitmentsCount;
+
+    commitmentsDashboardList.innerHTML = "";
+
+    if (commitments && commitments.length > 0) {
+      commitmentsDashboardPlaceholder.style.display = "none";
+      commitmentsDashboardList.style.display = "flex";
+
+      commitments.forEach(c => {
+        const li = document.createElement("li");
+        li.className = "inactive-item";
+        li.style.cursor = "default";
+
+        const dateObj = new Date(c.data_hora);
+        const formattedDate = dateObj.toLocaleDateString("pt-BR");
+        const formattedTime = dateObj.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+
+        // Limpeza de telefone do cliente
+        let rawPhone = (c.clientes?.whatsapp || c.clientes?.telefone || "").replace(/\D/g, "");
+        let phone = rawPhone;
+        if (phone) {
+          if (phone.length <= 11) {
+            phone = "55" + phone;
+          }
+        }
+
+        // Construção da mensagem do WhatsApp
+        const clientName = c.clientes?.nome || "Cliente";
+        const eventType = (c.tipo || "Compromisso").toLowerCase();
+        const processNum = c.processos?.numero_processo || "Não informado";
+
+        let article = "o nosso";
+        if (eventType === "audiência" || eventType === "reunião") {
+          article = "a nossa";
+        }
+
+        const msg = `Olá, ${clientName}. Passando para lembrar que ${article} ${eventType} referente ao processo nº ${processNum} está agendada para o dia ${formattedDate} às ${formattedTime}. Atenciosamente, JT Advocacia.`;
+        const encodedMsg = encodeURIComponent(msg);
+        const whatsappUrl = `https://wa.me/${phone}?text=${encodedMsg}`;
+
+        li.innerHTML = `
+          <div class="inactive-item-details" style="flex-grow: 1;">
+            <span class="inactive-item-title">${c.titulo}</span>
+            <div class="inactive-item-meta" style="flex-wrap: wrap; gap: 4px 10px;">
+              <span>Tipo: <strong>${c.tipo}</strong></span>
+              <span>Cliente: <strong>${c.clientes?.nome || 'Não associado'}</strong></span>
+              <span>Horário: <strong>${formattedDate} às ${formattedTime}</strong></span>
+              <span>Nº Processo: <strong>${c.processos?.numero_processo || 'Sem número'}</strong></span>
+            </div>
+          </div>
+          <div class="inactive-item-action" style="display: flex; gap: 8px; flex-shrink: 0; align-items: center;">
+            ${phone ? `
+              <a href="${whatsappUrl}" target="_blank" class="btn-generate-pdf-doc" style="background: rgba(16, 185, 129, 0.08); border-color: var(--success-color); color: var(--success-color); padding: 6px 12px; font-size: 11px; text-decoration: none; display: flex; align-items: center; gap: 6px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                <span>Notificar</span>
+              </a>
+            ` : `
+              <span style="font-size: 10px; color: var(--text-secondary); font-style: italic;">Sem contato</span>
+            `}
+          </div>
+        `;
+
+        const detailsEl = li.querySelector(".inactive-item-details");
+        if (c.cliente_id) {
+          detailsEl.style.cursor = "pointer";
+          detailsEl.addEventListener("click", () => {
+            openClientDetailsById(c.cliente_id);
+          });
+        }
+
+        commitmentsDashboardList.appendChild(li);
+      });
+    } else {
+      commitmentsDashboardPlaceholder.style.display = "block";
+      commitmentsDashboardList.style.display = "none";
+    }
 
     const { data: processes, error: processesError } = await supabase
       .from("processos")

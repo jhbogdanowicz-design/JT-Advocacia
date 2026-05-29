@@ -2466,3 +2466,18 @@ body {
   color: #070A13;
 }
 
+/* =========================================================================
+   Dashboard Details Grid (Two Columns for Processos Parados & Agenda)
+   ========================================================================= */
+.dashboard-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

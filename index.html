@@ -528,26 +528,51 @@
 
         </div>
 
-        <!-- CARD 3: Processos Parados (Sem Movimentação > 30 dias) -->
-        <div class="inactive-processes-card">
-          <div class="card-header-flex">
-            <div>
-              <h3>Processos Parados (> 30 Dias)</h3>
-              <p class="section-desc">Ações judiciais ativas sem nenhuma movimentação processual ou anotação recente no último mês.</p>
+        <!-- GRID DE DETALHES DO DASHBOARD (PROCESSOS PARADOS & COMPROMISSOS) -->
+        <div class="dashboard-details-grid">
+          
+          <!-- CARD 3: Processos Parados (Sem Movimentação > 30 dias) -->
+          <div class="inactive-processes-card">
+            <div class="card-header-flex">
+              <div>
+                <h3>Processos Parados (> 30 Dias)</h3>
+                <p class="section-desc">Ações judiciais ativas sem nenhuma movimentação processual ou anotação recente no último mês.</p>
+              </div>
+              <span class="badge-count" id="inactive-badge-count">0</span>
             </div>
-            <span class="badge-count" id="inactive-badge-count">0</span>
+
+            <!-- Container com Lista Rolável -->
+            <div class="inactive-list-wrapper">
+              <div id="inactive-list-placeholder" class="inactive-empty">
+                Carregando processos...
+              </div>
+              <ul class="inactive-list" id="inactive-processes-list" style="display: none;">
+                <!-- Elementos criados via JS -->
+              </ul>
+            </div>
           </div>
 
-          <!-- Container com Lista Rolável -->
-          <div class="inactive-list-wrapper">
-            <div id="inactive-list-placeholder" class="inactive-empty">
-              <!-- Renderizado dinamicamente via JS -->
-              Carregando processos...
+          <!-- CARD 4: Compromissos Agendados (Semana) -->
+          <div class="inactive-processes-card">
+            <div class="card-header-flex">
+              <div>
+                <h3>Compromissos Agendados (Semana)</h3>
+                <p class="section-desc">Agenda de prazos, reuniões e audiências da semana com atalho de notificação para clientes.</p>
+              </div>
+              <span class="badge-count" id="commitments-badge-count" style="background: rgba(16, 185, 129, 0.1); color: var(--success-color);">0</span>
             </div>
-            <ul class="inactive-list" id="inactive-processes-list" style="display: none;">
-              <!-- Elementos criados via JS -->
-            </ul>
+
+            <!-- Container com Lista Rolável -->
+            <div class="inactive-list-wrapper">
+              <div id="commitments-dashboard-placeholder" class="inactive-empty">
+                Nenhum compromisso agendado para esta semana.
+              </div>
+              <ul class="inactive-list" id="commitments-dashboard-list" style="display: none;">
+                <!-- Elementos criados via JS -->
+              </ul>
+            </div>
           </div>
+
         </div>
 
       </section>
