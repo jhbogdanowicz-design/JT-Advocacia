@@ -9,7 +9,7 @@ interface ModalCompromissoProps {
 }
 
 type TipoCompromisso = "Audiência" | "Reunião Online" | "Atendimento Presencial" | "Prazo Processual";
-type PlataformaOnline = "google_meet" | "teams";
+type PlataformaOnline = "google_meet" | "teams" | "zoom";
 
 export const ModalCompromisso: React.FC<ModalCompromissoProps> = ({
   clienteId,
@@ -53,6 +53,7 @@ export const ModalCompromisso: React.FC<ModalCompromissoProps> = ({
 
     const regexMeet = /^(https?:\/\/)?(www\.)?meet\.google\.com\/[a-z]{3}-[a-z]{4}-[a-z]{3}$/;
     const regexTeams = /^(https?:\/\/)?(www\.)?teams\.microsoft\.com\/.+/;
+    const regexZoom = /^(https?:\/\/)?(www\.)?([a-z0-9-]+\.)?zoom\.us\/(j|my|s)\/.+/;
 
     if (plat === "google_meet" && !regexMeet.test(url.trim())) {
       setErroLink("Formato de link inválido. O padrão deve ser meet.google.com/abc-defg-hij");
@@ -61,6 +62,11 @@ export const ModalCompromisso: React.FC<ModalCompromissoProps> = ({
 
     if (plat === "teams" && !regexTeams.test(url.trim())) {
       setErroLink("Link inválido. Certifique-se de colar um link gerado pelo Microsoft Teams.");
+      return false;
+    }
+
+    if (plat === "zoom" && !regexZoom.test(url.trim())) {
+      setErroLink("Link inválido. O padrão esperado é zoom.us/j/... ou zoom.us/my/...");
       return false;
     }
 
@@ -144,7 +150,7 @@ export const ModalCompromisso: React.FC<ModalCompromissoProps> = ({
               placeholder="Ex: Reunião de Alinhamento Inicial"
               value={titulo}
               onChange={(e) => setTitulo(e.target.value)}
-              className="w-full bg-[#070a13] border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37]/30 transition-all"
+              className="w-full bg-[#070a13] border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-200 placeholder-slate-500 dark:placeholder-slate-400/50 focus:outline-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37]/30 transition-all"
             />
           </div>
 
@@ -214,28 +220,39 @@ export const ModalCompromisso: React.FC<ModalCompromissoProps> = ({
                   {/* Plataformas */}
                   <div>
                     <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Escolha a Plataforma</label>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-3 gap-2">
                       <button
                         type="button"
                         onClick={() => { setPlataforma("google_meet"); setErroLink(null); }}
-                        className={`flex items-center justify-center gap-2 p-2.5 rounded-lg text-xs font-medium border transition-all ${
+                        className={`flex items-center justify-center gap-1.5 p-2.5 rounded-lg text-xs font-medium border transition-all ${
                           plataforma === "google_meet"
                             ? "bg-[#d4af37]/10 text-[#d4af37] border-[#d4af37]/50"
                             : "bg-[#070a13] text-slate-400 border-slate-800 hover:text-slate-200"
                         }`}
                       >
-                        🟢 Google Meet
+                        🟢 Meet
                       </button>
                       <button
                         type="button"
                         onClick={() => { setPlataforma("teams"); setErroLink(null); }}
-                        className={`flex items-center justify-center gap-2 p-2.5 rounded-lg text-xs font-medium border transition-all ${
+                        className={`flex items-center justify-center gap-1.5 p-2.5 rounded-lg text-xs font-medium border transition-all ${
                           plataforma === "teams"
                             ? "bg-[#d4af37]/10 text-[#d4af37] border-[#d4af37]/50"
                             : "bg-[#070a13] text-slate-400 border-slate-800 hover:text-slate-200"
                         }`}
                       >
-                        🔵 MS Teams
+                        🔵 Teams
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setPlataforma("zoom"); setErroLink(null); }}
+                        className={`flex items-center justify-center gap-1.5 p-2.5 rounded-lg text-xs font-medium border transition-all ${
+                          plataforma === "zoom"
+                            ? "bg-[#d4af37]/10 text-[#d4af37] border-[#d4af37]/50"
+                            : "bg-[#070a13] text-slate-400 border-slate-800 hover:text-slate-200"
+                        }`}
+                      >
+                        🟡 Zoom
                       </button>
                     </div>
                   </div>
@@ -257,10 +274,16 @@ export const ModalCompromisso: React.FC<ModalCompromissoProps> = ({
                     <input
                       type="url"
                       required
-                      placeholder={plataforma === "google_meet" ? "meet.google.com/abc-defg-hij" : "teams.microsoft.com/..."}
+                      placeholder={
+                        plataforma === "google_meet"
+                          ? "meet.google.com/abc-defg-hij"
+                          : plataforma === "teams"
+                          ? "teams.microsoft.com/..."
+                          : "zoom.us/j/123456789"
+                      }
                       value={linkReuniao}
                       onChange={(e) => validarEFormatarLink(e.target.value, plataforma)}
-                      className={`w-full bg-[#070a13] border rounded-lg px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none ${
+                      className={`w-full bg-[#070a13] border rounded-lg px-4 py-2.5 text-sm text-slate-200 placeholder-slate-500 dark:placeholder-slate-400/50 focus:outline-none ${
                         erroLink 
                           ? "border-red-500/50 bg-red-950/10 focus:border-red-500" 
                           : "border-slate-800 focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37]/20"
@@ -279,7 +302,7 @@ export const ModalCompromisso: React.FC<ModalCompromissoProps> = ({
                     placeholder="Ex: Sala de Reuniões Principal, Fórum Cível Vara 2"
                     value={localFisico}
                     onChange={(e) => setLocalFisico(e.target.value)}
-                    className="w-full bg-[#070a13] border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-[#d4af37]"
+                    className="w-full bg-[#070a13] border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-200 placeholder-slate-500 dark:placeholder-slate-400/50 focus:outline-none focus:border-[#d4af37]"
                   />
                 </div>
               )}
@@ -294,7 +317,7 @@ export const ModalCompromisso: React.FC<ModalCompromissoProps> = ({
               placeholder="Notas prévias ou pauta da reunião..."
               value={anotacoes}
               onChange={(e) => setAnotacoes(e.target.value)}
-              className="w-full bg-[#070a13] border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37]/30"
+              className="w-full bg-[#070a13] border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-200 placeholder-slate-500 dark:placeholder-slate-400/50 focus:outline-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37]/30"
             />
           </div>
 

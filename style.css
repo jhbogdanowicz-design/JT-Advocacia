@@ -1123,6 +1123,14 @@ body {
   line-height: 1.5;
 }
 
+.form-input-premium::placeholder,
+.form-textarea-premium::placeholder,
+#user-openai-key-input::placeholder,
+#user-gemini-key-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.55;
+}
+
 /* Rádio e Checkbox Sofisticados */
 .radio-group-flex {
   display: flex;
@@ -2638,4 +2646,94 @@ input:checked + .slider:before {
   -ms-transform: translateX(20px);
   transform: translateX(20px);
   background-color: #ffffff;
+}
+
+/* =========================================================================
+   🖨️ MEDIA PRINT: OTIMIZAÇÃO DE IMPRESSÃO A4 (PREVIA VS ASSINADO)
+   ========================================================================= */
+@media print {
+  /* Ocultar barra lateral, topo do sistema, cabeçalhos e controle de abas */
+  .sidebar, .top-bar, .logo-title, .sidebar-nav, .sidebar-footer, .panel-header-flex, .tab-container, .btn-sub-tab, .sidebar-logo {
+    display: none !important;
+  }
+  
+  /* Resetar layout para impressão */
+  #app-layout {
+    display: block !important;
+    background: #fff !important;
+  }
+  
+  .main-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+  
+  /* Ocultar todas as outras views de conteúdo */
+  .content-view {
+    display: none !important;
+  }
+  
+  /* Mostrar apenas a view de contratos se ativa */
+  #view-contratos {
+    display: block !important;
+    background: #fff !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  /* Ocultar todos os painéis e elementos interativos da view de contratos */
+  #view-contratos > * {
+    display: none !important;
+  }
+  
+  /* Forçar a exibição exclusiva e formatação elegante do bloco de impressão de contratos */
+  #contratos-print-area {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    background: #fff !important;
+    color: #000 !important;
+    padding: 20mm !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Mostrar apenas a view de processos se ativa */
+  #view-processos {
+    display: block !important;
+    background: #fff !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  /* Ocultar todos os painéis e elementos interativos da view de processos */
+  #view-processos > * {
+    display: none !important;
+  }
+  
+  /* Forçar a exibição exclusiva e formatação elegante do bloco de impressão de processos */
+  #processos-print-area {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    background: #fff !important;
+    color: #000 !important;
+    padding: 20mm !important;
+    box-sizing: border-box !important;
+  }
+  
+  /* Classe auxiliar para outros elementos de impressão */
+  .print-only {
+    display: block !important;
+  }
+  
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
 }

@@ -156,6 +156,70 @@ export const AgendaPainel: React.FC = () => {
     return {};
   };
 
+  /**
+   * Gera a URL de disparo do WhatsApp com mensagem jurídica formatada.
+   * Funciona para reuniões online (link dinâmico) e presenciais (endereço/sala).
+   */
+  const gerarLinkWhatsApp = (comp: Compromisso): string => {
+    const nomeCliente = comp.clientes?.nome || "Cliente";
+    const whatsapp = comp.clientes?.whatsapp || "";
+
+    const dataObj = new Date(comp.data_hora);
+    const dataFormatada = dataObj.toLocaleDateString("pt-BR", {
+      weekday: "long",
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+    const horaFormatada = dataObj.toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    const meta = parseMetadata(comp.anotacoes_pos_evento);
+    const isVirtual =
+      meta.online === true ||
+      comp.tipo === "Reunião Online" ||
+      (comp.local_link &&
+        (comp.local_link.includes("meet.google.com") ||
+          comp.local_link.includes("teams.microsoft.com") ||
+          comp.local_link.includes("zoom.us")));
+
+    let blocoLocal = "";
+    if (isVirtual && comp.local_link) {
+      const plataforma = comp.local_link.includes("meet.google")
+        ? "Google Meet"
+        : comp.local_link.includes("teams.microsoft")
+        ? "Microsoft Teams"
+        : comp.local_link.includes("zoom.us")
+        ? "Zoom"
+        : "Sala Virtual";
+      blocoLocal =
+        `🎥 *Plataforma:* ${plataforma}\n` +
+        `🔗 *Link de Acesso:* ${comp.local_link}`;
+    } else if (comp.local_link) {
+      blocoLocal = `📍 *Local:* ${comp.local_link}`;
+    }
+
+    const mensagem =
+      `Prezado(a) *${nomeCliente}*,\n\n` +
+      `Esperamos que esteja bem. Entramos em contato pelo escritório *JT — Janaina Tarabauca Advocacia* para confirmar o agendamento abaixo:\n\n` +
+      `📋 *${comp.titulo}*\n` +
+      `📅 *Data:* ${dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1)}\n` +
+      `⏰ *Horário:* ${horaFormatada} (horário de Brasília)\n` +
+      (blocoLocal ? `${blocoLocal}\n` : "") +
+      `\nPedimos que confirme o recebimento desta mensagem respondendo *"Confirmado"*.\n\n` +
+      `Em caso de impossibilidade, por favor entre em contato com antecedência mínima de 24 horas para reagendarmos.\n\n` +
+      `_Atenciosamente,_\n` +
+      `*Dra. Janaina Tarabauca*\n` +
+      `OAB/SP 123.456 — Advocacia em Direito Médico e Saúde\n` +
+      `📞 (11) 94753-4587 | 🌐 jtadvocacia.com.br`;
+
+    const numero = whatsapp.replace(/\D/g, "");
+    const base = numero ? `https://wa.me/55${numero}` : `https://wa.me/`;
+    return `${base}?text=${encodeURIComponent(mensagem)}`;
+  };
+
   const formatarHora = (dataStr: string) => {
     const d = new Date(dataStr);
     return d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
@@ -398,30 +462,49 @@ export const AgendaPainel: React.FC = () => {
         </div>
 
         {/* Ações Rápidas */}
-        <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-[10px] opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          <div className="flex gap-2">
-            {comp.status === "Agendado" && (
-              <button 
-                onClick={() => handleMarcarComoRealizado(comp.id)}
-                type="button" 
-                className="text-emerald-600 hover:text-emerald-700 font-bold flex items-center gap-0.5"
-              >
-                ✓ Cumprir
-              </button>
-            )}
-            {comp.status === "Agendado" && (
-              <button 
-                onClick={() => handleCancelarCompromisso(comp.id)}
-                type="button" 
-                className="text-red-600 hover:text-red-700 font-bold"
-              >
-                ✕ Cancelar
-              </button>
-            )}
+        <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-2">
+          
+          {/* Botão WhatsApp — visível para compromissos com cliente vinculado */}
+          {comp.clientes && comp.status !== "Cancelado" && (
+            <a
+              href={gerarLinkWhatsApp(comp)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center justify-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-bold text-[10px] uppercase tracking-wider px-3 py-2 rounded-lg transition-all shadow-sm shadow-emerald-500/20"
+              title={`Enviar notificação de agendamento via WhatsApp para ${comp.clientes.nome}`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 shrink-0">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+              </svg>
+              📲 Notificar via WhatsApp
+            </a>
+          )}
+
+          <div className="flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <div className="flex gap-2">
+              {comp.status === "Agendado" && (
+                <button 
+                  onClick={() => handleMarcarComoRealizado(comp.id)}
+                  type="button" 
+                  className="text-emerald-600 hover:text-emerald-700 font-bold text-[10px] flex items-center gap-0.5"
+                >
+                  ✓ Cumprir
+                </button>
+              )}
+              {comp.status === "Agendado" && (
+                <button 
+                  onClick={() => handleCancelarCompromisso(comp.id)}
+                  type="button" 
+                  className="text-red-600 hover:text-red-700 font-bold text-[10px]"
+                >
+                  ✕ Cancelar
+                </button>
+              )}
+            </div>
+            <span className={`text-[10px] font-semibold ${comp.status === "Realizado" ? "text-emerald-600" : comp.status === "Cancelado" ? "text-red-600" : "text-amber-600"}`}>
+              {comp.status}
+            </span>
           </div>
-          <span className={`text-[10px] font-semibold ${comp.status === "Realizado" ? "text-emerald-600" : comp.status === "Cancelado" ? "text-red-600" : "text-amber-600"}`}>
-            Status: {comp.status}
-          </span>
         </div>
       </div>
     );
@@ -720,6 +803,23 @@ export const AgendaPainel: React.FC = () => {
                                     <span className="text-[9px] text-[#d4af37] font-mono truncate">
                                       📍 {comp.local_link}
                                     </span>
+                                  )}
+
+                                  {/* WhatsApp button no card semanal */}
+                                  {comp.clientes && comp.status !== "Cancelado" && (
+                                    <a
+                                      href={gerarLinkWhatsApp(comp)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      onClick={(e) => e.stopPropagation()}
+                                      className="mt-1 flex items-center justify-center gap-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-[8px] uppercase tracking-wide px-2 py-1 rounded-md transition-all w-full"
+                                      title="Enviar notificação via WhatsApp"
+                                    >
+                                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-2.5 h-2.5 shrink-0">
+                                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                                      </svg>
+                                      WhatsApp
+                                    </a>
                                   )}
                                 </div>
                               );

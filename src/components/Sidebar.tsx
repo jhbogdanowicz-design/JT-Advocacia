@@ -63,6 +63,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
       )
     },
     {
+      id: "contratos",
+      label: "Gestão de Contratos",
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="16" y1="13" x2="8" y2="13" />
+          <line x1="16" y1="17" x2="8" y2="17" />
+          <path d="M12 9H8" />
+        </svg>
+      )
+    },
+    {
       id: "processos",
       label: "Processos",
       icon: (
@@ -130,7 +153,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <aside className="w-64 bg-[#0f172a] text-slate-100 flex flex-col h-screen border-r border-slate-800 shrink-0">
+    <aside className="w-64 bg-[#0f172a] text-slate-100 flex flex-col h-screen border-r border-slate-800 shrink-0 print:hidden">
       {/* LOGO */}
       <div className="flex items-center gap-3 px-6 py-5 border-b border-slate-800">
         <div className="w-10 h-10 rounded-lg overflow-hidden border border-[#d4af37]/30 flex items-center justify-center bg-slate-900">

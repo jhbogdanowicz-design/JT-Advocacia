@@ -465,6 +465,16 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           <span>Prontuário de Clientes</span>
         </a>
+        <a href="#" class="nav-item" data-view="contratos">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" y1="13" x2="8" y2="13" />
+            <line x1="16" y1="17" x2="8" y2="17" />
+            <path d="M12 9H8" />
+          </svg>
+          <span>Gestão de Contratos</span>
+        </a>
         <a href="#" class="nav-item" data-view="processos">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
           <span>Processos</span>
@@ -1371,33 +1381,65 @@
               </div>
 
               <!-- Contador de Cotas Cortesia -->
-              <div id="processo-ai-quota-counter" style="text-align: center; margin-top: 10px; font-size: 11.5px; color: var(--text-secondary); font-weight: 500;">
+              <div id="processo-ai-quota-counter" style="margin-top: 12px;">
                 <!-- Preenchido dinamicamente via JS -->
               </div>
 
-              <!-- Card de Upgrade / Configuração de Chaves -->
-              <div id="processo-ai-lock-card" style="display: none; margin-top: 20px; padding: 20px; border: 1px solid var(--gold); border-radius: 8px; background: rgba(197, 168, 92, 0.05); text-align: left;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                  <span style="font-size: 18px;">🔑</span>
-                  <h4 style="color: var(--gold); font-family: 'Outfit'; font-weight: 700; margin: 0; font-size: 13.5px;">Limite de Processamento Cortesia Atingido</h4>
-                </div>
-                <p style="font-size: 11.5px; color: var(--text-primary); line-height: 1.5; margin-bottom: 16px;">
-                  Para continuar utilizando a análise profunda de peças processuais sem limites e com maior velocidade, insira abaixo a sua chave de API pessoal (Token de Login Pago) da OpenAI ou Google AI Studio.
-                </p>
-                
-                <div class="form-group" style="margin-bottom: 12px;">
-                  <label class="form-label" for="user-gemini-key-input" style="font-size: 10px; font-weight: 700; text-transform: uppercase;">Chave API Google Gemini (AI Studio)</label>
-                  <input type="password" id="user-gemini-key-input" class="form-input-premium" style="height: 38px; font-size: 11.5px;" placeholder="Insira sua AIzaSy... do Gemini">
-                </div>
+              <!-- Card de Upgrade BYOK Premium -->
+              <div id="processo-ai-lock-card" style="display: none; margin-top: 20px; position: relative; overflow: hidden; background: linear-gradient(135deg, #0a0e1a 0%, #0f172a 60%, #0a0e1a 100%); border: 1px solid rgba(212,175,55,0.35); border-radius: 16px; padding: 20px;">
+                <!-- Glows decorativos -->
+                <div style="position:absolute;top:0;right:0;width:160px;height:160px;background:radial-gradient(circle,rgba(212,175,55,0.07) 0%,transparent 70%);pointer-events:none;"></div>
+                <div style="position:absolute;bottom:0;left:0;width:120px;height:120px;background:radial-gradient(circle,rgba(59,130,246,0.05) 0%,transparent 70%);pointer-events:none;"></div>
 
-                <div class="form-group" style="margin-bottom: 16px;">
-                  <label class="form-label" for="user-openai-key-input" style="font-size: 10px; font-weight: 700; text-transform: uppercase;">Chave API OpenAI ChatGPT</label>
-                  <input type="password" id="user-openai-key-input" class="form-input-premium" style="height: 38px; font-size: 11.5px;" placeholder="Insira sua sk-proj-... do ChatGPT">
-                </div>
+                <div style="position:relative;z-index:1;">
+                  <!-- Título -->
+                  <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                    <div style="width:36px;height:36px;border-radius:10px;background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.25);display:flex;align-items:center;justify-content:center;font-size:17px;">🔑</div>
+                    <div>
+                      <h4 style="color:#d4af37;font-family:'Outfit';font-weight:700;margin:0;font-size:13px;line-height:1.3;">Desbloqueio Premium — Análises Ilimitadas</h4>
+                      <p style="font-size:10.5px;color:#94a3b8;margin:0;font-weight:400;">Cota gratuita esgotada. Insira sua chave API para continuar.</p>
+                    </div>
+                  </div>
 
-                <button type="button" class="btn-primary" id="btn-save-user-keys" style="width: 100%; height: 38px; font-weight: 700; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; background: var(--bg-navy); border: 1px solid var(--gold); color: var(--gold);">
-                  <span>Salvar e Ativar Chaves</span>
-                </button>
+                  <!-- Feature pills -->
+                  <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">
+                    <span style="font-size:9.5px;font-weight:700;color:#d4af37;background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.2);padding:3px 8px;border-radius:999px;">✓ Análises ilimitadas</span>
+                    <span style="font-size:9.5px;font-weight:700;color:#d4af37;background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.2);padding:3px 8px;border-radius:999px;">✓ Sem custo adicional</span>
+                    <span style="font-size:9.5px;font-weight:700;color:#d4af37;background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.2);padding:3px 8px;border-radius:999px;">✓ Dados direto para a API</span>
+                  </div>
+
+                  <!-- Chave OpenAI -->
+                  <div style="margin-bottom:10px;">
+                    <label style="display:flex;align-items:center;gap:5px;font-size:9.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">
+                      <span style="color:#34d399;">⬡</span> Chave OpenAI (ChatGPT)
+                    </label>
+                    <div style="position:relative;">
+                      <input type="password" id="user-openai-key-input" style="width:100%;box-sizing:border-box;background:#0f172a;border:1px solid #334155;border-radius:10px;padding:9px 56px 9px 12px;font-size:11.5px;color:#e2e8f0;font-family:monospace;outline:none;transition:border-color .2s;" placeholder="sk-proj-..." onfocus="this.style.borderColor='rgba(52,211,153,0.5)'" onblur="this.style.borderColor='#334155'">
+                      <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:9px;color:#475569;font-family:monospace;">GPT-4o</span>
+                    </div>
+                    <p style="font-size:9.5px;color:#475569;margin:3px 0 0;">Obtenha em <a href="https://platform.openai.com/api-keys" target="_blank" style="color:#34d399;text-decoration:underline;">platform.openai.com</a></p>
+                  </div>
+
+                  <!-- Chave Gemini -->
+                  <div style="margin-bottom:16px;">
+                    <label style="display:flex;align-items:center;gap:5px;font-size:9.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">
+                      <span style="color:#60a5fa;">✦</span> Chave Google Gemini
+                    </label>
+                    <div style="position:relative;">
+                      <input type="password" id="user-gemini-key-input" style="width:100%;box-sizing:border-box;background:#0f172a;border:1px solid #334155;border-radius:10px;padding:9px 72px 9px 12px;font-size:11.5px;color:#e2e8f0;font-family:monospace;outline:none;transition:border-color .2s;" placeholder="AIza..." onfocus="this.style.borderColor='rgba(96,165,250,0.5)'" onblur="this.style.borderColor='#334155'">
+                      <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:9px;color:#475569;font-family:monospace;">Flash 1.5</span>
+                    </div>
+                    <p style="font-size:9.5px;color:#475569;margin:3px 0 0;">Obtenha em <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#60a5fa;text-decoration:underline;">aistudio.google.com</a></p>
+                  </div>
+
+                  <!-- Botão salvar -->
+                  <div style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #1e293b;padding-top:12px;">
+                    <p style="font-size:9.5px;color:#475569;display:flex;align-items:center;gap:4px;margin:0;">🔒 Chaves armazenadas com privacidade.</p>
+                    <button type="button" id="btn-save-user-keys" style="display:inline-flex;align-items:center;gap:6px;background:#d4af37;color:#070a13;border:none;border-radius:10px;padding:8px 16px;font-size:11px;font-weight:800;font-family:'Outfit';cursor:pointer;transition:background .2s;" onmouseover="this.style.background='#f3e5ab'" onmouseout="this.style.background='#d4af37'">
+                      🚀 Ativar Análises Ilimitadas
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -1449,8 +1491,13 @@
                 <!-- Tab 3: Minuta Inicial -->
                 <div id="ai-result-minuta-pane" class="result-pane" style="display: none;">
                   <div style="position: relative;">
-                    <textarea id="ai-result-minuta-text" readonly class="form-textarea-premium" rows="12" style="font-family: 'Courier New', Courier, monospace; font-size: 12px; line-height: 1.5; color: var(--text-primary); background: rgba(0,0,0,0.2); cursor: text;"></textarea>
-                    <button type="button" id="btn-copy-ai-minuta" style="position: absolute; top: 10px; right: 10px; padding: 6px 12px; font-size: 11px; background: rgba(197, 168, 92, 0.15); border: 1px solid var(--gold); color: var(--gold); border-radius: 4px; cursor: pointer; font-weight: 600;">Copiar Parecer Técnico (IA)</button>
+                    <textarea id="ai-result-minuta-text" class="form-textarea-premium" rows="12" style="font-family: 'Courier New', Courier, monospace; font-size: 12px; line-height: 1.5; color: var(--text-primary); background: rgba(0,0,0,0.2); cursor: text; padding-top: 48px;"></textarea>
+                    <div style="position: absolute; top: 10px; right: 10px; display: flex; gap: 8px;">
+                      <button type="button" id="btn-copy-ai-minuta" style="padding: 6px 12px; font-size: 11px; background: rgba(197, 168, 92, 0.15); border: 1px solid var(--gold); color: var(--gold); border-radius: 4px; cursor: pointer; font-weight: 600;">Copiar Parecer</button>
+                      <button type="button" id="btn-processo-imprimir-minuta" style="padding: 6px 12px; font-size: 11px; background: rgba(16, 185, 129, 0.15); border: 1px solid var(--success-color); color: var(--success-color); border-radius: 4px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                        <span>🖨️ Imprimir / PDF</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -1468,7 +1515,270 @@
       <!-- =========================================================================
            FINANCEIRO VIEW
            ========================================================================= -->
-      <section id="view-financeiro" class="content-view" style="display: none;">
+      </section>
+
+      <!-- =========================================================================
+           CONTRATOS VIEW (NOVO)
+           ========================================================================= -->
+      <section id="view-contratos" class="content-view">
+        <!-- 1. HEADER PRINCIPAL -->
+        <div class="panel-header-flex" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; background: var(--panel-bg); border: 1px solid var(--panel-border); padding: 20px; border-radius: 16px;">
+          <div>
+            <h2 class="panel-main-title" style="display: flex; align-items: center; gap: 8px; font-family: 'Playfair Display';">
+              <span>📜</span> Gestão de Contratos & Assessoria
+            </h2>
+            <p class="section-desc">Criação de minutas inteligentes por IA integrada e controle de planos de assessoria recorrente.</p>
+          </div>
+          
+          <!-- Seletor de Aba Interno -->
+          <div style="display: inline-flex; background: var(--input-bg); border: 1px solid var(--panel-border); padding: 4px; border-radius: 12px; gap: 4px;">
+            <button type="button" id="btn-contratos-tab-minuta" class="btn-sub-tab active" style="background: var(--panel-bg); color: var(--text-primary); border: none; font-size: 11px; font-weight: 600; padding: 6px 16px; border-radius: 8px; cursor: pointer; transition: all 0.25s;">
+              🤖 Minuta por IA
+            </button>
+            <button type="button" id="btn-contratos-tab-planos" class="btn-sub-tab" style="background: none; color: var(--text-secondary); border: none; font-size: 11px; font-weight: 600; padding: 6px 16px; border-radius: 8px; cursor: pointer; transition: all 0.25s;">
+              💎 Planos Recorrentes
+            </button>
+          </div>
+        </div>
+
+        <!-- CONTAINER DO FLUXO PRINCIPAL -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+          
+          <!-- COLUNA ESQUERDA: FILTROS E PERFIL DO CLIENTE -->
+          <div style="background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 20px; height: fit-content;">
+            <h3 style="font-size: 14px; font-weight: 700; color: var(--text-primary); border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;">
+              <span>👤</span> Seleção do Prontuário
+            </h3>
+            
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="contratos-client-select">Cliente do Contrato *</label>
+              <select id="contratos-client-select" class="form-input-premium" style="cursor: pointer;">
+                <option value="" disabled selected>Carregando clientes...</option>
+              </select>
+            </div>
+
+            <!-- Card de Detalhes Injetados Silenciosamente -->
+            <div id="contratos-client-preview" style="display: none; background: rgba(0, 0, 0, 0.15); border: 1px solid var(--panel-border); border-radius: 12px; padding: 16px; space-y: 12px;">
+              <span style="font-size: 9px; font-weight: 700; color: var(--gold); tracking-widest: 0.1em; text-transform: uppercase; display: block; margin-bottom: 8px;">📐 Perfil do Prontuário Integrado</span>
+              <div style="font-size: 12px; display: flex; flex-direction: column; gap: 10px;">
+                <div>
+                  <span style="color: var(--text-secondary); font-size: 10px; display: block;">Nome Completo / Razão</span>
+                  <strong id="contratos-preview-nome" style="color: var(--text-primary);">...</strong>
+                </div>
+                <div>
+                  <span style="color: var(--text-secondary); font-size: 10px; display: block;">Documento Principal</span>
+                  <span id="contratos-preview-doc" style="font-family: monospace; color: var(--text-primary);">...</span>
+                </div>
+                <div>
+                  <span style="color: var(--text-secondary); font-size: 10px; display: block;">Fatos e Histórico de Prontuário</span>
+                  <p id="contratos-preview-fatos" style="margin-top: 4px; padding: 8px; background: rgba(0,0,0,0.2); border: 1px solid var(--panel-border); border-radius: 8px; font-size: 11px; color: var(--text-secondary); font-weight: 300; line-height: 1.5; max-height: 120px; overflow-y: auto; white-space: pre-wrap;"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- COLUNAS DA DIREITA: CONTEÚDO ATIVO (TABS) -->
+          <div style="grid-column: span 2; display: flex; flex-direction: column; gap: 24px;">
+            
+            <!-- ABA 1: GERADOR DE MINUTA POR IA -->
+            <div id="contratos-view-minuta" style="background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 20px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px;">
+                <h3 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin: 0; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;">
+                  <span>🤖</span> Gerador de Cláusulas por IA
+                </h3>
+                
+                <!-- Seletor de IA -->
+                <div class="motor-selector" style="display: inline-flex; background: var(--input-bg); border: 1px solid var(--panel-border); padding: 2px; border-radius: 8px; gap: 2px;">
+                  <button type="button" class="btn-motor active" data-motor="gemini" style="background: var(--gold); color: var(--navy); border: none; font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 6px; cursor: pointer;">Gemini</button>
+                  <button type="button" class="btn-motor" data-motor="openai" style="background: none; color: var(--text-secondary); border: none; font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 6px; cursor: pointer;">OpenAI</button>
+                  <button type="button" class="btn-motor" data-motor="jusia" style="background: none; color: var(--text-secondary); border: none; font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 6px; cursor: pointer;">JUS IA</button>
+                </div>
+              </div>
+
+              <!-- Ações da Minuta -->
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <button type="button" id="btn-contratos-esbocar" class="btn-primary" style="width: auto; margin:0; padding: 10px 20px; font-weight: 700;" disabled>
+                  Esboçar Cláusulas Contratuais
+                </button>
+                <button type="button" id="btn-contratos-prompt-toggle" style="background: none; border: none; color: var(--text-secondary); font-size: 11px; cursor: pointer; text-decoration: underline; display: none;">Ver Prompt de Injeção</button>
+              </div>
+
+              <!-- Prompt de Injeção de Fatos -->
+              <div id="contratos-prompt-card" style="display: none; background: rgba(197, 168, 92, 0.03); border: 1px dashed var(--gold); border-radius: 12px; padding: 16px;">
+                <span style="font-size: 9.5px; font-weight: 700; color: var(--gold); tracking-widest: 0.08em; text-transform: uppercase; display: block; margin-bottom: 6px;">⚙️ Prompt Interno Cruzado (BYOK & RLS Protegido)</span>
+                <pre id="contratos-prompt-text" style="font-family: monospace; font-size: 10.5px; color: var(--text-secondary); line-height: 1.5; white-space: pre-wrap; margin:0; max-height: 250px; overflow-y: auto; user-select: all;"></pre>
+              </div>
+
+              <!-- Textarea da Minuta Editável -->
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                  <label class="form-label" style="margin-bottom: 0;">Estrutura da Minuta Gerada (Editável)</label>
+                  <div style="display: flex; gap: 10px; align-items: center;">
+                    <button type="button" id="btn-contratos-copiar" style="background: none; border: none; color: var(--gold); font-size: 12px; font-weight: 700; cursor: pointer; display: none; margin-right: 8px;">📋 Copiar Minuta</button>
+                    <button type="button" id="btn-contratos-print-preview" class="btn-primary" style="display: none; width: auto; margin: 0; padding: 6px 14px; font-size: 11px; background: rgba(197, 168, 92, 0.08); border: 1px solid var(--gold); color: var(--gold); font-weight: 600;">
+                      📄 Exportar Prévia (PDF)
+                    </button>
+                    <button type="button" id="btn-contratos-print-signed" class="btn-primary" style="display: none; width: auto; margin: 0; padding: 6px 14px; font-size: 11px; background: var(--success-color); border: none; color: #fff; font-weight: 600;">
+                      ✍️ Exportar Assinado (PDF)
+                    </button>
+                  </div>
+                </div>
+
+                <div id="contratos-minuta-loading" style="display: none; flex-direction: column; align-items: center; justify-content: center; padding: 80px 0; gap: 12px; border: 1px solid var(--panel-border); border-radius: 8px; background: rgba(0,0,0,0.1);">
+                  <div class="spinner-premium" style="width: 36px; height: 36px; border: 4px solid rgba(255,255,255,0.05); border-top-color: var(--gold); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                  <p id="contratos-minuta-loading-status" style="font-size: 11px; color: var(--text-secondary); font-weight: 300;">Conectando com o motor selecionado...</p>
+                </div>
+
+                <textarea id="contratos-minuta-textarea" class="form-textarea-premium" rows="22" placeholder="O documento gerado aparecerá aqui para refinamento e assinatura..." style="font-family: monospace; font-size: 12px; line-height: 1.6; background: rgba(0,0,0,0.1); border-color: var(--panel-border); display: block;"></textarea>
+              
+                <!-- Quadro de Assinatura Digital (Canvas) -->
+                <div id="contratos-assinatura-container" style="display: none; flex-direction: column; gap: 12px; margin-top: 16px; border-top: 1px solid var(--panel-border); padding-top: 16px;">
+                  <h3 style="font-size: 13px; font-weight: 700; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 6px;">
+                    <span>✍️</span> Assinatura Eletrônica do Contrato (Aguardando apenas assinatura do cliente)
+                  </h3>
+                  <p style="font-size: 11px; color: var(--text-secondary); margin: 0; font-weight: 300; line-height: 1.4;">
+                    Este contrato encontra-se no estado <strong style="color: var(--gold);">Aguardando apenas assinatura do cliente</strong>. Colete a assinatura eletrônica do cliente desenhando no quadro abaixo para validar as cláusulas rascunhadas.
+                  </p>
+                  <div style="position: relative; border-radius: 12px; overflow: hidden; border: 2px dashed var(--panel-border); background: rgba(0,0,0,0.15);">
+                    <canvas id="contratos-canvas-pad" style="display: block; width: 100%; height: 160px; cursor: crosshair; touch-action: none;"></canvas>
+                    
+                    <div id="contratos-canvas-success" style="display: none; position: absolute; inset: 0; background: rgba(16, 185, 129, 0.9); backdrop-filter: blur(4px); flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: #fff;">
+                      <span style="font-size: 28px;">✅</span>
+                      <strong style="font-size: 11px; text-transform: uppercase; tracking-wider: 0.1em; font-weight: 700;">Assinatura Vinculada</strong>
+                      <span style="font-size: 10px; opacity: 0.85;">Contrato assinado eletronicamente e pronto para arquivamento.</span>
+                    </div>
+                  </div>
+                  <div style="display: flex; align-items: center;">
+                    <button type="button" id="btn-contratos-limpar" style="background: var(--input-bg); border: 1px solid var(--panel-border); color: var(--text-primary); font-size: 11px; font-weight: 700; text-transform: uppercase; border-radius: 8px; cursor: pointer; margin-right: 8px; padding: 8px 16px;">Limpar</button>
+                    <button type="button" id="btn-contratos-confirmar" style="background: var(--success-color); border: none; color: #fff; font-size: 11px; font-weight: 700; text-transform: uppercase; border-radius: 8px; cursor: pointer; padding: 8px 16px;">Confirmar Assinatura</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ABA 2: MÓDULO DE PLANOS DE ASSINATURA -->
+            <div id="contratos-view-planos" style="display: none; background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 16px; padding: 24px; flex-direction: column; gap: 20px;">
+              <h3 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin: 0; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                <span>💎</span> Planos de Assessoria Jurídica Recorrente
+              </h3>
+
+              <!-- Seleção de Planos -->
+              <div class="form-group">
+                <label class="form-label">Modelo de Assinatura (Recorrência)</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                  <button type="button" id="btn-plano-mensal" class="plano-card-btn active" style="padding: 16px; text-align: left; background: rgba(197, 168, 92, 0.08); border: 1.5px solid var(--gold); border-radius: 12px; color: var(--gold); cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
+                    <strong style="font-size: 12px; display: block;">Plano Mensal Recorrente</strong>
+                    <span style="font-size: 10px; color: var(--text-secondary); font-weight: 300;">Assessoria para prontuário, consentimentos e termos clínicos.</span>
+                    <strong style="font-size: 14px; margin-top: 8px; display: block; color: var(--text-primary);">R$ 1.500,00 / mês</strong>
+                  </button>
+                  <button type="button" id="btn-plano-anual" class="plano-card-btn" style="padding: 16px; text-align: left; background: rgba(0, 0, 0, 0.1); border: 1.5px solid var(--panel-border); border-radius: 12px; color: var(--text-secondary); cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
+                    <strong style="font-size: 12px; display: block; color: var(--text-primary);">Plano Anual Premium</strong>
+                    <span style="font-size: 10px; color: var(--text-secondary); font-weight: 300;">Defesa integral, auditoria geral de conformidade preventiva e auditoria clínica.</span>
+                    <strong style="font-size: 14px; margin-top: 8px; display: block; color: var(--text-primary);">R$ 15.000,00 / ano</strong>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Detalhes do Contrato e Recorrência -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                  <label class="form-label" for="contratos-plano-inicio">Início da Vigência *</label>
+                  <input type="date" id="contratos-plano-inicio" class="form-input-premium">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="contratos-plano-renovacao">Dia de Renovação *</label>
+                  <input type="number" id="contratos-plano-renovacao" class="form-input-premium" value="5" min="1" max="31">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="contratos-plano-valor">Valor Recorrência (R$) *</label>
+                  <input type="text" id="contratos-plano-valor" class="form-input-premium" value="1.500,00" style="font-family: monospace; font-weight: 700; color: var(--text-primary);">
+                </div>
+              </div>
+
+              <!-- Box Informativo -->
+              <div style="background: rgba(16, 185, 129, 0.05); border: 1px dashed var(--success-color); border-radius: 12px; padding: 16px;">
+                <span style="font-size: 9.5px; font-weight: 700; color: var(--success-color); tracking-widest: 0.08em; text-transform: uppercase; display: block; margin-bottom: 4px;">⚡ Integração de Caixa Automática (Módulo Financeiro)</span>
+                <p style="font-size: 11px; color: var(--text-secondary); margin:0; font-weight: 300; line-height: 1.5;">
+                  Ao ativar este plano, o sistema criará imediatamente o lançamento da primeira fatura no módulo <strong>Financeiro</strong> como <strong>Pendente</strong>, vinculando o prontuário deste cliente e registrando de forma integrada no faturamento consolidado.
+                </p>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 8px;">
+                <button type="button" id="btn-contratos-ativar-plano" class="btn-primary" style="width: auto; margin:0; padding: 12px 28px; font-weight: 800;" disabled>
+                  Ativar Assinatura Recorrente
+                </button>
+              </div>
+            </div>
+
+          <!-- AREA DE IMPRESSAO EXCLUSIVA (PRINT-ONLY) -->
+          <div id="contratos-print-area" class="print-only" style="display: none;">
+            <!-- Cabeçalho Timbrado -->
+            <div class="print-letterhead" style="text-align: center; border-bottom: 2px solid #d4af37; padding-bottom: 12px; margin-bottom: 24px;">
+              <h2 style="font-family: 'Playfair Display', Georgia, serif; font-size: 20px; font-weight: 800; color: #0f1e36; margin: 0; letter-spacing: 1px; text-transform: uppercase;">
+                JT - JANAINA TARABAUCA ADVOGADOS
+              </h2>
+              <p style="font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #d4af37; font-weight: 700; margin: 4px 0 0 0;">
+                Direito Médico e da Saúde
+              </p>
+            </div>
+
+            <!-- Marca D'água ou Banner de Status -->
+            <div id="contratos-print-watermark" style="text-align: center; border: 1px dashed #d4af37; background: #fffdf5; padding: 8px; margin-bottom: 20px; border-radius: 6px;">
+              <span id="contratos-print-watermark-text" style="font-size: 11px; font-weight: 700; color: #d4af37; text-transform: uppercase; letter-spacing: 1px;">
+                RASCUNHO / PRÉVIA DE MINUTA
+              </span>
+            </div>
+
+            <!-- Texto do Contrato -->
+            <pre id="contratos-print-pre" style="white-space: pre-wrap; font-family: monospace; font-size: 12px; color: #000; background: #fff; line-height: 1.6; border: none; margin: 0; padding: 0;"></pre>
+
+            <!-- Linha de Assinatura -->
+            <div id="contratos-print-signature-block" style="margin-top: 48px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; page-break-inside: avoid;">
+              
+              <!-- Coluna Esquerda (CONTRATADA) -->
+              <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+                <div style="border-bottom: 1px solid #000; width: 100%; height: 80px; display: flex; align-items: center; justify-content: center;">
+                  <!-- Imagem da Assinatura Cadastrada da Advogada -->
+                  <img id="contratos-print-lawyer-sig-img" src="" style="max-height: 60px; max-width: 200px; display: none;" />
+                  <span id="contratos-print-lawyer-sig-fallback" style="font-style: italic; font-size: 11px; color: #888;">(Assinatura Cadastrada)</span>
+                </div>
+                <span style="font-size: 11px; font-weight: bold; color: #000; text-transform: uppercase; margin-top: 8px;">DRA. JANAINA TARABAUCA</span>
+                <span style="font-size: 9px; color: #666; font-weight: bold; color: #0f1e36;">CONTRATADA</span>
+                <span style="font-size: 8px; color: #10b981; font-weight: bold; margin-top: 2px;">ASSINADO DIGITALMENTE</span>
+              </div>
+
+              <!-- Coluna Direita (CONTRATANTE) -->
+              <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+                <!-- Imagem da Assinatura (para modo assinado) -->
+                <div id="contratos-print-sig-img-container" style="display: none; border-bottom: 1px solid #000; width: 100%; height: 80px; align-items: center; justify-content: center;">
+                  <img id="contratos-print-sig-img" src="" style="max-height: 60px; max-width: 200px;" />
+                </div>
+                <!-- Linha em branco (para modo preview) -->
+                <div id="contratos-print-sig-blank" style="border-bottom: 1px solid #000; width: 100%; height: 80px; display: block;"></div>
+                
+                <span id="contratos-print-client-name" style="font-size: 11px; font-weight: bold; color: #000; text-transform: uppercase; margin-top: 8px;">CONTRATANTE</span>
+                <span style="font-size: 9px; color: #666; font-weight: bold; color: #0f1e36;">CONTRATANTE / CLIENTE</span>
+                <span id="contratos-print-sig-timestamp" style="font-size: 8px; color: #10b981; font-weight: bold; display: none; margin-top: 2px; line-height: 1.3;">ASSINADO ELETRONICAMENTE</span>
+              </div>
+
+            </div>
+
+            <!-- Rodapé do Documento -->
+            <div style="margin-top: 48px; border-top: 1px solid #ddd; padding-top: 12px; text-align: center; page-break-inside: avoid;">
+              <p style="font-size: 8px; color: #888; margin: 0; letter-spacing: 0.5px;">
+                JT Advocacia • Av. Paulista, 1000, 16º andar, São Paulo/SP • CEP 01311-100 • Tel: (11) 94753-4587
+              </p>
+              <p style="font-size: 8px; color: #888; margin: 4px 0 0 0;">
+                Documento gerado eletronicamente e protegido por criptografia de dados de ponta.
+              </p>
+            </div>
+          </div>
+          
+          </div>
+        </div>
+      </section>
+
+      <section id="view-financeiro" class="content-view">
         <!-- 1. HEADER DO PANEL -->
         <div class="panel-header-flex" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
           <div>
@@ -1933,6 +2243,26 @@
           <label class="form-label" for="edit-lawyer-phone">Telefone / Contato</label>
           <input type="text" id="edit-lawyer-phone" class="form-input-premium" placeholder="Ex: (11) 99999-9999">
         </div>
+        
+        <!-- Assinatura Institucional Digital -->
+        <div class="form-group" style="margin-top: 16px; border-top: 1px solid var(--panel-border); padding-top: 16px;">
+          <label class="form-label">Assinatura Institucional Digital</label>
+          <p style="font-size: 11px; color: var(--text-secondary); margin: 0 0 10px 0; font-weight: 300; line-height: 1.4;">
+            Desenhe sua assinatura oficial/rubrica abaixo. Ela será injetada automaticamente em todos os contratos gerados.
+          </p>
+          <div style="position: relative; border-radius: 12px; overflow: hidden; border: 2px dashed var(--panel-border); background: rgba(0,0,0,0.15); margin-bottom: 8px;">
+            <canvas id="lawyer-signature-canvas" style="display: block; width: 100%; height: 120px; cursor: crosshair; touch-action: none;"></canvas>
+            <div id="lawyer-signature-preview-container" style="display: none; position: absolute; inset: 0; background: var(--panel-bg); flex-direction: column; align-items: center; justify-content: center; gap: 6px;">
+              <span style="font-size: 10px; color: var(--text-secondary); font-weight: 600;">Assinatura Ativa Cadastrada:</span>
+              <img id="lawyer-signature-preview-img" src="" style="max-height: 60px; max-width: 250px; background: white; padding: 4px; border-radius: 6px;" />
+              <button type="button" id="btn-lawyer-signature-redraw" style="background: none; border: none; color: var(--gold); font-size: 11px; font-weight: bold; cursor: pointer; text-decoration: underline;">Alterar Assinatura</button>
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" id="btn-lawyer-signature-clear" style="background: var(--input-bg); border: 1px solid var(--panel-border); color: var(--text-primary); font-size: 11px; font-weight: 700; text-transform: uppercase; border-radius: 8px; cursor: pointer; padding: 6px 12px;">Limpar Quadro</button>
+          </div>
+        </div>
+        
         <button type="submit" class="btn-primary" id="btn-save-lawyer-profile">Salvar Alterações</button>
       </form>
     </div>
@@ -2370,6 +2700,125 @@
           <button type="submit" class="btn-primary" id="btn-salvar-financeiro" style="width: auto; margin:0; padding: 10px 24px; font-weight: 600;">Confirmar Lançamento</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 3: EDITAR PROCESSO E DISPARO JUS IA
+       ========================================================================= -->
+  <div class="modal-overlay" id="modal-editar-processo" style="display: none;">
+    <div class="modal-card" style="max-width: 550px; width: 90%;">
+      <div class="modal-header">
+        <h3>✏️ Detalhes e Edição do Processo</h3>
+        <button type="button" class="btn-close-modal" id="btn-close-modal-editar-processo">&times;</button>
+      </div>
+      <form id="form-modal-editar-processo">
+        <!-- 1. Título do Processo -->
+        <div class="form-group">
+          <label class="form-label" for="edit-proc-titulo">Título da Ação Judicial *</label>
+          <input type="text" id="edit-proc-titulo" class="form-input-premium" placeholder="Ex: Ação Rescisória de Contrato de Aluguel" required>
+        </div>
+
+        <!-- 2. Número e Valor da Causa -->
+        <div class="form-row-grid-2" style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px; margin-bottom: 12px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="edit-proc-numero">Número do Processo (CNJ)</label>
+            <input type="text" id="edit-proc-numero" class="form-input-premium" placeholder="0000000-00.0000.0.00.0000">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="edit-proc-valor">Valor da Causa (R$)</label>
+            <div class="currency-wrapper">
+              <span class="currency-prefix">R$</span>
+              <input type="number" step="0.01" id="edit-proc-valor" class="form-input-premium" placeholder="0,00" style="padding-left: 44px;">
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Área e Status -->
+        <div class="form-row-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="edit-proc-area">Área do Direito *</label>
+            <select id="edit-proc-area" class="form-input-premium" required>
+              <option value="Civil">Civil</option>
+              <option value="Trabalhista">Trabalhista</option>
+              <option value="Previdenciário">Previdenciário</option>
+              <option value="Família">Família</option>
+              <option value="Consumidor">Consumidor</option>
+              <option value="Empresarial">Empresarial</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="edit-proc-status">Status *</label>
+            <select id="edit-proc-status" class="form-input-premium" required>
+              <option value="Ativo">Ativo</option>
+              <option value="Suspenso">Suspenso</option>
+              <option value="Arquivado">Arquivado</option>
+              <option value="Em Acordo">Em Acordo</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 4. Tribunal e Vara -->
+        <div class="form-row-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="edit-proc-tribunal">Tribunal</label>
+            <input type="text" id="edit-proc-tribunal" class="form-input-premium" placeholder="Ex: TJSP">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="edit-proc-vara">Vara</label>
+            <input type="text" id="edit-proc-vara" class="form-input-premium" placeholder="Ex: 2ª Vara Cível">
+          </div>
+        </div>
+
+        <!-- 5. Fatos Narrados / Detalhes do Processo -->
+        <div class="form-group">
+          <label class="form-label" for="edit-proc-fatos">Teor do Processo / Fatos do Caso *</label>
+          <textarea id="edit-proc-fatos" class="form-textarea-premium" rows="4" placeholder="Descreva os fatos principais narrados na petição inicial ou andamento processual..." required></textarea>
+        </div>
+
+        <!-- Gatilho Inteligente Jus IA -->
+        <div style="background: rgba(197, 168, 92, 0.04); border: 1px dashed var(--gold); padding: 12px; border-radius: 8px; margin-bottom: 16px; text-align: center;">
+          <span style="font-size: 11px; color: var(--text-secondary); display: block; margin-bottom: 8px;">Deseja acionar a Inteligência Jurídica para propor tese ou minuta?</span>
+          <button 
+            type="button"
+            id="btn-gerar-peca-jusia"
+            class="bg-[#0f1e36] text-white hover:bg-slate-800 px-5 py-2.5 rounded text-xs font-bold uppercase tracking-wider border-b-2 border-[#d4af37] flex items-center gap-2 transition-all"
+            style="background: var(--navy); color: #fff; border-bottom: 2px solid var(--gold); border-radius: 6px; padding: 10px 16px; font-weight: 700; cursor: pointer; justify-content: center; gap: 8px; width: 100%; border-top: none; border-left: none; border-right: none;"
+          >
+            🤖 Gerar Peça/Tese via Jus IA
+          </button>
+        </div>
+
+        <!-- Botões de Ação -->
+        <div style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--input-border); padding-top: 16px; margin-top: 16px;">
+          <button type="button" class="btn-secondary" id="btn-cancelar-editar-processo" style="width: auto; margin:0; padding: 10px 20px;">Cancelar</button>
+          <button type="submit" class="btn-primary" id="btn-salvar-editar-processo" style="width: auto; margin:0; padding: 10px 24px; font-weight: 600;">Confirmar Alterações</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- AREA DE IMPRESSÃO DE PROCESSOS (OCULTA NO LAYOUT GERAL) -->
+  <div id="processos-print-area" style="display: none;">
+    <div id="processos-print-watermark" style="position: absolute; top: 120mm; left: 20mm; right: 20mm; border: 4px solid var(--gold); background: rgba(197, 168, 92, 0.03); padding: 15px; border-radius: 12px; text-align: center; transform: rotate(-10deg); opacity: 0.15; z-index: 0; pointer-events: none;">
+      <h1 id="processos-print-watermark-text" style="font-size: 24px; font-weight: 800; font-family: 'Outfit'; color: var(--gold); margin: 0; letter-spacing: 2px;">PARECER TÉCNICO E MINUTA JURÍDICA</h1>
+    </div>
+    <div style="position: relative; z-index: 1;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); padding-bottom: 10px; margin-bottom: 25px;">
+        <h2 style="font-family: 'Times New Roman', Times, serif; font-size: 16px; font-weight: bold; color: #0A192F; margin: 0;">JT - JANAINA TARABAUCA ADVOCACIA</h2>
+        <span style="font-family: 'Times New Roman', Times, serif; font-size: 10px; color: #888; font-style: italic;">Consultoria Jurídica de Alto Padrão</span>
+      </div>
+      <div style="margin-bottom: 20px; font-family: 'Times New Roman', Times, serif; font-size: 11px; line-height: 1.5; color: #333; background: #f9f9f9; padding: 12px; border: 1px solid #ddd; border-radius: 6px;">
+        <strong>DADOS DE IDENTIFICAÇÃO DO CASO:</strong><br>
+        • Cliente: <span id="processos-print-client-name">...</span><br>
+        • Processo/CNJ: <span id="processos-print-cnj">...</span><br>
+        • Data de Emissão: <span id="processos-print-date">...</span>
+      </div>
+      <pre id="processos-print-pre" style="white-space: pre-wrap; font-family: 'Courier New', Courier, monospace; font-size: 12px; line-height: 1.6; color: #000; margin: 0;"></pre>
+      <div style="margin-top: 50px; border-top: 1px solid #ccc; padding-top: 10px; font-family: 'Times New Roman', Times, serif; font-size: 10px; color: #999; display: flex; justify-content: space-between;">
+        <span>Documento emitido com validação analítica por Jus IA</span>
+        <span>Janaina Tarabauca Advogados ©</span>
+      </div>
     </div>
   </div>
 

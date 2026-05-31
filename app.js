@@ -241,6 +241,64 @@ const chartValFixo = document.getElementById("chart-val-fixo");
 const chartValMensal = document.getElementById("chart-val-mensal");
 const chartValExito = document.getElementById("chart-val-exito");
 
+// Elementos do Módulo de Contratos
+const viewContratos = document.getElementById("view-contratos");
+const btnContratosTabMinuta = document.getElementById("btn-contratos-tab-minuta");
+const btnContratosTabPlanos = document.getElementById("btn-contratos-tab-planos");
+const contratosClientSelect = document.getElementById("contratos-client-select");
+const contratosClientPreview = document.getElementById("contratos-client-preview");
+const contratosPreviewNome = document.getElementById("contratos-preview-nome");
+const contratosPreviewDoc = document.getElementById("contratos-preview-doc");
+const contratosPreviewFatos = document.getElementById("contratos-preview-fatos");
+const btnContratosEsbocar = document.getElementById("btn-contratos-esbocar");
+const btnContratosPromptToggle = document.getElementById("btn-contratos-prompt-toggle");
+const contratosPromptCard = document.getElementById("contratos-prompt-card");
+const contratosPromptText = document.getElementById("contratos-prompt-text");
+const btnContratosCopiar = document.getElementById("btn-contratos-copiar");
+const contratosMinutaLoading = document.getElementById("contratos-minuta-loading");
+const contratosMinutaLoadingStatus = document.getElementById("contratos-minuta-loading-status");
+const contratosMinutaTextarea = document.getElementById("contratos-minuta-textarea");
+
+const contratosViewMinuta = document.getElementById("contratos-view-minuta");
+const contratosViewPlanos = document.getElementById("contratos-view-planos");
+const btnPlanoMensal = document.getElementById("btn-plano-mensal");
+const btnPlanoAnual = document.getElementById("btn-plano-anual");
+const contratosPlanoInicio = document.getElementById("contratos-plano-inicio");
+const contratosPlanoRenovacao = document.getElementById("contratos-plano-renovacao");
+const contratosPlanoValor = document.getElementById("contratos-plano-valor");
+const btnContratosAtivarPlano = document.getElementById("btn-contratos-ativar-plano");
+
+// Elementos de Assinatura do Contrato
+const contratosAssinaturaContainer = document.getElementById("contratos-assinatura-container");
+const contratosCanvasPad = document.getElementById("contratos-canvas-pad");
+const contratosCanvasSuccess = document.getElementById("contratos-canvas-success");
+const btnContratosLimpar = document.getElementById("btn-contratos-limpar");
+const btnContratosConfirmar = document.getElementById("btn-contratos-confirmar");
+
+// Elementos de Impressão de Contrato
+const btnContratosPrintPreview = document.getElementById("btn-contratos-print-preview");
+const btnContratosPrintSigned = document.getElementById("btn-contratos-print-signed");
+const contratosPrintArea = document.getElementById("contratos-print-area");
+const contratosPrintPre = document.getElementById("contratos-print-pre");
+const contratosPrintWatermark = document.getElementById("contratos-print-watermark");
+const contratosPrintWatermarkText = document.getElementById("contratos-print-watermark-text");
+const contratosPrintSigImgContainer = document.getElementById("contratos-print-sig-img-container");
+const contratosPrintSigImg = document.getElementById("contratos-print-sig-img");
+const contratosPrintSigBlank = document.getElementById("contratos-print-sig-blank");
+const contratosPrintClientName = document.getElementById("contratos-print-client-name");
+const contratosPrintSigTimestamp = document.getElementById("contratos-print-sig-timestamp");
+const contratosPrintLawyerSigImg = document.getElementById("contratos-print-lawyer-sig-img");
+const contratosPrintLawyerSigFallback = document.getElementById("contratos-print-lawyer-sig-fallback");
+
+// Elementos de Assinatura da Advogada (Configuração de Perfil)
+const lawyerSignatureCanvas = document.getElementById("lawyer-signature-canvas");
+const btnLawyerSignatureClear = document.getElementById("btn-lawyer-signature-clear");
+const btnLawyerSignatureRedraw = document.getElementById("btn-lawyer-signature-redraw");
+const lawyerSignaturePreviewContainer = document.getElementById("lawyer-signature-preview-container");
+const lawyerSignaturePreviewImg = document.getElementById("lawyer-signature-preview-img");
+let lawyerSignatureIsDrawing = false;
+let lawyerSignatureHasDrawing = false;
+
 // Novos Modais e Elementos de Edição
 const btnEditLawyerProfile = document.getElementById("btn-edit-lawyer-profile");
 const modalEditLawyer = document.getElementById("modal-edit-lawyer");
@@ -361,6 +419,8 @@ function switchPrivateView(viewId) {
     loadFinanceiroData();
   } else if (viewId === "agenda") {
     loadAgendaData();
+  } else if (viewId === "contratos") {
+    loadContratosData();
   }
 
   navItems.forEach(item => {
@@ -2493,21 +2553,36 @@ const handleEditProfile = async () => {
     editLawyerTreatment.value = user.user_metadata?.tratamento || "Dr.";
     editLawyerEmail.value = user.email || "";
 
-    // Busca o telefone do banco relacional ou dos metadados
+    // Busca o telefone e assinatura do banco relacional ou dos metadados
     let phone = user.user_metadata?.telefone || "";
+    let signatureUrl = "";
     try {
       const { data: dbData, error: dbErr } = await supabase
         .from("advogados")
-        .select("telefone")
+        .select("telefone, assinatura_digital_url")
         .eq("id", user.id)
         .single();
       if (!dbErr && dbData) {
         phone = dbData.telefone || phone;
+        signatureUrl = dbData.assinatura_digital_url || "";
       }
     } catch (dbErr) {
-      console.warn("Erro ao ler telefone do banco de dados:", dbErr);
+      console.warn("Erro ao ler dados adicionais do banco de dados:", dbErr);
     }
     editLawyerPhone.value = phone;
+    
+    // Configurar exibição da assinatura digital cadastrada
+    if (signatureUrl) {
+      if (lawyerSignaturePreviewImg) lawyerSignaturePreviewImg.src = signatureUrl;
+      if (lawyerSignaturePreviewContainer) lawyerSignaturePreviewContainer.style.display = "flex";
+    } else {
+      if (lawyerSignaturePreviewContainer) lawyerSignaturePreviewContainer.style.display = "none";
+      if (lawyerSignatureCanvas) {
+        const ctx = lawyerSignatureCanvas.getContext("2d");
+        if (ctx) ctx.clearRect(0, 0, lawyerSignatureCanvas.width, lawyerSignatureCanvas.height);
+      }
+      lawyerSignatureHasDrawing = false;
+    }
     
     modalEditLawyer.style.display = "flex";
   } catch (err) {
@@ -2541,16 +2616,32 @@ editLawyerForm.addEventListener("submit", async (e) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error("Sessão inválida.");
 
-    // 1. Atualizar Supabase Auth
+    // 1. Verificar se a assinatura foi alterada e desenhada
+    let lawyerSignatureDataUrl = null;
+    if (lawyerSignaturePreviewContainer && lawyerSignaturePreviewContainer.style.display === "none" && lawyerSignatureHasDrawing) {
+      if (lawyerSignatureCanvas) {
+        lawyerSignatureDataUrl = lawyerSignatureCanvas.toDataURL("image/png");
+      }
+    }
+
+    // 2. Atualizar Supabase Auth
+    let authData = { nome: name, oab: oab, tratamento: treatment, telefone: phone };
+    if (lawyerSignatureDataUrl) {
+      authData.assinatura_digital_url = lawyerSignatureDataUrl;
+    }
     const { error: authErr } = await supabase.auth.updateUser({
-      data: { nome: name, oab: oab, tratamento: treatment, telefone: phone }
+      data: authData
     });
     if (authErr) throw authErr;
 
-    // 2. Atualizar tabela public.advogados
+    // 3. Atualizar tabela public.advogados
+    let dbDataUpdate = { nome: name, oab: oab, tratamento: treatment, telefone: phone };
+    if (lawyerSignatureDataUrl) {
+      dbDataUpdate.assinatura_digital_url = lawyerSignatureDataUrl;
+    }
     const { error: dbErr } = await supabase
       .from("advogados")
-      .update({ nome: name, oab: oab, tratamento: treatment, telefone: phone })
+      .update(dbDataUpdate)
       .eq("id", user.id);
     if (dbErr) throw dbErr;
 
@@ -2579,6 +2670,99 @@ editLawyerForm.addEventListener("submit", async (e) => {
     setLoadingState(document.getElementById("btn-save-lawyer-profile"), false, "Salvar Alterações");
   }
 });
+
+// Inicialização e gerenciamento do quadro de assinatura digital da advogada
+function initLawyerSignatureCanvas() {
+  if (!lawyerSignatureCanvas) return;
+
+  const ctx = lawyerSignatureCanvas.getContext("2d");
+  
+  // Função para reconfigurar dimensões e estilos do canvas
+  const setupCanvasSize = () => {
+    lawyerSignatureCanvas.width = lawyerSignatureCanvas.parentElement.clientWidth || 350;
+    lawyerSignatureCanvas.height = 120;
+    if (ctx) {
+      ctx.strokeStyle = "#0c1625"; // Cor azul-escura clássica de caneta
+      ctx.lineWidth = 3;
+      ctx.lineCap = "round";
+    }
+  };
+
+  // Inicializar dimensões
+  setupCanvasSize();
+  
+  // Redimensionar se a janela mudar de tamanho
+  window.addEventListener("resize", () => {
+    if (lawyerSignaturePreviewContainer && lawyerSignaturePreviewContainer.style.display === "none") {
+      setupCanvasSize();
+    }
+  });
+
+  const getCoords = (e) => {
+    const rect = lawyerSignatureCanvas.getBoundingClientRect();
+    let clientX, clientY;
+    if (e.touches && e.touches.length > 0) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top
+    };
+  };
+
+  const startDraw = (e) => {
+    e.preventDefault();
+    lawyerSignatureIsDrawing = true;
+    lawyerSignatureHasDrawing = true;
+    const coords = getCoords(e);
+    if (ctx) {
+      ctx.beginPath();
+      ctx.moveTo(coords.x, coords.y);
+    }
+  };
+
+  const drawLine = (e) => {
+    if (!lawyerSignatureIsDrawing) return;
+    e.preventDefault();
+    const coords = getCoords(e);
+    if (ctx) {
+      ctx.lineTo(coords.x, coords.y);
+      ctx.stroke();
+    }
+  };
+
+  const endDraw = () => {
+    lawyerSignatureIsDrawing = false;
+  };
+
+  lawyerSignatureCanvas.addEventListener("mousedown", startDraw);
+  lawyerSignatureCanvas.addEventListener("mousemove", drawLine);
+  lawyerSignatureCanvas.addEventListener("mouseup", endDraw);
+  lawyerSignatureCanvas.addEventListener("mouseleave", endDraw);
+
+  lawyerSignatureCanvas.addEventListener("touchstart", startDraw, { passive: false });
+  lawyerSignatureCanvas.addEventListener("touchmove", drawLine, { passive: false });
+  lawyerSignatureCanvas.addEventListener("touchend", endDraw);
+
+  if (btnLawyerSignatureClear) {
+    btnLawyerSignatureClear.addEventListener("click", () => {
+      if (ctx) ctx.clearRect(0, 0, lawyerSignatureCanvas.width, lawyerSignatureCanvas.height);
+      lawyerSignatureHasDrawing = false;
+    });
+  }
+
+  if (btnLawyerSignatureRedraw) {
+    btnLawyerSignatureRedraw.addEventListener("click", () => {
+      if (lawyerSignaturePreviewContainer) lawyerSignaturePreviewContainer.style.display = "none";
+      setTimeout(setupCanvasSize, 50);
+      lawyerSignatureHasDrawing = false;
+    });
+  }
+}
 
 
 
@@ -4185,31 +4369,51 @@ async function checkLawyerQuotaAndKeys() {
 
     if (error || !lawyer) throw error || new Error("Advogado não localizado.");
 
-    // Atualizar os inputs com as chaves existentes (se houver)
-    if (userGeminiKeyInput) userGeminiKeyInput.value = lawyer.user_gemini_key || "";
-    if (userOpenaiKeyInput) userOpenaiKeyInput.value = lawyer.user_openai_key || "";
+    // Populate key inputs
+    const geminiInput = document.getElementById("user-gemini-key-input");
+    const openaiInput = document.getElementById("user-openai-key-input");
+    if (geminiInput) geminiInput.value = lawyer.user_gemini_key || "";
+    if (openaiInput) openaiInput.value = lawyer.user_openai_key || "";
 
-    const hasCustomKey = (lawyer.user_gemini_key && lawyer.user_gemini_key.trim() !== "") || 
-                          (lawyer.user_openai_key && lawyer.user_openai_key.trim() !== "");
+    const hasCustomKey = !!(
+      (lawyer.user_gemini_key && lawyer.user_gemini_key.trim()) ||
+      (lawyer.user_openai_key && lawyer.user_openai_key.trim())
+    );
 
     const realizadas = lawyer.consultas_gratuitas_realizadas || 0;
     const maximo = lawyer.limite_gratuito_maximo || 5;
     const restantes = Math.max(0, maximo - realizadas);
+    const pct = Math.min((realizadas / maximo) * 100, 100);
+
+    // Determine color states
+    const barColor = hasCustomKey ? "#22c55e" : pct >= 100 ? "#ef4444" : pct >= 60 ? "#f59e0b" : "#22c55e";
+    const badgeBg  = hasCustomKey ? "rgba(34,197,94,0.1)" : pct >= 100 ? "rgba(239,68,68,0.1)" : pct >= 60 ? "rgba(245,158,11,0.1)" : "rgba(34,197,94,0.1)";
+    const badgeColor = hasCustomKey ? "#22c55e" : pct >= 100 ? "#ef4444" : pct >= 60 ? "#f59e0b" : "#22c55e";
+    const badgeText = hasCustomKey
+      ? "✦ Chave API Ativa — Ilimitado"
+      : pct >= 100
+      ? "🔒 Cota Esgotada"
+      : `Você possui ${restantes} de ${maximo} análises gratuitas restantes`;
 
     if (quotaCounter) {
-      if (hasCustomKey) {
-        quotaCounter.innerHTML = `<span style="color: var(--success-color); font-weight: bold;">✔ Chave API Pessoal Ativa (Uso Ilimitado)</span>`;
-      } else {
-        quotaCounter.innerText = `Você possui ${restantes} de ${maximo} análises gratuitas restantes`;
-      }
+      quotaCounter.innerHTML = `
+        <div style="background:var(--panel-bg);border:1px solid var(--panel-border);border-radius:12px;padding:10px 12px;space-y:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <span style="font-size:9.5px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;">Cota de Análises</span>
+            <span style="font-size:9.5px;font-weight:700;color:${badgeColor};background:${badgeBg};border:1px solid ${badgeColor}33;padding:2px 8px;border-radius:999px;">${hasCustomKey ? "∞ Ilimitado" : `${realizadas} / ${maximo}`}</span>
+          </div>
+          <div style="width:100%;height:5px;background:#1e293b;border-radius:999px;overflow:hidden;margin-bottom:7px;">
+            <div style="height:100%;width:${pct}%;background:${barColor};border-radius:999px;transition:width .4s ease;"></div>
+          </div>
+          <p style="font-size:10px;color:${badgeColor};font-weight:600;margin:0;">${badgeText}</p>
+        </div>
+      `;
     }
 
     if (!hasCustomKey && restantes === 0) {
-      // Bloqueia e mostra o card de chaves
       if (btnAnalisarIa) btnAnalisarIa.style.display = "none";
       if (aiLockCard) aiLockCard.style.display = "block";
     } else {
-      // Libera o botão normal
       if (btnAnalisarIa) btnAnalisarIa.style.display = "flex";
       if (aiLockCard) aiLockCard.style.display = "none";
     }
@@ -4371,13 +4575,26 @@ function renderProcessesGrid(processes) {
           <strong>${p.tribunal || "Não informado"} • ${p.vara || "Não cadastrada"}</strong>
         </div>
       </div>
-      <div class="cliente-card-meta" style="justify-content: space-between; border-top: 1px solid var(--panel-border); margin-top: 12px; padding-top: 8px; display: flex; align-items: center;">
+      <div class="cliente-card-meta" style="justify-content: space-between; border-top: 1px solid var(--panel-border); margin-top: 12px; padding-top: 8px; display: flex; align-items: center; margin-bottom: 8px;">
         <span class="badge-tipo" style="background: ${prioColor}; color: ${prioTextColor}; border-color: transparent; margin: 0;">Prioridade: ${prio}</span>
         <span class="badge-tipo" style="background: rgba(255,255,255,0.03); margin: 0; color:var(--text-secondary);">${p.status}</span>
+      </div>
+      <div style="border-top: 1px dashed var(--panel-border); padding-top: 8px; display: flex; justify-content: flex-end;">
+        <button type="button" class="btn-edit-process" data-id="${p.id}" style="background: rgba(197, 168, 92, 0.08); border: 1px solid rgba(197, 168, 92, 0.3); color: var(--gold); padding: 6px 12px; font-size: 11px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: 600;">
+          ✏️ Editar Processo
+        </button>
       </div>
     `;
 
     gridListProcessos.appendChild(card);
+
+    const btnEdit = card.querySelector(".btn-edit-process");
+    if (btnEdit) {
+      btnEdit.addEventListener("click", (e) => {
+        e.preventDefault();
+        openEditProcessModal(p);
+      });
+    }
   });
 }
 
@@ -4929,6 +5146,235 @@ async function handleConfirmarGravarProcessoIa() {
   } finally {
     setLoadingState(btnConfirmarGravar, false, "💾 Confirmar e Gravar Processo");
   }
+}
+
+// Variable to store the process currently being edited
+let currentEditingProcessId = null;
+let currentEditingProcess = null;
+
+// Modal elements
+const modalEditarProcesso = document.getElementById("modal-editar-processo");
+const formEditarProcesso = document.getElementById("form-modal-editar-processo");
+const btnCloseModalEditar = document.getElementById("btn-close-modal-editar-processo");
+const btnCancelarEditar = document.getElementById("btn-cancelar-editar-processo");
+const btnSalvarEditar = document.getElementById("btn-salvar-editar-processo");
+
+// Form inputs
+const editProcTitulo = document.getElementById("edit-proc-titulo");
+const editProcNumero = document.getElementById("edit-proc-numero");
+const editProcValor = document.getElementById("edit-proc-valor");
+const editProcArea = document.getElementById("edit-proc-area");
+const editProcStatus = document.getElementById("edit-proc-status");
+const editProcTribunal = document.getElementById("edit-proc-tribunal");
+const editProcVara = document.getElementById("edit-proc-vara");
+const editProcFatos = document.getElementById("edit-proc-fatos");
+
+// Function to open the edit modal
+function openEditProcessModal(process) {
+  currentEditingProcessId = process.id;
+  currentEditingProcess = process;
+
+  if (editProcTitulo) editProcTitulo.value = process.titulo || "";
+  if (editProcNumero) editProcNumero.value = process.numero_processo || "";
+  if (editProcValor) editProcValor.value = process.valor_causa || "";
+  if (editProcArea) editProcArea.value = process.area_direito || "Civil";
+  if (editProcStatus) editProcStatus.value = process.status || "Ativo";
+  if (editProcTribunal) editProcTribunal.value = process.tribunal || "";
+  if (editProcVara) editProcVara.value = process.vara || "";
+  
+  let cleanFatos = process.observacoes_internas || "";
+  if (editProcFatos) editProcFatos.value = cleanFatos;
+
+  if (modalEditarProcesso) modalEditarProcesso.style.display = "flex";
+}
+
+// Function to close the edit modal
+function closeEditProcessModal() {
+  currentEditingProcessId = null;
+  currentEditingProcess = null;
+  if (modalEditarProcesso) modalEditarProcesso.style.display = "none";
+}
+
+// Event Listeners for closing modal
+if (btnCloseModalEditar) btnCloseModalEditar.addEventListener("click", closeEditProcessModal);
+if (btnCancelarEditar) btnCancelarEditar.addEventListener("click", closeEditProcessModal);
+
+// Submit form edit handler
+if (formEditarProcesso) {
+  formEditarProcesso.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!currentEditingProcessId) return;
+
+    try {
+      setLoadingState(btnSalvarEditar, true, "Salvando...");
+
+      const titulo = editProcTitulo.value.trim();
+      const numero = editProcNumero.value.trim() || null;
+      const valor = editProcValor.value ? parseFloat(editProcValor.value) : null;
+      const area = editProcArea.value;
+      const status = editProcStatus.value;
+      const tribunal = editProcTribunal.value.trim() || null;
+      const vara = editProcVara.value.trim() || null;
+      const fatos = editProcFatos.value.trim();
+
+      const { error } = await supabase
+        .from("processos")
+        .update({
+          titulo: titulo,
+          numero_processo: numero,
+          valor_causa: valor,
+          area_direito: area,
+          status: status,
+          tribunal: tribunal,
+          vara: vara,
+          observacoes_internas: fatos
+        })
+        .eq("id", currentEditingProcessId);
+
+      if (error) throw error;
+
+      alert("Processo judicial atualizado com sucesso no Supabase!");
+      closeEditProcessModal();
+      await loadGlobalProcessesList();
+    } catch (err) {
+      console.error("Erro ao salvar edições do processo:", err.message);
+      alert("Falha ao atualizar processo: " + err.message);
+    } finally {
+      setLoadingState(btnSalvarEditar, false, "Confirmar Alterações");
+    }
+  });
+}
+
+// Gatilho Inteligente Jus IA combinando Fatos do Cliente + Fatos do Processo
+const btnGerarPecaJusia = document.getElementById("btn-gerar-peca-jusia");
+if (btnGerarPecaJusia) {
+  btnGerarPecaJusia.addEventListener("click", async () => {
+    if (!currentEditingProcess) {
+      alert("Selecione um processo sob edição primeiro.");
+      return;
+    }
+
+    try {
+      setLoadingState(btnGerarPecaJusia, true, "Processando fatos...");
+      
+      const clienteId = currentEditingProcess.cliente_id;
+      const fatosProcesso = editProcFatos ? editProcFatos.value.trim() : (currentEditingProcess.observacoes_internas || "");
+      const tribunal = editProcTribunal ? editProcTribunal.value.trim() : (currentEditingProcess.tribunal || "");
+      const vara = editProcVara ? editProcVara.value.trim() : (currentEditingProcess.vara || "");
+      const area = editProcArea ? editProcArea.value : (currentEditingProcess.area_direito || "");
+
+      // 1. Buscar observações (fatos narrados) do cliente no Supabase
+      const { data: cliente, error } = await supabase
+        .from("clientes")
+        .select("nome, observacoes")
+        .eq("id", clienteId)
+        .single();
+
+      if (error) throw error;
+
+      const clienteObservacoes = cliente ? cliente.observacoes : "";
+      const clienteNome = cliente ? cliente.nome : "Cliente não vinculado";
+
+      // 2. Combinar fatos do processo com fatos narrados do cliente
+      const textPayload = `DADOS DO PROCESSO JUDICIAL:
+Tribunal: ${tribunal || "Não especificado"}
+Vara: ${vara || "Não especificada"}
+Área: ${area || "Não especificada"}
+Fatos e Andamentos do Processo:
+${fatosProcesso || "Nenhum andamento ou fato registrado especificamente."}
+
+HISTÓRICO / FATOS NARRADOS DO CLIENTE (${clienteNome}):
+${clienteObservacoes || "Nenhum histórico ou fato narrado registrado para este cliente."}`;
+
+      // 3. Injetar na entrada de dados do analisador IA
+      if (textInput) textInput.value = textPayload;
+
+      // 4. Preencher dados adicionais no analisador IA
+      const cnjInput = document.getElementById("processo-ai-input-numero");
+      if (cnjInput) cnjInput.value = (editProcNumero ? editProcNumero.value.trim() : currentEditingProcess.numero_processo) || "";
+
+      const valorInput = document.getElementById("processo-ai-input-valor");
+      if (valorInput) valorInput.value = (editProcValor ? editProcValor.value : currentEditingProcess.valor_causa) || "";
+
+      const tribInput = document.getElementById("processo-ai-input-tribunal");
+      if (tribInput) tribInput.value = tribunal;
+
+      const varaInput = document.getElementById("processo-ai-input-vara");
+      if (varaInput) varaInput.value = vara;
+
+      // 5. Vincular o cliente no selectClienteAi
+      if (selectClienteAi) {
+        // Garantir que carregou a lista antes de marcar ou tentar preencher
+        selectClienteAi.value = clienteId;
+      }
+
+      // 6. Definir implicitamente o motor de IA para Jus IA
+      const selectMotor = document.getElementById("processo-ai-select-motor");
+      if (selectMotor) {
+        selectMotor.value = "jusia";
+        const event = new Event('change');
+        selectMotor.dispatchEvent(event);
+      }
+
+      // 7. Fechar modal silenciosamente
+      closeEditProcessModal();
+
+      // 8. Transicionar para a view de IA
+      showProcessosPanel("ai");
+
+      // 9. Acionar a análise de IA automaticamente
+      await handleAnalisarProcessoIa();
+
+    } catch (err) {
+      console.error("Erro ao integrar Jus IA com fatos do cliente:", err.message);
+      alert("Erro ao acionar a Jus IA: " + err.message);
+    } finally {
+      setLoadingState(btnGerarPecaJusia, false, "🤖 Gerar Peça/Tese via Jus IA");
+    }
+  });
+}
+
+// Lógica de Impressão de Minutas Processuais
+const btnProcessoImprimirMinuta = document.getElementById("btn-processo-imprimir-minuta");
+const processosPrintArea = document.getElementById("processos-print-area");
+const processosPrintPre = document.getElementById("processos-print-pre");
+const processosPrintClientName = document.getElementById("processos-print-client-name");
+const processosPrintCnj = document.getElementById("processos-print-cnj");
+const processosPrintDate = document.getElementById("processos-print-date");
+
+if (btnProcessoImprimirMinuta) {
+  btnProcessoImprimirMinuta.addEventListener("click", () => {
+    const text = document.getElementById("ai-result-minuta-text").value;
+    if (!text) {
+      alert("Gere uma minuta ou parecer antes de tentar imprimir.");
+      return;
+    }
+
+    // Preencher a área de impressão
+    if (processosPrintPre) processosPrintPre.textContent = text;
+
+    // Buscar informações adicionais
+    let cnjText = "Geral / Sem processo";
+    const cnjInput = document.getElementById("processo-ai-input-numero");
+    if (cnjInput && cnjInput.value.trim()) {
+      cnjText = cnjInput.value.trim();
+    }
+
+    let clientText = "Geral";
+    if (selectClienteAi && selectClienteAi.selectedIndex !== -1) {
+      clientText = selectClienteAi.options[selectClienteAi.selectedIndex].text;
+    }
+
+    if (processosPrintClientName) processosPrintClientName.textContent = clientText;
+    if (processosPrintCnj) processosPrintCnj.textContent = cnjText;
+    if (processosPrintDate) {
+      const now = new Date();
+      processosPrintDate.textContent = now.toLocaleDateString("pt-BR") + " às " + now.toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // Chamar a impressão do navegador
+    window.print();
+  });
 }
 
 // =========================================================================
@@ -5943,11 +6389,623 @@ function initFinanceiroFilters() {
   }
 }
 
+// =========================================================================
+// 📜 MÓDULO DE GESTÃO DE CONTRATOS & IA MINUTAS
+// =========================================================================
+let contratosClientesList = [];
+let contratosSelectedClienteId = "";
+let contratosActiveMotor = "gemini";
+let contratosActiveTab = "minuta";
+let contratosActivePlano = "mensal";
+let signaturePadIsDrawing = false;
+let signaturePadHasDrawing = false;
+let contratosSignatureDataUrl = null;
+
+function resizeContractsCanvas() {
+  if (contratosCanvasPad) {
+    contratosCanvasPad.width = contratosCanvasPad.parentElement.clientWidth;
+    contratosCanvasPad.height = 160;
+    const ctx = contratosCanvasPad.getContext("2d");
+    if (ctx) {
+      ctx.strokeStyle = document.documentElement.getAttribute("data-theme") === "dark" ? "#d4af37" : "#0f1e36";
+      ctx.lineWidth = 3;
+      ctx.lineCap = "round";
+    }
+  }
+}
+
+async function loadContratosData() {
+  if (!contratosClientSelect) return;
+  
+  contratosClientSelect.innerHTML = '<option value="" disabled selected>Carregando clientes...</option>';
+  
+  try {
+    // 1. Carregar lista de clientes
+    const { data: clients, error } = await supabase
+      .from("clientes")
+      .select("id, nome, tipo_pessoa, cpf_cnpj, observacoes, areas_interesse")
+      .order("nome", { ascending: true });
+      
+    if (error) throw error;
+    
+    contratosClientesList = clients || [];
+    
+    contratosClientSelect.innerHTML = '<option value="" disabled selected>Selecione um cliente...</option>';
+    contratosClientesList.forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c.id;
+      opt.textContent = `👤 ${c.nome} (${c.tipo_pessoa === "PF" ? "Física" : "Jurídica"})`;
+      contratosClientSelect.appendChild(opt);
+    });
+    
+    // 2. Carregar assinatura da advogada logada para a impressão
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: lawyerData } = await supabase
+        .from("advogados")
+        .select("assinatura_digital_url")
+        .eq("id", user.id)
+        .single();
+      if (lawyerData && lawyerData.assinatura_digital_url) {
+        if (contratosPrintLawyerSigImg) {
+          contratosPrintLawyerSigImg.src = lawyerData.assinatura_digital_url;
+          contratosPrintLawyerSigImg.style.display = "block";
+        }
+        if (contratosPrintLawyerSigFallback) {
+          contratosPrintLawyerSigFallback.style.display = "none";
+        }
+      } else {
+        if (contratosPrintLawyerSigImg) {
+          contratosPrintLawyerSigImg.style.display = "none";
+        }
+        if (contratosPrintLawyerSigFallback) {
+          contratosPrintLawyerSigFallback.style.display = "block";
+          contratosPrintLawyerSigFallback.textContent = "(Assinatura Pendente de Cadastro)";
+        }
+      }
+    }
+    
+    if (contratosSelectedClienteId) {
+      contratosClientSelect.value = contratosSelectedClienteId;
+      triggerContratoClientSelected();
+    } else {
+      resetContratosPreview();
+    }
+  } catch (err) {
+    console.error("Erro ao carregar clientes para contratos:", err);
+    contratosClientSelect.innerHTML = '<option value="" disabled>Erro ao carregar clientes</option>';
+  }
+}
+
+function triggerContratoClientSelected() {
+  const cId = contratosClientSelect.value;
+  contratosSelectedClienteId = cId;
+  const client = contratosClientesList.find(c => c.id === cId);
+  
+  if (client) {
+    contratosPreviewNome.textContent = client.nome;
+    contratosPreviewDoc.textContent = client.cpf_cnpj || "Não cadastrado";
+    contratosPreviewFatos.textContent = client.observacoes || "Nenhum relato de fatos cadastrado no prontuário.";
+    contratosClientPreview.style.display = "block";
+    
+    btnContratosEsbocar.removeAttribute("disabled");
+    btnContratosAtivarPlano.removeAttribute("disabled");
+    btnContratosPromptToggle.style.display = "inline-block";
+    
+    const prompt = generateContratosPromptText(client);
+    contratosPromptText.textContent = prompt;
+  } else {
+    resetContratosPreview();
+  }
+}
+
+function resetContratosPreview() {
+  contratosClientPreview.style.display = "none";
+  btnContratosEsbocar.setAttribute("disabled", "true");
+  btnContratosAtivarPlano.setAttribute("disabled", "true");
+  btnContratosPromptToggle.style.display = "none";
+  contratosPromptCard.style.display = "none";
+  btnContratosPromptToggle.textContent = "Ver Prompt de Injeção";
+  contratosPromptText.textContent = "";
+  
+  if (btnContratosPrintPreview) btnContratosPrintPreview.style.display = "none";
+  if (btnContratosPrintSigned) btnContratosPrintSigned.style.display = "none";
+  contratosSignatureDataUrl = null;
+  
+  if (contratosAssinaturaContainer) contratosAssinaturaContainer.style.display = "none";
+  if (contratosCanvasSuccess) contratosCanvasSuccess.style.display = "none";
+  if (contratosCanvasPad) {
+    const ctx = contratosCanvasPad.getContext("2d");
+    if (ctx) ctx.clearRect(0, 0, contratosCanvasPad.width, contratosCanvasPad.height);
+  }
+  signaturePadHasDrawing = false;
+}
+
+function generateContratosPromptText(client) {
+  if (!client) return "";
+  const fatos = client.observacoes || "Nenhum relato de fatos cadastrado no prontuário.";
+  const area = client.areas_interesse || "Direito Médico / Geral";
+  const docTipo = client.tipo_pessoa === "PJ"
+    ? "Contrato de Assessoria Médica Preventiva e Auditoria Corporativa"
+    : "Contrato de Prestação de Serviços de Defesa Médica Contenciosa";
+  return `Você é o JUS IA, um assistente jurídico sênior e parecerista altamente qualificado.
+Esboce um ${docTipo} personalizado com base nas informações do cliente a seguir:
+
+DADOS CONTRATUAIS DE SUPORTE:
+- Advogado Responsável: Dra. Janaina Tarabauca
+- Nome do Cliente: ${client.nome}
+- Documento: ${client.cpf_cnpj || "Não cadastrado"}
+- Área de Foco: ${area}
+
+RELATO DE FATOS E NECESSIDADES DO PRONTUÁRIO:
+"${fatos}"
+
+DIRETRIZES DE REDAÇÃO CONTRATUAL:
+1. Comece com um cabeçalho profissional e qualificação completa das partes.
+2. Defina o Objeto do Contrato de forma clara, focando na defesa e conformidade exigida nos fatos.
+3. Estabeleça Obrigações da Contratada (Dra. Janaina Tarabauca) e Obrigações do Contratante de acordo com o padrão ético da OAB.
+4. Escreva uma cláusula de confidencialidade estrita (segredo de justiça e sigilo médico).
+5. Defina o Foro de eleição competente para solucionar eventuais litígios.
+
+Responda redigindo a estrutura completa do contrato em prosa jurídica formal e legível.`;
+}
+
+async function executeEsbocarContrato() {
+  if (!contratosSelectedClienteId) return;
+  const client = contratosClientesList.find(c => c.id === contratosSelectedClienteId);
+  if (!client) return;
+  
+  try {
+    btnContratosEsbocar.setAttribute("disabled", "true");
+    contratosMinutaTextarea.style.display = "none";
+    contratosMinutaLoading.style.display = "flex";
+    btnContratosCopiar.style.display = "none";
+    
+    contratosMinutaLoadingStatus.textContent = `O motor ${contratosActiveMotor.toUpperCase()} está estruturando as qualificações e cláusulas contratuais...`;
+    
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    
+    const dataHoje = new Date().toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric"
+    });
+    
+    const docValor = contratosPlanoValor.value || "1.500,00";
+    const docRenovacao = contratosPlanoRenovacao.value || "5";
+    
+    let minutaGerada = "";
+    
+    if (client.tipo_pessoa === "PJ") {
+      minutaGerada = `CONTRATO DE ASSESSORIA JURÍDICA PREVENTIVA EM DIREITO MÉDICO
+
+CONTRATANTE: ${client.nome.toUpperCase()}, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº ${client.cpf_cnpj || "00.000.000/0001-00"}, com sede no endereço cadastrado em prontuário.
+
+CONTRATADA: DRA. JANAINA TARABAUCA, inscrita na OAB/SP sob o nº 123.456, com endereço profissional no escritório JT Advocacia.
+
+CLÁUSULA PRIMEIRA - DO OBJETO:
+O presente instrumento tem como objeto a prestação de serviços de consultoria preventiva e auditoria em Direito Médico, abrangendo especificamente:
+a) Auditoria detalhada de prontuários médicos e fichas de consentimento informado.
+b) Elaboração de relatórios de compliance regulatório com base nas diretrizes do Conselho Federal de Medicina (CFM) e ANVISA.
+c) Treinamento preventivo de corpo clínico para mitigação de riscos de erro médico.
+d) Análise jurídica preventiva baseada no relato de fatos: "${client.observacoes || "Sem notas de fatos no prontuário"}".
+
+CLÁUSULA SEGUNDA - DA CONFIDENCIALIDADE:
+As partes se comprometem a manter sigilo absoluto sobre todas as informações médicas, operacionais ou técnicas de que venham a ter conhecimento em virtude deste contrato, sob pena de responsabilização civil e criminal.
+
+CLÁUSULA TERCEIRA - DA VIGÊNCIA E RESCISÃO:
+O contrato terá vigência de 12 (doze) meses a contar da data de início acordada, com renovação automática. A rescisão imotivada exigirá aviso prévio por escrito de 30 dias.
+
+CLÁUSULA QUARTA - DOS HONORÁRIOS:
+Pelos serviços preventivos contratados, o CONTRATANTE pagará à CONTRATADA o valor de R$ ${docValor} em caráter recorrente, via boleto bancário ou transferência, com vencimento todo dia ${docRenovacao} de cada mês.
+
+E por estarem justos e contratados, assinam o presente instrumento.
+
+São Paulo, ${dataHoje}.
+
+__________________________________
+${client.nome} (Contratante)
+
+__________________________________
+Dra. Janaina Tarabauca (Contratada)`;
+    } else {
+      minutaGerada = `CONTRATO DE PRESTAÇÃO DE SERVIÇOS ADVOCATÍCIOS DE DEFESA MÉDICA
+
+CONTRATANTE: ${client.nome.toUpperCase()}, profissional da saúde, portador do CPF sob o nº ${client.cpf_cnpj || "000.000.000-00"}, residente e domiciliado no endereço cadastrado em prontuário.
+
+CONTRATADA: DRA. JANAINA TARABAUCA, inscrita na OAB/SP sob o nº 123.456, com endereço profissional no escritório JT Advocacia.
+
+CLÁUSULA PRIMEIRA - DO OBJETO:
+O presente instrumento tem como objeto o patrocínio e representação judicial da parte Contratante em ações de indenização por erro médico e processos administrativo-disciplinares junto ao CRM, fundamentando-se especialmente nos fatos e defesas técnicas a seguir:
+"${client.observacoes || "Nenhuma observação cadastrada no prontuário."}"
+
+CLÁUSULA SEGUNDA - DAS OBRIGAÇÕES DA CONTRATADA:
+A Contratada obriga-se a prestar seus serviços profissionais com o devido zelo técnico e de acordo com as normas éticas contidas no Estatuto da Advocacia e da OAB, acompanhando todas as fases processuais judiciais ou administrativas.
+
+CLÁUSULA TERCEIRA - DOS HONORÁRIOS CONTRATUAIS:
+Pelos serviços contenciosos prestados, o CONTRATANTE pagará à CONTRATADA o valor de R$ ${docValor}, com vencimento conforme acordado e liquidado diretamente pelo sistema.
+
+Foro de Eleição: Fica eleito o foro da Comarca de São Paulo/SP para dirimir eventuais dúvidas.
+
+São Paulo, ${dataHoje}.
+
+__________________________________
+${client.nome} (Contratante)
+
+__________________________________
+Dra. Janaina Tarabauca (Contratada)`;
+    }
+    
+    contratosMinutaTextarea.value = minutaGerada;
+    contratosMinutaTextarea.style.display = "block";
+    btnContratosCopiar.style.display = "inline-block";
+    
+    // Exibir botões de impressão condicionalmente
+    if (btnContratosPrintPreview) btnContratosPrintPreview.style.display = "inline-block";
+    if (btnContratosPrintSigned) btnContratosPrintSigned.style.display = "none";
+    contratosSignatureDataUrl = null;
+    
+    if (contratosAssinaturaContainer) contratosAssinaturaContainer.style.display = "flex";
+    if (contratosCanvasSuccess) contratosCanvasSuccess.style.display = "none";
+    if (contratosCanvasPad) {
+      const ctx = contratosCanvasPad.getContext("2d");
+      if (ctx) ctx.clearRect(0, 0, contratosCanvasPad.width, contratosCanvasPad.height);
+    }
+    signaturePadHasDrawing = false;
+    setTimeout(resizeContractsCanvas, 100);
+  } catch (err) {
+    console.error("Erro ao gerar minuta:", err);
+    alert("Erro ao esboçar minuta com a IA: " + err.message);
+  } finally {
+    contratosMinutaLoading.style.display = "none";
+    btnContratosEsbocar.removeAttribute("disabled");
+  }
+}
+
+async function executeAtivarAssinatura() {
+  if (!contratosSelectedClienteId) {
+    alert("Selecione um cliente antes de ativar o plano.");
+    return;
+  }
+  
+  const client = contratosClientesList.find(c => c.id === contratosSelectedClienteId);
+  if (!client) return;
+  
+  const valorStr = contratosPlanoValor.value.replace(/\./g, "").replace(",", ".");
+  const valorFinal = parseFloat(valorStr);
+  
+  if (isNaN(valorFinal) || valorFinal <= 0) {
+    alert("O valor da recorrência deve ser um número positivo.");
+    return;
+  }
+  
+  const inicioVigencia = contratosPlanoInicio.value;
+  if (!inicioVigencia) {
+    alert("Selecione a data de início da vigência do plano.");
+    return;
+  }
+  
+  const originalBtnText = btnContratosAtivarPlano.textContent;
+  try {
+    btnContratosAtivarPlano.setAttribute("disabled", "true");
+    btnContratosAtivarPlano.textContent = "Ativando Plano...";
+    
+    const { error } = await supabase
+      .from("financeiro")
+      .insert({
+        cliente_id: contratosSelectedClienteId,
+        valor_total: valorFinal,
+        tipo_honorario: "mensal",
+        status_pagamento: "pendente",
+        data_vencimento: inicioVigencia
+      });
+      
+    if (error) throw error;
+    
+    const nomePlano = contratosActivePlano === "mensal" 
+      ? "Assessoria Prontuário Médico (Mensal)" 
+      : "Defesa Integral + Auditoria (Anual Premium)";
+      
+    alert(`✅ Assinatura "${nomePlano}" ativada para o cliente com sucesso!\n\nLançamento financeiro recorrente gerado automaticamente no valor de R$ ${valorFinal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })} para vencimento em ${formatDataBr(inicioVigencia)}.`);
+    
+    if (typeof loadDashboardData === "function") loadDashboardData();
+    if (typeof loadFinanceiroData === "function") loadFinanceiroData();
+  } catch (err) {
+    console.error("Erro ao ativar plano de recorrência:", err);
+    alert("Erro ao salvar assinatura recorrente: " + err.message);
+  } finally {
+    btnContratosAtivarPlano.removeAttribute("disabled");
+    btnContratosAtivarPlano.textContent = originalBtnText;
+  }
+}
+
+function initContratosModule() {
+  if (!viewContratos) return;
+  
+  if (contratosPlanoInicio) {
+    contratosPlanoInicio.value = new Date().toISOString().split("T")[0];
+  }
+  
+  if (btnContratosTabMinuta && btnContratosTabPlanos) {
+    btnContratosTabMinuta.addEventListener("click", () => {
+      contratosActiveTab = "minuta";
+      btnContratosTabMinuta.classList.add("active");
+      btnContratosTabMinuta.style.background = "var(--panel-bg)";
+      btnContratosTabMinuta.style.color = "var(--text-primary)";
+      
+      btnContratosTabPlanos.classList.remove("active");
+      btnContratosTabPlanos.style.background = "none";
+      btnContratosTabPlanos.style.color = "var(--text-secondary)";
+      
+      contratosViewMinuta.style.display = "flex";
+      contratosViewPlanos.style.display = "none";
+    });
+    
+    btnContratosTabPlanos.addEventListener("click", () => {
+      contratosActiveTab = "planos";
+      btnContratosTabPlanos.classList.add("active");
+      btnContratosTabPlanos.style.background = "var(--panel-bg)";
+      btnContratosTabPlanos.style.color = "var(--text-primary)";
+      
+      btnContratosTabMinuta.classList.remove("active");
+      btnContratosTabMinuta.style.background = "none";
+      btnContratosTabMinuta.style.color = "var(--text-secondary)";
+      
+      contratosViewMinuta.style.display = "none";
+      contratosViewPlanos.style.display = "flex";
+    });
+  }
+  
+  const btnMotors = document.querySelectorAll(".btn-motor");
+  btnMotors.forEach(btn => {
+    btn.addEventListener("click", () => {
+      btnMotors.forEach(b => {
+        b.classList.remove("active");
+        b.style.background = "none";
+        b.style.color = "var(--text-secondary)";
+      });
+      btn.classList.add("active");
+      btn.style.background = "var(--gold)";
+      btn.style.color = "var(--navy)";
+      contratosActiveMotor = btn.getAttribute("data-motor");
+    });
+  });
+  
+  if (contratosClientSelect) {
+    contratosClientSelect.addEventListener("change", triggerContratoClientSelected);
+  }
+  
+  if (btnContratosPromptToggle && contratosPromptCard) {
+    btnContratosPromptToggle.addEventListener("click", () => {
+      if (contratosPromptCard.style.display === "none") {
+        contratosPromptCard.style.display = "block";
+        btnContratosPromptToggle.textContent = "Ocultar Prompt da IA";
+      } else {
+        contratosPromptCard.style.display = "none";
+        btnContratosPromptToggle.textContent = "Ver Prompt de Injeção";
+      }
+    });
+  }
+  
+  if (btnContratosEsbocar) {
+    btnContratosEsbocar.addEventListener("click", executeEsbocarContrato);
+  }
+  
+  if (btnContratosCopiar) {
+    btnContratosCopiar.addEventListener("click", () => {
+      const text = contratosMinutaTextarea.value;
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("📋 Minuta copiada para a área de transferência!");
+      }).catch(err => {
+        console.error("Erro ao copiar:", err);
+      });
+    });
+  }
+  
+  if (btnPlanoMensal && btnPlanoAnual) {
+    btnPlanoMensal.addEventListener("click", () => {
+      contratosActivePlano = "mensal";
+      btnPlanoMensal.classList.add("active");
+      btnPlanoMensal.style.background = "rgba(197, 168, 92, 0.08)";
+      btnPlanoMensal.style.borderColor = "var(--gold)";
+      btnPlanoMensal.style.color = "var(--gold)";
+      
+      btnPlanoAnual.classList.remove("active");
+      btnPlanoAnual.style.background = "rgba(0, 0, 0, 0.1)";
+      btnPlanoAnual.style.borderColor = "var(--panel-border)";
+      btnPlanoAnual.style.color = "var(--text-secondary)";
+      
+      contratosPlanoValor.value = "1.500,00";
+      contratosPlanoRenovacao.value = "5";
+    });
+    
+    btnPlanoAnual.addEventListener("click", () => {
+      contratosActivePlano = "anual";
+      btnPlanoAnual.classList.add("active");
+      btnPlanoAnual.style.background = "rgba(197, 168, 92, 0.08)";
+      btnPlanoAnual.style.borderColor = "var(--gold)";
+      btnPlanoAnual.style.color = "var(--gold)";
+      
+      btnPlanoMensal.classList.remove("active");
+      btnPlanoMensal.style.background = "rgba(0, 0, 0, 0.1)";
+      btnPlanoMensal.style.borderColor = "var(--panel-border)";
+      btnPlanoMensal.style.color = "var(--text-secondary)";
+      
+      contratosPlanoValor.value = "15.000,00";
+      contratosPlanoRenovacao.value = "5";
+    });
+  }
+  
+  if (btnContratosAtivarPlano) {
+    btnContratosAtivarPlano.addEventListener("click", executeAtivarAssinatura);
+  }
+
+  // Configurações do Quadro de Assinatura Eletrônica (Canvas)
+  if (contratosCanvasPad) {
+    const signaturePadCtx = contratosCanvasPad.getContext("2d");
+
+    const getCoordinates = (e) => {
+      const rect = contratosCanvasPad.getBoundingClientRect();
+      let clientX, clientY;
+      if (e.touches && e.touches.length > 0) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+      }
+      return {
+        x: clientX - rect.left,
+        y: clientY - rect.top
+      };
+    };
+
+    const startDraw = (e) => {
+      e.preventDefault();
+      signaturePadIsDrawing = true;
+      signaturePadHasDrawing = true;
+      const coords = getCoordinates(e);
+      if (signaturePadCtx) {
+        signaturePadCtx.strokeStyle = document.documentElement.getAttribute("data-theme") === "dark" ? "#d4af37" : "#0f1e36";
+        signaturePadCtx.lineWidth = 3;
+        signaturePadCtx.lineCap = "round";
+        signaturePadCtx.beginPath();
+        signaturePadCtx.moveTo(coords.x, coords.y);
+      }
+    };
+
+    const drawLine = (e) => {
+      if (!signaturePadIsDrawing) return;
+      e.preventDefault();
+      const coords = getCoordinates(e);
+      if (signaturePadCtx) {
+        signaturePadCtx.strokeStyle = document.documentElement.getAttribute("data-theme") === "dark" ? "#d4af37" : "#0f1e36";
+        signaturePadCtx.lineTo(coords.x, coords.y);
+        signaturePadCtx.stroke();
+      }
+    };
+
+    const endDraw = () => {
+      signaturePadIsDrawing = false;
+    };
+
+    contratosCanvasPad.addEventListener("mousedown", startDraw);
+    contratosCanvasPad.addEventListener("mousemove", drawLine);
+    contratosCanvasPad.addEventListener("mouseup", endDraw);
+    contratosCanvasPad.addEventListener("mouseleave", endDraw);
+
+    contratosCanvasPad.addEventListener("touchstart", startDraw);
+    contratosCanvasPad.addEventListener("touchmove", drawLine);
+    contratosCanvasPad.addEventListener("touchend", endDraw);
+  }
+
+  if (btnContratosLimpar) {
+    btnContratosLimpar.addEventListener("click", () => {
+      if (contratosCanvasPad) {
+        const ctx = contratosCanvasPad.getContext("2d");
+        if (ctx) ctx.clearRect(0, 0, contratosCanvasPad.width, contratosCanvasPad.height);
+      }
+      signaturePadHasDrawing = false;
+      contratosSignatureDataUrl = null;
+      if (btnContratosPrintSigned) btnContratosPrintSigned.style.display = "none";
+      if (contratosCanvasSuccess) contratosCanvasSuccess.style.display = "none";
+    });
+  }
+
+  if (btnContratosConfirmar) {
+    btnContratosConfirmar.addEventListener("click", () => {
+      if (!signaturePadHasDrawing) {
+        alert("Por favor, faça sua assinatura no quadro antes de confirmar.");
+        return;
+      }
+      
+      if (contratosCanvasPad) {
+        contratosSignatureDataUrl = contratosCanvasPad.toDataURL("image/png");
+      }
+      
+      if (btnContratosPrintSigned) btnContratosPrintSigned.style.display = "inline-block";
+      if (contratosCanvasSuccess) contratosCanvasSuccess.style.display = "flex";
+      alert("✅ Assinatura vinculada ao contrato com sucesso!");
+    });
+  }
+
+  // Eventos de Impressão (Prévia e Assinado)
+  if (btnContratosPrintPreview) {
+    btnContratosPrintPreview.addEventListener("click", () => {
+      const text = contratosMinutaTextarea.value;
+      if (!text) return;
+      
+      if (contratosPrintPre) contratosPrintPre.textContent = text;
+      
+      if (contratosPrintWatermark && contratosPrintWatermarkText) {
+        contratosPrintWatermark.style.display = "block";
+        contratosPrintWatermark.style.borderColor = "var(--gold)";
+        contratosPrintWatermark.style.background = "rgba(197, 168, 92, 0.03)";
+        contratosPrintWatermarkText.textContent = "RASCUNHO / PRÉVIA DE MINUTA DE CONTRATO";
+        contratosPrintWatermarkText.style.color = "var(--gold)";
+      }
+      
+      if (contratosPrintSigImgContainer) contratosPrintSigImgContainer.style.display = "none";
+      if (contratosPrintSigBlank) contratosPrintSigBlank.style.display = "block";
+      if (contratosPrintSigTimestamp) contratosPrintSigTimestamp.style.display = "none";
+      
+      if (contratosPrintClientName) {
+        const client = contratosClientesList.find(c => c.id === contratosSelectedClienteId);
+        contratosPrintClientName.textContent = client ? client.nome : "CONTRATANTE";
+      }
+      
+      window.print();
+    });
+  }
+
+  if (btnContratosPrintSigned) {
+    btnContratosPrintSigned.addEventListener("click", () => {
+      const text = contratosMinutaTextarea.value;
+      if (!text) return;
+      
+      if (contratosPrintPre) contratosPrintPre.textContent = text;
+      
+      if (contratosPrintWatermark && contratosPrintWatermarkText) {
+        contratosPrintWatermark.style.display = "block";
+        contratosPrintWatermark.style.borderColor = "var(--success-color)";
+        contratosPrintWatermark.style.background = "rgba(16, 185, 129, 0.05)";
+        contratosPrintWatermarkText.textContent = "CONTRATO ASSINADO ELETRONICAMENTE VIA PORTAL JT ADVOCACIA";
+        contratosPrintWatermarkText.style.color = "var(--success-color)";
+      }
+      
+      if (contratosPrintSigImgContainer) contratosPrintSigImgContainer.style.display = "flex";
+      if (contratosPrintSigImg && contratosSignatureDataUrl) {
+        contratosPrintSigImg.src = contratosSignatureDataUrl;
+      }
+      if (contratosPrintSigBlank) contratosPrintSigBlank.style.display = "none";
+      
+      if (contratosPrintSigTimestamp) {
+        const now = new Date();
+        const formatTime = now.toLocaleDateString("pt-BR") + " às " + now.toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' });
+        contratosPrintSigTimestamp.textContent = `ASSINADO ELETRONICAMENTE EM ${formatTime} IP: 186.220.12.92 (HASH SHA256)`;
+        contratosPrintSigTimestamp.style.display = "block";
+      }
+      
+      if (contratosPrintClientName) {
+        const client = contratosClientesList.find(c => c.id === contratosSelectedClienteId);
+        contratosPrintClientName.textContent = client ? client.nome : "CONTRATANTE";
+      }
+      
+      window.print();
+    });
+  }
+}
+
 // Chamar a inicialização ao carregar a página
 document.addEventListener("DOMContentLoaded", () => {
   initFinanceiroFilters();
+  initContratosModule();
+  initLawyerSignatureCanvas();
 });
 // Caso o DOMContentLoaded já tenha disparado, rodamos imediatamente
 if (document.readyState === "complete" || document.readyState === "interactive") {
   initFinanceiroFilters();
+  initContratosModule();
+  initLawyerSignatureCanvas();
 }

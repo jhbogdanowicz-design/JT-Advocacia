@@ -9,7 +9,7 @@ export default defineConfig({
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         // Intercepta requisições locais para a API do projeto
-        if (req.url && (req.url.startsWith("/api/gerar-estrategia") || req.url.startsWith("/api/analisar-"))) {
+        if (req.url && (req.url.startsWith("/api/gerar-estrategia") || req.url.startsWith("/api/analisar-") || req.url.startsWith("/api/esbocar-peca"))) {
           try {
             // Só aceitamos método POST ou OPTIONS (CORS)
             if (req.method === "OPTIONS") {
@@ -72,9 +72,14 @@ export default defineConfig({
             };
 
             // Importa dinamicamente a serverless function local para processar a chamada
-            const handlerPath = req.url.startsWith("/api/gerar-estrategia") 
-              ? "./api/gerar-estrategia.js" 
-              : "./api/analisar-processo.js";
+            let handlerPath = "";
+            if (req.url.startsWith("/api/gerar-estrategia")) {
+              handlerPath = "./api/gerar-estrategia.js";
+            } else if (req.url.startsWith("/api/esbocar-peca")) {
+              handlerPath = "./api/esbocar-peca.js";
+            } else {
+              handlerPath = "./api/analisar-processo.js";
+            }
             const { default: handler } = await import(handlerPath);
             await handler(adaptedReq, adaptedRes);
             return;
