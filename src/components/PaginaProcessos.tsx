@@ -91,6 +91,15 @@ const ENGINE_META: Record<AIEngine, { label: string; emoji: string; color: strin
   }
 };
 
+const RESULT_SECTIONS = [
+  { key: "resumo", label: "Resumo do Caso" },
+  { key: "estagio", label: "Estágio Processual" },
+  { key: "prioridade", label: "Prioridade" },
+  { key: "tese", label: "Tese Sugerida" },
+  { key: "risco", label: "Análise de Risco" },
+  { key: "pedidos", label: "Sugestão de Pedidos" }
+];
+
 // ── Main Component ─────────────────────────────────────────────────────────────
 export const PaginaProcessos: React.FC = () => {
   // ── User / Config
@@ -109,15 +118,17 @@ export const PaginaProcessos: React.FC = () => {
   const [paginaAba, setPaginaAba] = useState<"gerenciar" | "analisador" | "gerador">("gerenciar");
 
   // ── Modal de Edição de Processo
-  const [modalEditando, setModalEditando] = useState<ProcessoCompleto | null>(null);
-  const [editTitulo, setEditTitulo] = useState("");
-  const [editNumero, setEditNumero] = useState("");
-  const [editArea, setEditArea] = useState("");
-  const [editStatus, setEditStatus] = useState("");
-  const [editTribunal, setEditTribunal] = useState("");
-  const [editVara, setEditVara] = useState("");
-  const [editValor, setEditValor] = useState("");
-  const [editObs, setEditObs] = useState("");
+  const [processoSelecionado, setProcessoSelecionado] = useState<ProcessoCompleto | null>(null);
+  const [modalEditarAberto, setModalEditarAberto] = useState<boolean>(false);
+  const [titulo, setTitulo] = useState("");
+  const [numeroProcesso, setNumeroProcesso] = useState("");
+  const [areaDireito, setAreaDireito] = useState("");
+  const [status, setStatus] = useState("");
+  const [tribunal, setTribunal] = useState("");
+  const [vara, setVara] = useState("");
+  const [valorCausa, setValorCausa] = useState("");
+  const [descricao, setDescricao] = useState("");
+  const [clienteId, setClienteId] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
 
   // ── Gerador de IA por processo (na aba gerenciar)
@@ -208,8 +219,26 @@ export const PaginaProcessos: React.FC = () => {
     }
   };
 
+  const fetchClientes = async () => {
+    try {
+      setLoadingClientes(true);
+      const { data, error } = await supabase
+        .from("clientes")
+        .select("id, nome, tipo_pessoa, cpf_cnpj, observacoes, areas_interesse")
+        .order("nome", { ascending: true });
+
+      if (error) throw error;
+      setClientes(data || []);
+    } catch (err: any) {
+      console.error("Erro ao carregar clientes:", err.message);
+    } finally {
+      setLoadingClientes(false);
+    }
+  };
+
   useEffect(() => {
     fetchProcessos();
+    fetchClientes();
   }, []);
 
   useEffect(() => {
@@ -245,59 +274,70 @@ export const PaginaProcessos: React.FC = () => {
 
   // ── Abrir modal de edição de processo
   const abrirEdicao = (proc: ProcessoCompleto) => {
-    setModalEditando(proc);
-    setEditTitulo(proc.titulo || "");
-    setEditNumero(proc.numero_processo || "");
-    setEditArea(proc.area_direito || "");
-    setEditStatus(proc.status || "");
-    setEditTribunal(proc.tribunal || "");
-    setEditVara(proc.vara || "");
-    setEditValor(proc.valor_causa ? String(proc.valor_causa) : "");
-    setEditObs(proc.observacoes_internas || "");
+    setProcessoSelecionado(proc);
+    setModalEditarAberto(true);
   };
+
+  // Pre-populate the Edit Form Inputs when selected process changes
+  useEffect(() => {
+    if (processoSelecionado) {
+      setTitulo(processoSelecionado.titulo || "");
+      setNumeroProcesso(processoSelecionado.numero_processo || "");
+      setAreaDireito(processoSelecionado.area_direito || "");
+      setStatus(processoSelecionado.status || "");
+      setTribunal(processoSelecionado.tribunal || "");
+      setVara(processoSelecionado.vara || "");
+      setValorCausa(processoSelecionado.valor_causa ? String(processoSelecionado.valor_causa) : "");
+      setDescricao(processoSelecionado.observacoes_internas || "");
+      setClienteId(processoSelecionado.cliente_id || "");
+    }
+  }, [processoSelecionado]);
 
   // ── Salvar edição de processo no Supabase
   const handleSalvarEdicao = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!modalEditando) return;
+    if (!processoSelecionado) return;
     try {
       setSavingEdit(true);
       const { error } = await supabase
         .from("processos")
         .update({
-          titulo: editTitulo.trim(),
-          numero_processo: editNumero.trim(),
-          area_direito: editArea.trim(),
-          status: editStatus.trim(),
-          tribunal: editTribunal.trim(),
-          vara: editVara.trim(),
-          valor_causa: editValor ? parseFloat(editValor.replace(",", ".")) : null,
-          observacoes_internas: editObs.trim()
+          titulo: titulo.trim(),
+          numero_processo: numeroProcesso.trim(),
+          area_direito: areaDireito.trim(),
+          status: status.trim(),
+          tribunal: tribunal.trim(),
+          vara: vara.trim(),
+          valor_causa: valorCausa ? parseFloat(valorCausa.replace(",", ".")) : null,
+          observacoes_internas: descricao.trim(),
+          cliente_id: clienteId || null
         })
-        .eq("id", modalEditando.id);
+        .eq("id", processoSelecionado.id);
 
       if (error) throw error;
 
       // Atualiza estado local imediatamente sem recarregar
       setProcessosCompletos(prev =>
         prev.map(p =>
-          p.id === modalEditando.id
-            ? { ...p, titulo: editTitulo.trim(), numero_processo: editNumero.trim(),
-                area_direito: editArea.trim(), status: editStatus.trim(),
-                tribunal: editTribunal.trim(), vara: editVara.trim(),
-                valor_causa: editValor ? parseFloat(editValor.replace(",", ".")) : null,
-                observacoes_internas: editObs.trim() }
+          p.id === processoSelecionado.id
+            ? { ...p, titulo: titulo.trim(), numero_processo: numeroProcesso.trim(),
+                area_direito: areaDireito.trim(), status: status.trim(),
+                tribunal: tribunal.trim(), vara: vara.trim(),
+                valor_causa: valorCausa ? parseFloat(valorCausa.replace(",", ".")) : null,
+                observacoes_internas: descricao.trim(),
+                cliente_id: clienteId || undefined }
             : p
         )
       );
       setProcessos(prev =>
         prev.map(p =>
-          p.id === modalEditando.id
-            ? { ...p, titulo: editTitulo.trim(), numero_processo: editNumero.trim() }
+          p.id === processoSelecionado.id
+            ? { ...p, titulo: titulo.trim(), numero_processo: numeroProcesso.trim() }
             : p
         )
       );
-      setModalEditando(null);
+      setModalEditarAberto(false);
+      setProcessoSelecionado(null);
       alert("✅ Processo atualizado com sucesso!");
     } catch (err: any) {
       alert("Erro ao salvar: " + err.message);
@@ -572,38 +612,171 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
     }
   };
 
+  const extractTextFromPdf = async (pdfFile: File): Promise<string> => {
+    const pdfjs = (window as any).pdfjsLib || (typeof window !== "undefined" && (window as any).pdfjsLib) || null;
+    if (!pdfjs) {
+      throw new Error("Biblioteca de leitura de PDF não disponível.");
+    }
+    const arrayBuffer = await pdfFile.arrayBuffer();
+    const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
+    const pdf = await loadingTask.promise;
+    const maxPages = pdf.numPages;
+    let fullText = "";
+
+    for (let i = 1; i <= maxPages; i++) {
+      const page = await pdf.getPage(i);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items.map((item: any) => item.str).join(" ");
+      fullText += pageText + "\n";
+    }
+    return fullText.trim();
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const droppedFile = e.dataTransfer.files[0];
+    if (droppedFile) {
+      if (droppedFile.type === "application/pdf" || droppedFile.name.endsWith(".pdf")) {
+        setFile(droppedFile);
+        setFileError(null);
+      } else {
+        setFileError("Por favor, envie apenas arquivos em formato PDF.");
+      }
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      if (selectedFile.type === "application/pdf" || selectedFile.name.endsWith(".pdf")) {
+        setFile(selectedFile);
+        setFileError(null);
+      } else {
+        setFileError("Por favor, envie apenas arquivos em formato PDF.");
+      }
+    }
+  };
+
+  const handleAnalyze = async () => {
+    if (!file && !selectedProcessoId) return;
+
+    setAnalyzing(true);
+    setAnalysisError(null);
+    setResultData(null);
+    setFromCache(false);
+
+    try {
+      let text = "";
+      if (file) {
+        text = await extractTextFromPdf(file);
+      } else {
+        const proc = processosCompletos.find(p => p.id === selectedProcessoId);
+        text = proc?.observacoes_internas || proc?.clientes?.observacoes || "";
+        if (!text) {
+          throw new Error("Este processo não possui fatos ou observações cadastrados para análise.");
+        }
+      }
+
+      if (selectedProcessoId) {
+        const { data: cacheData, error: cacheErr } = await supabase
+          .from("analise_cache")
+          .select("*")
+          .eq("processo_id", selectedProcessoId)
+          .eq("engine", selectedEngine)
+          .maybeSingle();
+
+        if (cacheData) {
+          const resultado = cacheData.resultado_json;
+          setResultData({
+            resumo: resultado.resumo_executivo || "",
+            estagio: resultado.classificacao?.estagio || "",
+            prioridade: resultado.classificacao?.prioridade || "",
+            tese: resultado.tese_sugerida || "",
+            risco: resultado.classificacao?.prioridade === "Urgente" || resultado.classificacao?.prioridade === "Alta" ? "Risco Alto" : "Risco Normal",
+            pedidos: resultado.minuta_inicial_rascunho || ""
+          });
+          setFromCache(true);
+          setAnalyzing(false);
+          return;
+        }
+      }
+
+      const route = selectedEngine === "chatgpt"
+        ? "/api/analisar-chatgpt"
+        : selectedEngine === "jusia"
+        ? "/api/analisar-jusia"
+        : "/api/analisar-processo";
+
+      const response = await fetch(route, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ textoDocumento: text })
+      });
+
+      if (!response.ok) {
+        const errJson = await response.json();
+        throw new Error(errJson.error || "Erro na requisição de análise.");
+      }
+
+      const result = await response.json();
+      
+      setResultData({
+        resumo: result.resumo_executivo || "",
+        estagio: result.classificacao?.estagio || "",
+        prioridade: result.classificacao?.prioridade || "",
+        tese: result.tese_sugerida || "",
+        risco: result.classificacao?.prioridade === "Urgente" || result.classificacao?.prioridade === "Alta" ? "Risco Alto - Requer Atenção" : "Risco Controlado",
+        pedidos: result.minuta_inicial_rascunho || ""
+      });
+
+      if (selectedProcessoId) {
+        await supabase.from("analise_cache").insert({
+          processo_id: selectedProcessoId,
+          engine: selectedEngine,
+          resultado_json: result
+        });
+      }
+
+    } catch (err: any) {
+      console.error(err);
+      setAnalysisError(err.message || "Ocorreu um erro ao analisar o processo.");
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
   return (
     <div className="min-h-screen p-6 space-y-6 bg-gray-50 dark:bg-[#070a13] text-[#0f1e36] dark:text-slate-100 print:bg-white print:p-0 print:text-black">
 
       {/* ── MODAL DE EDIÇÃO DE PROCESSO ─────────────────────────────────────── */}
-      {modalEditando && (
+      {modalEditarAberto && processoSelecionado && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0f172a] border border-slate-700 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center px-6 py-4 border-b border-slate-800">
+          <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center px-6 py-4 border-b border-slate-100 dark:border-slate-800">
               <div>
-                <h2 className="font-bold text-slate-100 text-base">✏️ Editar Processo</h2>
-                <p className="text-[10px] text-slate-400 mt-0.5">{modalEditando.numero_processo}</p>
+                <h2 className="font-bold text-[#0f1e36] dark:text-slate-100 text-base">✏️ Editar Processo</h2>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{processoSelecionado.numero_processo}</p>
               </div>
-              <button type="button" onClick={() => setModalEditando(null)}
-                className="text-slate-400 hover:text-white text-xl font-bold p-1 transition-colors">✕</button>
+              <button type="button" onClick={() => { setModalEditarAberto(false); setProcessoSelecionado(null); }}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-white text-xl font-bold p-1 transition-colors">✕</button>
             </div>
             <form onSubmit={handleSalvarEdicao} className="p-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Título do Processo *</label>
-                  <input required type="text" value={editTitulo} onChange={e => setEditTitulo(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-[#d4af37] transition-colors" />
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Título do Processo *</label>
+                  <input required type="text" value={titulo} onChange={e => setTitulo(e.target.value)}
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm text-[#0f1e36] dark:text-white focus:outline-none focus:border-[#d4af37] transition-colors" />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Número do Processo</label>
-                  <input type="text" value={editNumero} onChange={e => setEditNumero(e.target.value)}
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Número do Processo</label>
+                  <input type="text" value={numeroProcesso} onChange={e => setNumeroProcesso(e.target.value)}
                     placeholder="0000000-00.0000.0.00.0000"
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-200 font-mono focus:outline-none focus:border-[#d4af37] transition-colors" />
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm text-[#0f1e36] dark:text-white font-mono focus:outline-none focus:border-[#d4af37] transition-colors" />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Área do Direito</label>
-                  <select value={editArea} onChange={e => setEditArea(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-[#d4af37] transition-colors">
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Área do Direito</label>
+                  <select value={areaDireito} onChange={e => setAreaDireito(e.target.value)}
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm text-[#0f1e36] dark:text-white focus:outline-none focus:border-[#d4af37] transition-colors">
                     <option value="">Selecionar...</option>
                     <option>Direito Médico e da Saúde</option>
                     <option>Direito Civil</option>
@@ -615,9 +788,9 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Status</label>
-                  <select value={editStatus} onChange={e => setEditStatus(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-[#d4af37] transition-colors">
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Status</label>
+                  <select value={status} onChange={e => setStatus(e.target.value)}
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm text-[#0f1e36] dark:text-white focus:outline-none focus:border-[#d4af37] transition-colors">
                     <option value="">Selecionar...</option>
                     <option>Em andamento</option>
                     <option>Aguardando decisão</option>
@@ -627,34 +800,46 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Tribunal</label>
-                  <input type="text" value={editTribunal} onChange={e => setEditTribunal(e.target.value)}
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Tribunal</label>
+                  <input type="text" value={tribunal} onChange={e => setTribunal(e.target.value)}
                     placeholder="Ex: TJSP, TRT-2"
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-[#d4af37] transition-colors" />
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm text-[#0f1e36] dark:text-white focus:outline-none focus:border-[#d4af37] transition-colors" />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Vara / Câmara</label>
-                  <input type="text" value={editVara} onChange={e => setEditVara(e.target.value)}
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Vara / Câmara</label>
+                  <input type="text" value={vara} onChange={e => setVara(e.target.value)}
                     placeholder="Ex: 3ª Vara Cível"
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-[#d4af37] transition-colors" />
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm text-[#0f1e36] dark:text-white focus:outline-none focus:border-[#d4af37] transition-colors" />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Valor da Causa (R$)</label>
-                  <input type="text" value={editValor} onChange={e => setEditValor(e.target.value)}
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Valor da Causa (R$)</label>
+                  <input type="text" value={valorCausa} onChange={e => setValorCausa(e.target.value)}
                     placeholder="Ex: 50000.00"
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-200 font-mono focus:outline-none focus:border-[#d4af37] transition-colors" />
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm text-[#0f1e36] dark:text-white font-mono focus:outline-none focus:border-[#d4af37] transition-colors" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Vincular Cliente</label>
+                  <select value={clienteId} onChange={e => setClienteId(e.target.value)}
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm text-[#0f1e36] dark:text-white focus:outline-none focus:border-[#d4af37] transition-colors">
+                    <option value="">Nenhum cliente vinculado</option>
+                    {clientes.map(c => (
+                      <option key={c.id} value={c.id}>
+                        👤 {c.nome}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Observações Internas / Fatos do Processo</label>
-                  <textarea rows={5} value={editObs} onChange={e => setEditObs(e.target.value)}
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Observações Internas / Fatos do Processo</label>
+                  <textarea rows={5} value={descricao} onChange={e => setDescricao(e.target.value)}
                     placeholder="Descreva os fatos relevantes, histórico do processo, estratégia jurídica, etc. Estes dados serão usados como base para a geração de peças por IA."
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-[#d4af37] transition-colors resize-y" />
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm text-[#0f1e36] dark:text-white focus:outline-none focus:border-[#d4af37] transition-colors resize-y" />
                   <p className="text-[10px] text-[#d4af37] mt-1">💡 Preencha este campo para habilitar a geração de teses e minutas por IA diretamente neste processo.</p>
                 </div>
               </div>
-              <div className="pt-3 border-t border-slate-800 flex justify-end gap-3">
-                <button type="button" onClick={() => setModalEditando(null)}
-                  className="px-4 py-2 text-slate-400 hover:text-slate-200 text-sm font-medium transition-colors">Cancelar</button>
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
+                <button type="button" onClick={() => { setModalEditarAberto(false); setProcessoSelecionado(null); }}
+                  className="px-4 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-sm font-medium transition-colors">Cancelar</button>
                 <button type="submit" disabled={savingEdit}
                   className="bg-[#d4af37] hover:bg-[#f3e5ab] text-[#070a13] px-6 py-2.5 rounded-lg text-sm font-bold transition-all shadow-lg disabled:opacity-50">
                   {savingEdit ? "Salvando..." : "💾 Salvar Alterações"}
@@ -721,7 +906,7 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
                 </div>
               ) : (
                 <div className="bg-red-500/10 border border-red-500/25 rounded-lg p-3 text-xs text-red-400">
-                  ⚠️ Processo sem observações internas. <button type="button" onClick={() => { setProcessoParaIA(null); abrirEdicao(processoParaIA); }} className="underline font-bold">Editar processo</button> e preencher os fatos para habilitar a IA.
+                  ⚠️ Processo sem observações internas. <button type="button" onClick={() => { if (processoParaIA) { setProcessoParaIA(null); abrirEdicao(processoParaIA); } }} className="underline font-bold">Editar processo</button> e preencher os fatos para habilitar a IA.
                 </div>
               )}
 
@@ -1642,52 +1827,12 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
                       Selecione um processo ou anexe um PDF e clique em Analisar para gerar o relatório jurídico.
                     </p>
                   </div>
-                        className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
-                      >
-                        🔄 Limpar
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  /* Empty state */
-                  <div className="h-full flex flex-col items-center justify-center gap-4 text-center py-20 text-slate-400 dark:text-slate-600">
-                    <div className="w-20 h-20 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-4xl">
-                      ✍️
-                    </div>
-                    <div className="space-y-1 max-w-sm">
-                      <p className="font-bold text-slate-600 dark:text-slate-400 text-sm">
-                        Nenhuma Peça Gerada
-                      </p>
-                      <p className="text-xs font-light">
-                        Selecione um prontuário de cliente à esquerda, escolha a peça e o motor, e clique em <strong>Esboçar Peça Processual</strong>.
-                      </p>
-                    </div>
-                    
-                    {/* Premium features preview list */}
-                    <div className="flex flex-col gap-2 text-[11px] text-left bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl p-4 max-w-xs w-full">
-                      <span className="font-bold text-slate-500 dark:text-slate-500 uppercase text-[9px] tracking-wider">
-                        Peças Processuais Disponíveis:
-                      </span>
-                      {[
-                        "Ação de Indenização por Erro Médico",
-                        "Obrigação de Fazer c/ Liminar (Plano)",
-                        "Defesa Ético-Profissional (CRM)",
-                        "Réplica à Contestação Técnica"
-                      ].map(
-                        item => (
-                          <span key={item} className="flex items-center gap-1.5 text-slate-600 dark:text-slate-500">
-                            <span className="text-[#d4af37]">✓</span> {item}
-                          </span>
-                        )
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };

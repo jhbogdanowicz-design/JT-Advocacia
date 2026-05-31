@@ -323,6 +323,14 @@ const editProcVara = document.getElementById("edit-proc-vara");
 const editProcValor = document.getElementById("edit-proc-valor");
 const editProcObservacoes = document.getElementById("edit-proc-observacoes");
 
+const editProcTituloPremium = document.getElementById("edit-proc-titulo-premium");
+const editProcNumeroPremium = document.getElementById("edit-proc-numero-premium");
+const editProcAreaPremium = document.getElementById("edit-proc-area-premium");
+const editProcStatusPremium = document.getElementById("edit-proc-status-premium");
+const editProcTribunalPremium = document.getElementById("edit-proc-tribunal-premium");
+const editProcVaraPremium = document.getElementById("edit-proc-vara-premium");
+const editProcValorPremium = document.getElementById("edit-proc-valor-premium");
+
 const modalEditCompromisso = document.getElementById("modal-edit-compromisso");
 const btnCloseModalEditCompromisso = document.getElementById("btn-close-modal-edit-compromisso");
 const editCompromissoForm = document.getElementById("edit-compromisso-form");
@@ -5167,13 +5175,13 @@ function openEditProcessModal(process) {
   currentEditingProcessId = process.id;
   currentEditingProcess = process;
 
-  if (editProcTitulo) editProcTitulo.value = process.titulo || "";
-  if (editProcNumero) editProcNumero.value = process.numero_processo || "";
-  if (editProcValor) editProcValor.value = process.valor_causa || "";
-  if (editProcArea) editProcArea.value = process.area_direito || "Civil";
-  if (editProcStatus) editProcStatus.value = process.status || "Ativo";
-  if (editProcTribunal) editProcTribunal.value = process.tribunal || "";
-  if (editProcVara) editProcVara.value = process.vara || "";
+  if (editProcTituloPremium) editProcTituloPremium.value = process.titulo || "";
+  if (editProcNumeroPremium) editProcNumeroPremium.value = process.numero_processo || "";
+  if (editProcValorPremium) editProcValorPremium.value = process.valor_causa || "";
+  if (editProcAreaPremium) editProcAreaPremium.value = process.area_direito || "Civil";
+  if (editProcStatusPremium) editProcStatusPremium.value = process.status || "Ativo";
+  if (editProcTribunalPremium) editProcTribunalPremium.value = process.tribunal || "";
+  if (editProcVaraPremium) editProcVaraPremium.value = process.vara || "";
   
   let cleanFatos = process.observacoes_internas || "";
   if (editProcFatos) editProcFatos.value = cleanFatos;
@@ -5201,13 +5209,13 @@ if (formEditarProcesso) {
     try {
       setLoadingState(btnSalvarEditar, true, "Salvando...");
 
-      const titulo = editProcTitulo.value.trim();
-      const numero = editProcNumero.value.trim() || null;
-      const valor = editProcValor.value ? parseFloat(editProcValor.value) : null;
-      const area = editProcArea.value;
-      const status = editProcStatus.value;
-      const tribunal = editProcTribunal.value.trim() || null;
-      const vara = editProcVara.value.trim() || null;
+      const titulo = editProcTituloPremium.value.trim();
+      const numero = editProcNumeroPremium.value.trim() || null;
+      const valor = editProcValorPremium.value ? parseFloat(editProcValorPremium.value) : null;
+      const area = editProcAreaPremium.value;
+      const status = editProcStatusPremium.value;
+      const tribunal = editProcTribunalPremium.value.trim() || null;
+      const vara = editProcVaraPremium.value.trim() || null;
       const fatos = editProcFatos.value.trim();
 
       const { error } = await supabase
