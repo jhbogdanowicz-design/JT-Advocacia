@@ -9,7 +9,7 @@ export default defineConfig({
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         // Intercepta requisições locais para a API do projeto
-        if (req.url && (req.url.startsWith("/api/gerar-estrategia") || req.url.startsWith("/api/analisar-processo"))) {
+        if (req.url && (req.url.startsWith("/api/gerar-estrategia") || req.url.startsWith("/api/analisar-"))) {
           try {
             // Só aceitamos método POST ou OPTIONS (CORS)
             if (req.method === "OPTIONS") {

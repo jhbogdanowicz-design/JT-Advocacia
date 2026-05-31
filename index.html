@@ -1309,9 +1309,9 @@
               <!-- Uploader Drag & Drop -->
               <div id="processo-dropzone" style="border: 2px dashed var(--gold); border-radius: 8px; padding: 24px; text-align: center; background: rgba(197, 168, 92, 0.02); cursor: pointer; transition: all 0.2s; margin-bottom: 16px; position: relative;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--gold); margin-bottom: 12px; margin-left: auto; margin-right: auto;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                <h5 style="color: var(--text-primary); margin-bottom: 4px; font-weight: 500;" id="dropzone-text-main">Arraste e solte os autos do processo (.txt)</h5>
+                <h5 style="color: var(--text-primary); margin-bottom: 4px; font-weight: 500;" id="dropzone-text-main">Arraste e solte os autos do processo (.txt ou .pdf)</h5>
                 <span style="font-size: 11px; color: var(--text-secondary);" id="dropzone-text-sub">Ou clique aqui para selecionar do computador</span>
-                <input type="file" id="processo-file-input" accept=".txt" style="position: absolute; inset: 0; opacity: 0; cursor: pointer;">
+                <input type="file" id="processo-file-input" accept=".txt,.pdf" style="position: absolute; inset: 0; opacity: 0; cursor: pointer;">
               </div>
 
               <!-- Alternativa: Colar Texto -->
@@ -1367,6 +1367,36 @@
                 <button type="button" class="btn-primary" id="btn-processo-analisar-ia" style="width: 100%; height: 48px; font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-scale"><path d="m16 16 3-8 3 8c-.87.65-2.24 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-2.24 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h18"/></svg>
                   <span>Analisar com Jus IA</span>
+                </button>
+              </div>
+
+              <!-- Contador de Cotas Cortesia -->
+              <div id="processo-ai-quota-counter" style="text-align: center; margin-top: 10px; font-size: 11.5px; color: var(--text-secondary); font-weight: 500;">
+                <!-- Preenchido dinamicamente via JS -->
+              </div>
+
+              <!-- Card de Upgrade / Configuração de Chaves -->
+              <div id="processo-ai-lock-card" style="display: none; margin-top: 20px; padding: 20px; border: 1px solid var(--gold); border-radius: 8px; background: rgba(197, 168, 92, 0.05); text-align: left;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                  <span style="font-size: 18px;">🔑</span>
+                  <h4 style="color: var(--gold); font-family: 'Outfit'; font-weight: 700; margin: 0; font-size: 13.5px;">Limite de Processamento Cortesia Atingido</h4>
+                </div>
+                <p style="font-size: 11.5px; color: var(--text-primary); line-height: 1.5; margin-bottom: 16px;">
+                  Para continuar utilizando a análise profunda de peças processuais sem limites e com maior velocidade, insira abaixo a sua chave de API pessoal (Token de Login Pago) da OpenAI ou Google AI Studio.
+                </p>
+                
+                <div class="form-group" style="margin-bottom: 12px;">
+                  <label class="form-label" for="user-gemini-key-input" style="font-size: 10px; font-weight: 700; text-transform: uppercase;">Chave API Google Gemini (AI Studio)</label>
+                  <input type="password" id="user-gemini-key-input" class="form-input-premium" style="height: 38px; font-size: 11.5px;" placeholder="Insira sua AIzaSy... do Gemini">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 16px;">
+                  <label class="form-label" for="user-openai-key-input" style="font-size: 10px; font-weight: 700; text-transform: uppercase;">Chave API OpenAI ChatGPT</label>
+                  <input type="password" id="user-openai-key-input" class="form-input-premium" style="height: 38px; font-size: 11.5px;" placeholder="Insira sua sk-proj-... do ChatGPT">
+                </div>
+
+                <button type="button" class="btn-primary" id="btn-save-user-keys" style="width: 100%; height: 38px; font-weight: 700; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; background: var(--bg-navy); border: 1px solid var(--gold); color: var(--gold);">
+                  <span>Salvar e Ativar Chaves</span>
                 </button>
               </div>
             </div>
@@ -1567,6 +1597,13 @@
                 <!-- Preenchido dinamicamente via JS -->
               </tbody>
             </table>
+          </div>
+
+          <!-- Botão Carregar Mais -->
+          <div id="financeiro-load-more-container" style="display: none; text-align: center; margin-top: 24px; padding-bottom: 8px;">
+            <button type="button" id="btn-financeiro-load-more" class="btn-primary" style="width: auto; margin-top: 0; background: var(--bg-navy, #0a192f); color: var(--gold, #d4af37); border: 1px solid var(--gold, #d4af37); font-weight: 700; height: 38px; border-radius: 8px; font-family: 'Outfit'; font-size: 12px; display: inline-flex; align-items: center; gap: 8px; padding: 0 20px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='rgba(197,168,92,0.1)'" onmouseout="this.style.background='var(--bg-navy, #0a192f)'">
+              <span>🔄 Carregar mais lançamentos...</span>
+            </button>
           </div>
         </div>
       </section>
@@ -2341,6 +2378,7 @@
        ========================================================================= -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <script type="module" src="app.js"></script>
 </body>
 </html>

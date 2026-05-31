@@ -3737,11 +3737,13 @@ async function loadClientFinancialData() {
         // Manipulador para alternar status do pagamento
         item.querySelector(".btn-toggle-payment").addEventListener("click", async (e) => {
           e.stopPropagation();
-          const launchId = e.target.getAttribute("data-id");
-          const currentStatus = e.target.getAttribute("data-status");
+          const btn = e.currentTarget;
+          const launchId = btn.getAttribute("data-id");
+          const currentStatus = btn.getAttribute("data-status");
           const nextStatus = currentStatus === "pago" ? "pendente" : "pago";
 
           try {
+            setLoadingState(btn, true, "Processando...");
             const { error: updateError } = await supabase
               .from("financeiro")
               .update({ status_pagamento: nextStatus })
@@ -3750,22 +3752,25 @@ async function loadClientFinancialData() {
             if (updateError) throw updateError;
             
             // Recarrega os dados locais e o dashboard principal
-            loadClientFinancialData();
-            loadDashboardData();
+            await loadClientFinancialData();
+            await loadDashboardData();
           } catch (updateErr) {
             console.error("Erro ao atualizar pagamento:", updateErr.message);
             alert("Erro ao alterar status do pagamento.");
+            setLoadingState(btn, false, `Marcar como ${currentStatus === "pago" ? "Pendente" : "Pago"}`);
           }
         });
 
         // Manipulador para excluir lançamento financeiro
         item.querySelector(".btn-delete-financial").addEventListener("click", async (e) => {
           e.stopPropagation();
+          const btn = e.currentTarget;
           if (!confirm("Tem certeza de que deseja excluir este lançamento financeiro permanentemente?")) return;
 
-          const launchId = e.target.getAttribute("data-id");
+          const launchId = btn.getAttribute("data-id");
 
           try {
+            setLoadingState(btn, true, "Removendo...");
             const { error: deleteError } = await supabase
               .from("financeiro")
               .delete()
@@ -3773,11 +3778,12 @@ async function loadClientFinancialData() {
 
             if (deleteError) throw deleteError;
             
-            loadClientFinancialData();
-            loadDashboardData();
+            await loadClientFinancialData();
+            await loadDashboardData();
           } catch (deleteErr) {
             console.error("Erro ao excluir lançamento financeiro:", deleteErr.message);
             alert("Erro ao excluir lançamento financeiro.");
+            setLoadingState(btn, false, "Excluir");
           }
         });
 
@@ -4137,6 +4143,12 @@ const textInput = document.getElementById("processo-text-input");
 const selectClienteAi = document.getElementById("processo-ai-select-cliente");
 const btnAnalisarIa = document.getElementById("btn-processo-analisar-ia");
 
+const userGeminiKeyInput = document.getElementById("user-gemini-key-input");
+const userOpenaiKeyInput = document.getElementById("user-openai-key-input");
+const btnSaveUserKeys = document.getElementById("btn-save-user-keys");
+const quotaCounter = document.getElementById("processo-ai-quota-counter");
+const aiLockCard = document.getElementById("processo-ai-lock-card");
+
 const resultPlaceholder = document.getElementById("processo-ai-result-placeholder");
 const loadingIndicator = document.getElementById("processo-ai-loading-indicator");
 const loadingStatus = document.getElementById("processo-ai-loading-status");
@@ -4156,7 +4168,85 @@ function showProcessosPanel(panelType) {
     processosListPanel.style.display = "none";
     processosAiPanel.style.display = "block";
     resetAiAnalyzerPanel();
+    checkLawyerQuotaAndKeys();
   }
+}
+
+async function checkLawyerQuotaAndKeys() {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data: lawyer, error } = await supabase
+      .from("advogados")
+      .select("consultas_gratuitas_realizadas, limite_gratuito_maximo, user_gemini_key, user_openai_key")
+      .eq("id", user.id)
+      .single();
+
+    if (error || !lawyer) throw error || new Error("Advogado não localizado.");
+
+    // Atualizar os inputs com as chaves existentes (se houver)
+    if (userGeminiKeyInput) userGeminiKeyInput.value = lawyer.user_gemini_key || "";
+    if (userOpenaiKeyInput) userOpenaiKeyInput.value = lawyer.user_openai_key || "";
+
+    const hasCustomKey = (lawyer.user_gemini_key && lawyer.user_gemini_key.trim() !== "") || 
+                          (lawyer.user_openai_key && lawyer.user_openai_key.trim() !== "");
+
+    const realizadas = lawyer.consultas_gratuitas_realizadas || 0;
+    const maximo = lawyer.limite_gratuito_maximo || 5;
+    const restantes = Math.max(0, maximo - realizadas);
+
+    if (quotaCounter) {
+      if (hasCustomKey) {
+        quotaCounter.innerHTML = `<span style="color: var(--success-color); font-weight: bold;">✔ Chave API Pessoal Ativa (Uso Ilimitado)</span>`;
+      } else {
+        quotaCounter.innerText = `Você possui ${restantes} de ${maximo} análises gratuitas restantes`;
+      }
+    }
+
+    if (!hasCustomKey && restantes === 0) {
+      // Bloqueia e mostra o card de chaves
+      if (btnAnalisarIa) btnAnalisarIa.style.display = "none";
+      if (aiLockCard) aiLockCard.style.display = "block";
+    } else {
+      // Libera o botão normal
+      if (btnAnalisarIa) btnAnalisarIa.style.display = "flex";
+      if (aiLockCard) aiLockCard.style.display = "none";
+    }
+  } catch (err) {
+    console.error("Erro ao verificar cota e chaves do advogado:", err.message);
+  }
+}
+
+if (btnSaveUserKeys) {
+  btnSaveUserKeys.addEventListener("click", async () => {
+    try {
+      setLoadingState(btnSaveUserKeys, true, "Salvando...");
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Usuário não autenticado.");
+
+      const geminiKey = userGeminiKeyInput.value.trim() || null;
+      const openaiKey = userOpenaiKeyInput.value.trim() || null;
+
+      const { error } = await supabase
+        .from("advogados")
+        .update({
+          user_gemini_key: geminiKey,
+          user_openai_key: openaiKey
+        })
+        .eq("id", user.id);
+
+      if (error) throw error;
+
+      alert("Credenciais salvas com sucesso! Uso de inteligência artificial liberado.");
+      await checkLawyerQuotaAndKeys();
+    } catch (err) {
+      console.error("Erro ao salvar chaves de API:", err.message);
+      alert("Falha ao salvar chaves de API: " + err.message);
+    } finally {
+      setLoadingState(btnSaveUserKeys, false, "Salvar e Ativar Chaves");
+    }
+  });
 }
 
 // Navegação do painel
@@ -4321,10 +4411,37 @@ function handleProcessFilterSearch() {
 }
 
 // Lógica de Leitura e Arraste de Arquivos
+// Configurar PDF.js Worker
+const pdfjs = window.pdfjsLib || (typeof pdfjsLib !== "undefined" ? pdfjsLib : null);
+if (pdfjs) {
+  pdfjs.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
+}
+
+async function extractTextFromPdf(file) {
+  const pdfjs = window.pdfjsLib || (typeof pdfjsLib !== "undefined" ? pdfjsLib : null);
+  if (!pdfjs) {
+    throw new Error("Biblioteca de leitura de PDF não disponível.");
+  }
+  const arrayBuffer = await file.arrayBuffer();
+  const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
+  const pdf = await loadingTask.promise;
+  const maxPages = pdf.numPages;
+  let fullText = "";
+
+  for (let i = 1; i <= maxPages; i++) {
+    const page = await pdf.getPage(i);
+    const textContent = await page.getTextContent();
+    const pageText = textContent.items.map(item => item.str).join(" ");
+    fullText += pageText + "\n";
+  }
+  return fullText.trim();
+}
+
+// Lógica de Leitura e Arraste de Arquivos
 if (fileInput) {
   fileInput.addEventListener("change", (e) => {
     const file = e.target.files[0];
-    if (file) handleSelectedTxtFile(file);
+    if (file) handleSelectedFile(file);
   });
 }
 
@@ -4346,23 +4463,47 @@ if (dropzone) {
     dropzone.style.borderColor = "var(--gold)";
     dropzone.style.background = "rgba(197, 168, 92, 0.02)";
     const file = e.dataTransfer.files[0];
-    if (file) handleSelectedTxtFile(file);
+    if (file) handleSelectedFile(file);
   });
 }
 
-function handleSelectedTxtFile(file) {
-  if (!file.name.endsWith(".txt")) {
-    alert("Por favor, envie apenas arquivos de texto (.txt). Para outros formatos, copie e cole o texto no campo abaixo.");
-    return;
+async function handleSelectedFile(file) {
+  const fileName = file.name.toLowerCase();
+  
+  if (fileName.endsWith(".txt")) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      textInput.value = e.target.result;
+      document.getElementById("dropzone-text-main").innerText = `✓ Arquivo carregado: ${file.name}`;
+      document.getElementById("dropzone-text-sub").innerText = `${(file.size / 1024).toFixed(1)} KB - Texto pronto para análise`;
+    };
+    reader.readAsText(file);
+  } else if (fileName.endsWith(".pdf")) {
+    try {
+      document.getElementById("dropzone-text-main").innerText = `Lendo PDF: ${file.name}...`;
+      document.getElementById("dropzone-text-sub").innerText = `Extraindo camada de texto digital...`;
+      
+      const text = await extractTextFromPdf(file);
+      if (!text) {
+        throw new Error("EMPTY_TEXT");
+      }
+      
+      textInput.value = text;
+      document.getElementById("dropzone-text-main").innerText = `✓ Arquivo carregado: ${file.name}`;
+      document.getElementById("dropzone-text-sub").innerText = `${(file.size / 1024 / 1024).toFixed(2)} MB - Texto pronto para análise`;
+    } catch (err) {
+      console.error("Erro ao extrair PDF:", err);
+      
+      // Alerta corporativo elegante para a advogada
+      alert("Não foi possível extrair o texto digital deste documento (PDF protegido ou digitalizado como imagem). Por favor, anexe um arquivo com camada de texto ou utilize o preenchimento manual.");
+      
+      document.getElementById("dropzone-text-main").innerText = "Falha ao ler PDF";
+      document.getElementById("dropzone-text-sub").innerText = "PDF protegido ou sem camada de texto (imagem).";
+      textInput.value = "";
+    }
+  } else {
+    alert("Por favor, envie apenas arquivos de texto (.txt) ou documentos PDF (.pdf).");
   }
-
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    textInput.value = e.target.result;
-    document.getElementById("dropzone-text-main").innerText = `✓ Arquivo carregado: ${file.name}`;
-    document.getElementById("dropzone-text-sub").innerText = `${(file.size / 1024).toFixed(1)} KB - Texto pronto para análise`;
-  };
-  reader.readAsText(file);
 }
 
 // Popular dropdown de Clientes no painel IA
@@ -4436,17 +4577,156 @@ if (selectMotor && btnAnalisarIa) {
   });
 }
 
+function parseStoredAnalysis(obsText) {
+  if (!obsText || !obsText.includes("RESUMO EXECUTIVO IA:")) return null;
+  
+  try {
+    const resumoMarker = "RESUMO EXECUTIVO IA:\n";
+    const teseMarker = "\n\nTESE RECOMENDADA:\n";
+    const estagioMarker = "\n\nESTÁGIO ESTIMADO: ";
+    const prioridadeMarker = "\nPRIORIDADE IA: ";
+    const minutaMarker = "\n\nMINUTA INICIAL GERADA EM ANEXO: \n";
+    
+    let resumo = "";
+    let tese = "";
+    let estagio = "Fase Inicial";
+    let prioridade = "Média";
+    let minuta = "";
+    
+    const idxResumo = obsText.indexOf(resumoMarker);
+    const idxTese = obsText.indexOf(teseMarker);
+    const idxEstagio = obsText.indexOf(estagioMarker);
+    const idxPrioridade = obsText.indexOf(prioridadeMarker);
+    const idxMinuta = obsText.indexOf(minutaMarker);
+    
+    if (idxResumo !== -1 && idxTese !== -1) {
+      resumo = obsText.substring(idxResumo + resumoMarker.length, idxTese).trim();
+    }
+    
+    if (idxTese !== -1 && idxEstagio !== -1) {
+      tese = obsText.substring(idxTese + teseMarker.length, idxEstagio).trim();
+    }
+    
+    if (idxEstagio !== -1 && idxPrioridade !== -1) {
+      estagio = obsText.substring(idxEstagio + estagioMarker.length, idxPrioridade).trim();
+    }
+    
+    if (idxPrioridade !== -1 && idxMinuta !== -1) {
+      prioridade = obsText.substring(idxPrioridade + prioridadeMarker.length, idxMinuta).trim();
+    }
+    
+    if (idxMinuta !== -1) {
+      minuta = obsText.substring(idxMinuta + minutaMarker.length).trim();
+    }
+    
+    return {
+      resumo_executivo: resumo,
+      tese_sugerida: tese,
+      minuta_inicial_rascunho: minuta,
+      classificacao: {
+        estagio: estagio,
+        prioridade: prioridade
+      }
+    };
+  } catch (e) {
+    console.error("Erro ao analisar observações internas salvas:", e);
+    return null;
+  }
+}
+
 async function handleAnalisarProcessoIa() {
   const textContent = textInput.value.trim();
   const clienteId = selectClienteAi.value;
 
   if (!textContent) {
-    alert("Por favor, faça upload de um arquivo .txt ou cole o teor do processo no campo de texto.");
+    alert("Por favor, faça upload de um arquivo .txt ou .pdf, ou cole o teor do processo no campo de texto.");
     return;
   }
   if (!clienteId) {
     alert("Por favor, selecione um cliente para vincular esta análise processual.");
     return;
+  }
+
+  // Captura inteligente do Número de Processo (CNJ)
+  const inputNumero = document.getElementById("processo-ai-input-numero");
+  let numeroProcesso = inputNumero ? inputNumero.value.trim() : "";
+  
+  if (!numeroProcesso) {
+    // Tenta extrair do texto por regex (Padrão CNJ: 0000000-00.0000.0.00.0000)
+    const cnjRegex = /\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}/;
+    const match = textContent.match(cnjRegex);
+    if (match) {
+      numeroProcesso = match[0];
+      if (inputNumero) inputNumero.value = numeroProcesso;
+    }
+  }
+
+  if (numeroProcesso) {
+    try {
+      // 1. Procurar se já existe um processo com este número e com análise nas observações
+      const { data: existingProcess, error: selectErr } = await supabase
+        .from("processos")
+        .select("*")
+        .eq("numero_processo", numeroProcesso)
+        .maybeSingle();
+
+      if (!selectErr && existingProcess && existingProcess.observacoes_internas && existingProcess.observacoes_internas.includes("RESUMO EXECUTIVO IA:")) {
+        const cachedResult = parseStoredAnalysis(existingProcess.observacoes_internas);
+        if (cachedResult) {
+          // Preenche os dados da UI diretamente do cache!
+          parsedAiResult = cachedResult;
+
+          // Renderizar resultados da análise
+          document.getElementById("badge-ai-estagio").innerText = cachedResult.classificacao.estagio;
+          document.getElementById("badge-ai-prioridade").innerText = cachedResult.classificacao.prioridade;
+
+          const prioBadge = document.getElementById("badge-ai-prioridade");
+          if (cachedResult.classificacao.prioridade === "Urgente" || cachedResult.classificacao.prioridade === "Alta") {
+            prioBadge.style.background = "rgba(239, 68, 68, 0.15)";
+            prioBadge.style.color = "var(--error-color)";
+          } else if (cachedResult.classificacao.prioridade === "Baixa") {
+            prioBadge.style.background = "rgba(16, 185, 129, 0.15)";
+            prioBadge.style.color = "var(--success-color)";
+          } else {
+            prioBadge.style.background = "rgba(197, 168, 92, 0.15)";
+            prioBadge.style.color = "var(--gold)";
+          }
+
+          document.getElementById("ai-result-resumo-text").innerText = cachedResult.resumo_executivo;
+          document.getElementById("ai-result-tese-text").innerText = cachedResult.tese_sugerida;
+          document.getElementById("ai-result-minuta-text").value = cachedResult.minuta_inicial_rascunho;
+
+          // Popular inputs se cadastrados
+          if (existingProcess.valor_causa) {
+            document.getElementById("processo-ai-input-valor").value = existingProcess.valor_causa;
+          }
+          if (existingProcess.tribunal) {
+            document.getElementById("processo-ai-input-tribunal").value = existingProcess.tribunal;
+          }
+          if (existingProcess.vara) {
+            document.getElementById("processo-ai-input-vara").value = existingProcess.vara;
+          }
+
+          // Ativar aba resumo por padrão
+          document.querySelectorAll("#processo-ai-result-content .ia-strategy-tab-btn").forEach(b => {
+            if (b.getAttribute("data-result-tab") === "resumo") b.classList.add("active");
+            else b.classList.remove("active");
+          });
+          document.getElementById("ai-result-resumo-pane").style.display = "block";
+          document.getElementById("ai-result-tese-pane").style.display = "none";
+          document.getElementById("ai-result-minuta-pane").style.display = "none";
+
+          resultPlaceholder.style.display = "none";
+          loadingIndicator.style.display = "none";
+          resultContent.style.display = "block";
+
+          alert("⚡ Análise carregada instantaneamente do cache histórico do Supabase (Economia de tokens e tempo)!");
+          return; // Interrompe para evitar chamar a IA redundante
+        }
+      }
+    } catch (cacheErr) {
+      console.warn("Erro ao ler dados do histórico do Supabase (cache de IA):", cacheErr);
+    }
   }
 
   resultPlaceholder.style.display = "none";
@@ -4479,16 +4759,26 @@ async function handleAnalisarProcessoIa() {
   }, 2500);
 
   try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Advogado não autenticado.");
+
     const response = await fetch(route, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ textoDocumento: textContent })
+      body: JSON.stringify({ textoDocumento: textContent, userId: user.id })
     });
 
     clearInterval(msgTimer);
 
     if (!response.ok) {
       const err = await response.json();
+      if (err.error === "LIMITE_EXCEDIDO") {
+        alert("O seu limite de consultas gratuitas de processamento cortesia foi atingido. Para continuar, por favor ative a sua chave pessoal de API.");
+        await checkLawyerQuotaAndKeys(); // Atualiza cotas e exibe a trava
+        loadingIndicator.style.display = "none";
+        resultPlaceholder.style.display = "block";
+        return;
+      }
       throw new Error(err.error || "Erro desconhecido na análise.");
     }
 
@@ -5169,30 +5459,44 @@ if (viewAgendaSection) {
 // MÓDULO FINANCEIRO CENTRAL - GESTÃO DE HONORÁRIOS E CAIXA UNIFICADO
 // =========================================================================
 let financeiroDataCache = [];
+let financeiroOffset = 0;
+const financeiroLimit = 50;
+let hasMoreFinanceiro = true;
 
-async function loadFinanceiroData() {
+async function loadFinanceiroData(append = false) {
   const tableLoading = document.getElementById("financeiro-table-loading");
   const tableContainer = document.getElementById("financeiro-table-container");
   const tableEmpty = document.getElementById("financeiro-table-empty");
   const launchesCount = document.getElementById("financeiro-launches-count");
+  const loadMoreContainer = document.getElementById("financeiro-load-more-container");
+  const btnLoadMore = document.getElementById("btn-financeiro-load-more");
 
   const totalRecebidoEl = document.getElementById("financeiro-total-recebido");
   const totalInadimplenciaEl = document.getElementById("financeiro-total-inadimplencia");
   const totalProjecaoEl = document.getElementById("financeiro-total-projecao");
 
   try {
-    if (tableLoading) tableLoading.style.display = "flex";
-    if (tableContainer) tableContainer.style.display = "none";
-    if (tableEmpty) tableEmpty.style.display = "none";
+    if (!append) {
+      financeiroOffset = 0;
+      financeiroDataCache = [];
+      hasMoreFinanceiro = true;
+      if (tableLoading) tableLoading.style.display = "flex";
+      if (tableContainer) tableContainer.style.display = "none";
+      if (tableEmpty) tableEmpty.style.display = "none";
+      if (loadMoreContainer) loadMoreContainer.style.display = "none";
+    } else {
+      if (btnLoadMore) setLoadingState(btnLoadMore, true, "Carregando...");
+    }
 
     const { data: finData, error: finError } = await supabase
       .from("financeiro")
       .select("*, clientes(id, nome, whatsapp), processos(id, titulo, numero_processo, status)")
-      .order("data_vencimento", { ascending: false });
+      .order("data_vencimento", { ascending: false })
+      .range(financeiroOffset, financeiroOffset + financeiroLimit - 1);
 
     if (finError) throw finError;
 
-    financeiroDataCache = (finData || []).map(item => {
+    const mappedData = (finData || []).map(item => {
       const clientObj = Array.isArray(item.clientes) ? item.clientes[0] : item.clientes;
       const processObj = Array.isArray(item.processos) ? item.processos[0] : item.processos;
       return {
@@ -5201,6 +5505,22 @@ async function loadFinanceiroData() {
         processos: processObj || null
       };
     });
+
+    if (append) {
+      financeiroDataCache = [...financeiroDataCache, ...mappedData];
+      if (btnLoadMore) setLoadingState(btnLoadMore, false, "🔄 Carregar mais lançamentos...");
+    } else {
+      financeiroDataCache = mappedData;
+    }
+
+    // Se o número de itens retornados for menor que o limite, chegamos ao final
+    if (mappedData.length < financeiroLimit) {
+      hasMoreFinanceiro = false;
+      if (loadMoreContainer) loadMoreContainer.style.display = "none";
+    } else {
+      hasMoreFinanceiro = true;
+      if (loadMoreContainer) loadMoreContainer.style.display = "block";
+    }
 
     // 1. Calcular Métricas Financeiras Consolidadas em Tempo Real
     const metrics = calculateFinanceiroMetrics(financeiroDataCache);
@@ -5216,13 +5536,19 @@ async function loadFinanceiroData() {
 
   } catch (err) {
     console.error("Erro ao carregar faturamento geral:", err.message);
-    if (tableLoading) tableLoading.style.display = "none";
-    if (tableEmpty) {
-      tableEmpty.style.display = "block";
-      tableEmpty.innerText = "Erro ao sincronizar lançamentos financeiros: " + err.message;
+    if (!append) {
+      if (tableLoading) tableLoading.style.display = "none";
+      if (tableEmpty) {
+        tableEmpty.style.display = "block";
+        tableEmpty.innerText = "Erro ao sincronizar lançamentos financeiros: " + err.message;
+      }
+    } else {
+      if (btnLoadMore) setLoadingState(btnLoadMore, false, "🔄 Carregar mais lançamentos...");
+      alert("Falha ao carregar mais lançamentos: " + err.message);
     }
   }
 }
+
 
 function calculateFinanceiroMetrics(list) {
   const agora = new Date();
@@ -5500,16 +5826,18 @@ function renderFinanceiroTable() {
       btnMarkPaid.style.fontSize = "12px";
       btnMarkPaid.addEventListener("click", async () => {
         try {
+          setLoadingState(btnMarkPaid, true, "Processando...");
           const { error } = await supabase
             .from("financeiro")
             .update({ status_pagamento: "pago" })
             .eq("id", item.id);
 
           if (error) throw error;
-          loadFinanceiroData();
-          loadDashboardData();
+          await loadFinanceiroData();
+          await loadDashboardData();
         } catch (err) {
           alert("Erro ao faturar honorário: " + err.message);
+          setLoadingState(btnMarkPaid, false, "✓ Recebido");
         }
       });
       actionsContainer.appendChild(btnMarkPaid);
@@ -5531,16 +5859,18 @@ function renderFinanceiroTable() {
     btnDelete.addEventListener("click", async () => {
       if (!window.confirm("Deseja realmente excluir este lançamento permanentemente?")) return;
       try {
+        setLoadingState(btnDelete, true, "...");
         const { error } = await supabase
           .from("financeiro")
           .delete()
           .eq("id", item.id);
 
         if (error) throw error;
-        loadFinanceiroData();
-        loadDashboardData();
+        await loadFinanceiroData();
+        await loadDashboardData();
       } catch (err) {
         alert("Erro ao excluir lançamento: " + err.message);
+        setLoadingState(btnDelete, false, "✕");
       }
     });
     actionsContainer.appendChild(btnDelete);
@@ -5601,6 +5931,14 @@ function initFinanceiroFilters() {
   if (cardFinanceiroDashboard) {
     cardFinanceiroDashboard.addEventListener("click", () => {
       switchPrivateView("financeiro");
+    });
+  }
+
+  const btnLoadMore = document.getElementById("btn-financeiro-load-more");
+  if (btnLoadMore) {
+    btnLoadMore.addEventListener("click", async () => {
+      financeiroOffset += financeiroLimit;
+      await loadFinanceiroData(true);
     });
   }
 }

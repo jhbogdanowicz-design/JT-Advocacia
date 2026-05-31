@@ -35,6 +35,7 @@ export const AbaFinanceiro: React.FC<AbaFinanceiroProps> = ({ clienteId }) => {
 
   // Controle do Modal de Novo Lançamento
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [actionLoading, setActionLoading] = useState<Record<string, boolean>>({});
 
 
   // Buscar lançamentos financeiros
@@ -88,6 +89,7 @@ export const AbaFinanceiro: React.FC<AbaFinanceiroProps> = ({ clienteId }) => {
   // Marcar como pago
   const handleMarcarPago = async (id: string) => {
     try {
+      setActionLoading(prev => ({ ...prev, [id]: true }));
       const { error: updateErr } = await supabase
         .from("financeiro")
         .update({ status_pagamento: "pago" })
@@ -101,6 +103,8 @@ export const AbaFinanceiro: React.FC<AbaFinanceiroProps> = ({ clienteId }) => {
       );
     } catch (err: any) {
       alert("Erro ao atualizar o status do honorário: " + err.message);
+    } finally {
+      setActionLoading(prev => ({ ...prev, [id]: false }));
     }
   };
 
@@ -108,6 +112,7 @@ export const AbaFinanceiro: React.FC<AbaFinanceiroProps> = ({ clienteId }) => {
   const handleExcluirLancamento = async (id: string) => {
     if (!window.confirm("Deseja realmente excluir este lançamento permanentemente?")) return;
     try {
+      setActionLoading(prev => ({ ...prev, [id]: true }));
       const { error: deleteErr } = await supabase
         .from("financeiro")
         .delete()
@@ -118,6 +123,7 @@ export const AbaFinanceiro: React.FC<AbaFinanceiroProps> = ({ clienteId }) => {
       setLancamentos(prev => prev.filter(item => item.id !== id));
     } catch (err: any) {
       alert("Erro ao deletar lançamento financeiro: " + err.message);
+      setActionLoading(prev => ({ ...prev, [id]: false }));
     }
   };
 
@@ -266,20 +272,30 @@ export const AbaFinanceiro: React.FC<AbaFinanceiroProps> = ({ clienteId }) => {
                             {item.status_pagamento.toLowerCase() !== "pago" && (
                               <button
                                 onClick={() => handleMarcarPago(item.id)}
+                                disabled={actionLoading[item.id]}
                                 type="button"
-                                className="text-xs text-emerald-400 hover:text-emerald-300 font-bold"
+                                className={`text-xs font-bold transition-all ${
+                                  actionLoading[item.id]
+                                    ? "text-slate-500 cursor-not-allowed"
+                                    : "text-emerald-400 hover:text-emerald-300 cursor-pointer"
+                                }`}
                                 title="Marcar como Pago"
                               >
-                                ✓ Recebido
+                                {actionLoading[item.id] ? "Processando..." : "✓ Recebido"}
                               </button>
                             )}
                             <button
                               onClick={() => handleExcluirLancamento(item.id)}
+                              disabled={actionLoading[item.id]}
                               type="button"
-                              className="text-xs text-red-500 hover:text-red-400 font-bold ml-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                              className={`text-xs font-bold ml-1 transition-opacity ${
+                                actionLoading[item.id]
+                                  ? "text-slate-600 cursor-not-allowed"
+                                  : "text-red-500 hover:text-red-400 opacity-0 group-hover:opacity-100 cursor-pointer"
+                              }`}
                               title="Excluir lançamento"
                             >
-                              ✕
+                              {actionLoading[item.id] ? "..." : "✕"}
                             </button>
                           </div>
                         </td>

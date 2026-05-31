@@ -45,6 +45,13 @@ export const PaginaFinanceiro: React.FC<PaginaFinanceiroProps> = ({ onNavigateTo
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Paginação e Ações
+  const [offset, setOffset] = useState<number>(0);
+  const limit = 50;
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [loadingMore, setLoadingMore] = useState<boolean>(false);
+  const [actionLoading, setActionLoading] = useState<Record<string, boolean>>({});
+
   // Estados dos filtros
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("todos");
@@ -53,7 +60,6 @@ export const PaginaFinanceiro: React.FC<PaginaFinanceiroProps> = ({ onNavigateTo
   // Controle do Modal de Novo Lançamento
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [preselectedClienteId, setPreselectedClienteId] = useState<string | undefined>(undefined);
-
 
   // Estado interativo do gráfico (Mês selecionado/hovered no SVG)
   const [hoveredMonth, setHoveredMonth] = useState<number | null>(null);
@@ -79,11 +85,9 @@ export const PaginaFinanceiro: React.FC<PaginaFinanceiroProps> = ({ onNavigateTo
 
 
   // Carregar Clientes e Lançamentos
-  const fetchAllData = async () => {
+  // Carregar metadados (Clientes e Processos)
+  const fetchMetadata = async () => {
     try {
-      setLoading(true);
-      setError(null);
-
       // 1. Carregar Clientes do Supabase
       const { data: clientsData, error: clientErr } = await supabase
         .from("clientes")
@@ -91,8 +95,7 @@ export const PaginaFinanceiro: React.FC<PaginaFinanceiroProps> = ({ onNavigateTo
         .order("nome", { ascending: true });
 
       if (clientErr) throw clientErr;
-      const formattedClients = clientsData || [];
-      setClientes(formattedClients);
+      setClientes(clientsData || []);
 
       // 2. Carregar todos os Processos vinculados para o filtro reativo
       const { data: procData, error: procErr } = await supabase
@@ -114,8 +117,21 @@ export const PaginaFinanceiro: React.FC<PaginaFinanceiroProps> = ({ onNavigateTo
         });
       });
       setProcessosMap(pMap);
+    } catch (err: any) {
+      console.error("Erro ao carregar metadados:", err.message);
+    }
+  };
 
-      // 3. Carregar lançamentos financeiros unificados
+  const loadFinanceiro = async (currentOffset: number, append: boolean = false) => {
+    try {
+      if (!append) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+      setError(null);
+
+      // 3. Carregar lançamentos financeiros unificados com limite de 50
       const { data: finData, error: finErr } = await supabase
         .from("financeiro")
         .select(`
@@ -130,11 +146,12 @@ export const PaginaFinanceiro: React.FC<PaginaFinanceiroProps> = ({ onNavigateTo
           clientes ( id, nome, whatsapp, email ),
           processos ( id, numero_processo, titulo, status )
         `)
-        .order("data_vencimento", { ascending: false });
+        .order("data_vencimento", { ascending: false })
+        .range(currentOffset, currentOffset + limit - 1);
 
       if (finErr) throw finErr;
 
-      const list: LancamentoGeral[] = (finData || []).map((item: any) => {
+      const mapped: LancamentoGeral[] = (finData || []).map((item: any) => {
         const clientesObj = Array.isArray(item.clientes) ? item.clientes[0] : item.clientes;
         const processosObj = Array.isArray(item.processos) ? item.processos[0] : item.processos;
         return {
@@ -145,17 +162,40 @@ export const PaginaFinanceiro: React.FC<PaginaFinanceiroProps> = ({ onNavigateTo
         };
       });
 
-      setLancamentos(list);
+      if (append) {
+        setLancamentos(prev => [...prev, ...mapped]);
+      } else {
+        setLancamentos(mapped);
+      }
+
+      if (mapped.length < limit) {
+        setHasMore(false);
+      } else {
+        setHasMore(true);
+      }
     } catch (err: any) {
       console.error("Erro ao sincronizar ecossistema financeiro:", err.message);
       setError("Falha ao sincronizar dados com o banco de dados. Exibindo demonstrativos em modo seguro.");
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
 
+  const refreshData = () => {
+    setOffset(0);
+    loadFinanceiro(0, false);
+  };
+
+  const handleLoadMore = () => {
+    const nextOffset = offset + limit;
+    setOffset(nextOffset);
+    loadFinanceiro(nextOffset, true);
+  };
+
   useEffect(() => {
-    fetchAllData();
+    fetchMetadata();
+    loadFinanceiro(0, false);
   }, []);
 
 
@@ -287,6 +327,7 @@ export const PaginaFinanceiro: React.FC<PaginaFinanceiroProps> = ({ onNavigateTo
   // Dar Baixa / Liquidar Fatura
   const handleLiquidado = async (id: string) => {
     try {
+      setActionLoading(prev => ({ ...prev, [id]: true }));
       const { error: updateErr } = await supabase
         .from("financeiro")
         .update({ status_pagamento: "pago" })
@@ -300,6 +341,8 @@ export const PaginaFinanceiro: React.FC<PaginaFinanceiroProps> = ({ onNavigateTo
       );
     } catch (err: any) {
       alert("Erro ao liquidar lançamento: " + err.message);
+    } finally {
+      setActionLoading(prev => ({ ...prev, [id]: false }));
     }
   };
 
@@ -307,6 +350,7 @@ export const PaginaFinanceiro: React.FC<PaginaFinanceiroProps> = ({ onNavigateTo
   const handleExcluir = async (id: string) => {
     if (!window.confirm("Deseja realmente remover este lançamento financeiro permanentemente?")) return;
     try {
+      setActionLoading(prev => ({ ...prev, [id]: true }));
       const { error: deleteErr } = await supabase
         .from("financeiro")
         .delete()
@@ -317,6 +361,7 @@ export const PaginaFinanceiro: React.FC<PaginaFinanceiroProps> = ({ onNavigateTo
       setLancamentos(prev => prev.filter(item => item.id !== id));
     } catch (err: any) {
       alert("Erro ao deletar transação: " + err.message);
+      setActionLoading(prev => ({ ...prev, [id]: false }));
     }
   };
 
@@ -903,20 +948,30 @@ export const PaginaFinanceiro: React.FC<PaginaFinanceiroProps> = ({ onNavigateTo
                             {item.status_pagamento.toLowerCase() !== "pago" && (
                               <button
                                 onClick={() => handleLiquidado(item.id)}
+                                disabled={actionLoading[item.id]}
                                 type="button"
-                                className="text-xs text-emerald-400 hover:text-emerald-300 font-bold bg-emerald-500/5 hover:bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20"
+                                className={`text-xs font-bold px-2.5 py-1.5 rounded-lg border transition-all ${
+                                  actionLoading[item.id]
+                                    ? "bg-slate-800 text-slate-500 border-slate-700 cursor-not-allowed"
+                                    : "text-emerald-400 hover:text-emerald-300 bg-emerald-500/5 hover:bg-emerald-500/10 border-emerald-500/20 cursor-pointer"
+                                }`}
                                 title="Liquidar Fatura"
                               >
-                                ✓ Recebido
+                                {actionLoading[item.id] ? "Processando..." : "✓ Recebido"}
                               </button>
                             )}
                             <button
                               onClick={() => handleExcluir(item.id)}
+                              disabled={actionLoading[item.id]}
                               type="button"
-                              className="text-xs text-red-500 hover:text-red-400 font-bold ml-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                              className={`text-xs font-bold ml-1 transition-opacity ${
+                                actionLoading[item.id]
+                                  ? "text-slate-600 cursor-not-allowed opacity-50"
+                                  : "text-red-500 hover:text-red-400 opacity-0 group-hover:opacity-100 cursor-pointer"
+                              }`}
                               title="Remover Transação"
                             >
-                              ✕
+                              {actionLoading[item.id] ? "..." : "✕"}
                             </button>
                           </div>
                         </td>
@@ -924,6 +979,29 @@ export const PaginaFinanceiro: React.FC<PaginaFinanceiroProps> = ({ onNavigateTo
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+
+            {/* Botão Carregar Mais */}
+            {hasMore && !loading && (
+              <div className="text-center mt-6 pb-2">
+                <button
+                  type="button"
+                  onClick={handleLoadMore}
+                  disabled={loadingMore}
+                  className="inline-flex items-center gap-2 bg-[#0a192f] hover:bg-[#0f2444] text-[#d4af37] border border-[#d4af37]/60 hover:border-[#d4af37] px-5 py-2.5 rounded-xl text-xs font-extrabold tracking-wide transition-all shadow-lg hover:shadow-[#d4af37]/5 cursor-pointer disabled:opacity-50"
+                >
+                  {loadingMore ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-slate-800 border-t-[#d4af37] rounded-full animate-spin"></div>
+                      <span>Carregando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>🔄 Carregar mais lançamentos...</span>
+                    </>
+                  )}
+                </button>
               </div>
             )}
           </div>
@@ -937,7 +1015,7 @@ export const PaginaFinanceiro: React.FC<PaginaFinanceiroProps> = ({ onNavigateTo
             setIsModalOpen(false);
             setPreselectedClienteId(undefined);
           }}
-          onSuccess={fetchAllData}
+          onSuccess={refreshData}
         />
       )}
 
