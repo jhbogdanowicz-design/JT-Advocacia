@@ -428,15 +428,11 @@ export const EditarPerfil: React.FC = () => {
                   Assinatura Institucional Digital
                 </h3>
                 <p className="text-[11px] text-slate-400 font-light leading-relaxed">
-                  Desenhe sua assinatura no quadro abaixo de forma fluida ou faça upload de um arquivo de imagem pronto (PNG/JPEG) para validação e injeção automática em contratos.
-                </p>
-              </div>
-
-              {/* Grid 2 Colunas: Desenho à Esquerda | Preview/Upload à Direita */}
+                      {/* Grid 2 Colunas: Desenho & Importação à Esquerda | Preview/Status à Direita */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
-                {/* Lado Esquerdo: Canvas para desenhar */}
-                <div className="flex flex-col gap-2.5">
+                {/* Lado Esquerdo: Canvas para desenhar & Upload de arquivo diretamente abaixo */}
+                <div className="flex flex-col gap-3">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                     ✏️ Desenhar Rubrica
                   </span>
@@ -465,60 +461,56 @@ export const EditarPerfil: React.FC = () => {
                       </button>
                     )}
                   </div>
-                </div>
 
-                {/* Lado Direito: Preview & Upload */}
-                <div className="flex flex-col justify-between gap-4">
-                  
-                  {/* Upload */}
-                  <div className="flex flex-col gap-2">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                      📤 OU IMPORTE UM ARQUIVO
+                  {/* Input de Importação de Assinatura (Upload) diretamente abaixo do Canvas */}
+                  <div className="flex flex-col gap-1.5">
+                    <span className="text-[9.5px] font-bold text-slate-400 uppercase tracking-wider">
+                      📤 Ou selecione uma imagem pronta
                     </span>
-                    
-                    <label className="flex flex-col items-center justify-center h-[90px] border border-dashed border-[#1E293B] bg-[#070A13] hover:bg-[#0d1627] hover:border-[#D4AF37]/50 rounded-xl cursor-pointer transition-all select-none">
-                      <div className="flex flex-col items-center justify-center text-center px-4 py-3 space-y-1">
-                        <span className="text-lg">📁</span>
-                        <span className="text-[10px] font-semibold text-slate-300">Escolha uma imagem pronta</span>
-                        <span className="text-[8.5px] text-slate-500 font-light">Formatos recomendados: PNG ou JPEG</span>
-                      </div>
+                    <div className="relative">
                       <input
                         type="file"
                         accept="image/*"
                         onChange={handleFileUpload}
-                        className="hidden"
+                        className="block w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#D4AF37]/10 file:text-[#D4AF37] hover:file:bg-[#D4AF37]/20 file:cursor-pointer cursor-pointer bg-[#070A13]/50 border border-[#1E293B] rounded-lg p-1 transition-all hover:border-[#D4AF37]/30"
                       />
-                    </label>
+                    </div>
                   </div>
+                </div>
+ 
+                {/* Lado Direito: Preview & Status */}
+                <div className="flex flex-col justify-end gap-4 pb-1">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    👁️ Preview da Assinatura Digital
+                  </span>
 
                   {/* Preview & Status */}
                   {signatureUrl ? (
-                    <div className="bg-[#10B981]/5 border border-[#10B981]/25 rounded-xl p-3 flex items-center justify-between gap-3 animate-fadeIn">
+                    <div className="bg-[#10B981]/5 border border-[#10B981]/25 rounded-xl p-4 flex items-center justify-between gap-3 animate-fadeIn h-[130px]">
                       <div className="flex flex-col gap-1">
                         <span className="text-[9px] font-extrabold text-[#10B981] uppercase tracking-wider flex items-center gap-1">
-                          ● Assinatura Digital Ativa
+                          ● Assinatura Ativa
                         </span>
-                        <span className="text-[8.5px] text-slate-400 font-light">Pronta para assinatura nos contratos</span>
+                        <span className="text-[8.5px] text-slate-400 font-light">Será estampada digitalmente nos contratos assinados.</span>
                       </div>
                       
                       {/* Miniatura renderizada com Base64 */}
-                      <div className="bg-white p-1 rounded border border-slate-200 shadow-sm max-h-[50px] max-w-[120px] flex items-center justify-center overflow-hidden">
+                      <div className="bg-white p-2 rounded-lg border border-slate-200 shadow-md max-h-[80px] max-w-[150px] flex items-center justify-center overflow-hidden">
                         <img
                           src={signatureUrl}
                           alt="Rubrica Digital Preview"
-                          className="max-h-[40px] max-w-[110px] object-contain"
+                          className="max-h-[64px] max-w-[130px] object-contain"
                         />
                       </div>
                     </div>
                   ) : (
-                    <div className="bg-[#1E293B]/20 border border-[#1E293B]/40 rounded-xl p-3 flex items-center justify-center text-center">
-                      <span className="text-[9.5px] text-slate-500 font-light italic">
-                        Nenhuma rubrica digital cadastrada.
+                    <div className="bg-[#1E293B]/20 border border-[#1E293B]/40 rounded-xl p-4 flex items-center justify-center text-center h-[130px] border-dashed">
+                      <span className="text-xs text-slate-500 font-light italic">
+                        Nenhuma rubrica ou assinatura institucional carregada.
                       </span>
                     </div>
                   )}
                 </div>
-
               </div>
             </div>
 
