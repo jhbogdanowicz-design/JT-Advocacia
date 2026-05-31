@@ -16,6 +16,132 @@ export interface AdvogadoProfile {
   assinatura_digital_url?: string;
 }
 
+interface ComponenteAssinaturaOtimizadoProps {
+  initialSignatureUrl?: string;
+  onSignatureSave: (base64: string) => void;
+  onClear?: () => void;
+}
+
+export function ComponenteAssinaturaOtimizado({ 
+  initialSignatureUrl,
+  onSignatureSave,
+  onClear
+}: ComponenteAssinaturaOtimizadoProps) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const isDrawing = useRef(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(initialSignatureUrl || null);
+
+  useEffect(() => {
+    if (initialSignatureUrl) {
+      setPreviewUrl(initialSignatureUrl);
+    }
+  }, [initialSignatureUrl]);
+
+  const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    isDrawing.current = true;
+    const rect = canvas.getBoundingClientRect();
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    
+    ctx.beginPath();
+    ctx.moveTo(clientX - rect.left, clientY - rect.top);
+  };
+
+  const draw = (e: React.MouseEvent | React.TouchEvent) => {
+    if (!isDrawing.current) return;
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext('2d');
+    if (!canvas || !ctx) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+
+    ctx.lineTo(clientX - rect.left, clientY - rect.top);
+    ctx.strokeStyle = '#D4AF37'; // Usando o dourado institucional da marca
+    ctx.lineWidth = 3;
+    ctx.stroke();
+  };
+
+  const stopDrawing = () => {
+    if (!isDrawing.current) return;
+    isDrawing.current = false;
+    const base64 = canvasRef.current?.toDataURL('image/png');
+    if (base64) {
+      setPreviewUrl(base64);
+      onSignatureSave(base64);
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        setPreviewUrl(base64);
+        onSignatureSave(base64);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const clearCanvas = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext('2d');
+    if (canvas && ctx) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      setPreviewUrl(null);
+      if (onClear) onClear();
+    }
+  };
+
+  return (
+    <div className="border border-slate-800 p-4 rounded-lg bg-slate-900 mt-4 w-full">
+      <label className="block text-xs font-bold text-slate-300 uppercase mb-2">
+        Assinatura Digital OAB
+      </label>
+      
+      <canvas
+        ref={canvasRef}
+        onMouseDown={startDrawing}
+        onMouseMove={draw}
+        onMouseUp={stopDrawing}
+        onMouseLeave={stopDrawing}
+        onTouchStart={startDrawing}
+        onTouchMove={draw}
+        onTouchEnd={stopDrawing}
+        className="w-full h-40 bg-[#070A13] border-2 border-dashed border-slate-700 rounded cursor-crosshair touch-none"
+        width={500}
+        height={160}
+      />
+
+      <div className="flex flex-wrap items-center justify-between gap-4 mt-3">
+        <button type="button" onClick={clearCanvas} className="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded text-xs font-bold uppercase transition-all">
+          Limpar Quadro
+        </button>
+
+        <label className="bg-[#D4AF37] hover:bg-[#F3E5AB] text-[#070A13] px-4 py-2 rounded text-xs font-bold uppercase cursor-pointer border-b border-[#D4AF37] transition-all">
+          📥 Importar Assinatura (PNG/JPG)
+          <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
+        </label>
+      </div>
+
+      {previewUrl && (
+        <div className="mt-4 p-2 bg-emerald-950/30 border border-emerald-800 rounded">
+          <p className="text-[10px] font-bold text-emerald-400 uppercase">✓ Assinatura Pronta:</p>
+          <img src={previewUrl} alt="Preview" className="h-12 object-contain mt-1 bg-white p-1 rounded border border-slate-200" />
+        </div>
+      )}
+    </div>
+  );
+}
+
 export const EditarPerfil: React.FC = () => {
   // Estado dos dados do perfil
   const [profile, setProfile] = useState<AdvogadoProfile>({
@@ -32,14 +158,8 @@ export const EditarPerfil: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
-  // ── Otimizações do Canvas & Assinatura (Refs & State) ──────────────────────────
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const isDrawingRef = useRef<boolean>(false);
-  const lastPosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
-  
   // Estado reativo apenas para visualização/salvamento Base64
   const [signatureUrl, setSignatureUrl] = useState<string>("");
-  const [hasCaptured, setHasCaptured] = useState<boolean>(false);
 
   // Efeito para carregar dados do usuário autenticado no início
   useEffect(() => {
@@ -76,7 +196,6 @@ export const EditarPerfil: React.FC = () => {
 
         if (loadedSignature) {
           setSignatureUrl(loadedSignature);
-          setHasCaptured(true);
         }
       } catch (err: any) {
         showToast(err.message || "Erro ao carregar dados do perfil.", "error");
@@ -111,156 +230,6 @@ export const EditarPerfil: React.FC = () => {
     setProfile({ ...profile, telefone: v });
   };
 
-  // ── Handlers Otimizados do HTML5 Canvas (Bypass State lag) ──────────────────────────
-  
-  const initCanvas = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    // Ajusta a largura fisicamente ao wrapper parent
-    canvas.width = canvas.parentElement?.clientWidth || 450;
-    canvas.height = 130;
-
-    // Configuração do traço
-    ctx.strokeStyle = "#D4AF37"; // Dourado Institucional
-    ctx.lineWidth = 3.5;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-  };
-
-  // Inicializa canvas quando o DOM carrega
-  useEffect(() => {
-    if (!loading) {
-      const timer = setTimeout(initCanvas, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [loading]);
-
-  // Redimensionamento sem perda
-  useEffect(() => {
-    const handleResize = () => {
-      if (!signatureUrl) {
-        initCanvas();
-      }
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [signatureUrl]);
-
-  // Capturar coordenadas com suporte a DPI
-  const getCoordinates = (e: React.MouseEvent | React.TouchEvent | MouseEvent | TouchEvent): { x: number; y: number } | null => {
-    const canvas = canvasRef.current;
-    if (!canvas) return null;
-    const rect = canvas.getBoundingClientRect();
-
-    let clientX = 0;
-    let clientY = 0;
-
-    if ("touches" in e) {
-      if (e.touches.length === 0) return null;
-      clientX = e.touches[0].clientX;
-      clientY = e.touches[0].clientY;
-    } else {
-      clientX = e.clientX;
-      clientY = e.clientY;
-    }
-
-    return {
-      x: clientX - rect.left,
-      y: clientY - rect.top
-    };
-  };
-
-  const handleStartDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    e.preventDefault();
-    const coords = getCoordinates(e);
-    if (!coords) return;
-
-    isDrawingRef.current = true;
-    lastPosRef.current = coords;
-
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    ctx.beginPath();
-    ctx.moveTo(coords.x, coords.y);
-  };
-
-  const handleDraw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    if (!isDrawingRef.current) return;
-    e.preventDefault();
-
-    const coords = getCoordinates(e);
-    if (!coords) return;
-
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    ctx.lineTo(coords.x, coords.y);
-    ctx.stroke();
-
-    lastPosRef.current = coords;
-  };
-
-  const handleEndDrawing = () => {
-    if (!isDrawingRef.current) return;
-    isDrawingRef.current = false;
-
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    // Atualiza base64 no término do desenho para lag zero
-    const dataUrl = canvas.toDataURL("image/png");
-    setSignatureUrl(dataUrl);
-    setHasCaptured(true);
-  };
-
-  const handleClearCanvas = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    setSignatureUrl("");
-    setHasCaptured(false);
-  };
-
-  // ── Importação de Assinatura Externa (Upload de Arquivo) ──────────────────────────
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      showToast("Por favor, selecione um arquivo de imagem válido (PNG ou JPEG).", "error");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const base64Str = event.target?.result as string;
-      if (base64Str) {
-        setSignatureUrl(base64Str);
-        setHasCaptured(true);
-        showToast("Assinatura importada com sucesso!", "success");
-
-        // Limpa o canvas para consistência visual
-        const canvas = canvasRef.current;
-        if (canvas) {
-          const ctx = canvas.getContext("2d");
-          ctx?.clearRect(0, 0, canvas.width, canvas.height);
-        }
-      }
-    };
-    reader.readAsDataURL(file);
-  };
 
   // Envio do formulário de atualização
   const handleSubmit = async (e: React.FormEvent) => {
@@ -422,97 +391,11 @@ export const EditarPerfil: React.FC = () => {
             </div>
 
             {/* 📝 SEÇÃO: ASSINATURA INSTITUCIONAL DIGITAL */}
-            <div className="border-t border-[#1E293B]/80 pt-6 space-y-4">
-              <div className="space-y-1">
-                <h3 className="text-sm font-playfair font-semibold tracking-wide text-slate-100">
-                  Assinatura Institucional Digital
-                </h3>
-                <p className="text-[11px] text-slate-400 font-light leading-relaxed">
-                      {/* Grid 2 Colunas: Desenho & Importação à Esquerda | Preview/Status à Direita */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
-                {/* Lado Esquerdo: Canvas para desenhar & Upload de arquivo diretamente abaixo */}
-                <div className="flex flex-col gap-3">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                    ✏️ Desenhar Rubrica
-                  </span>
-                  
-                  <div className="relative border border-dashed border-[#1E293B] bg-[#070A13] rounded-xl overflow-hidden shadow-inner group hover:border-[#D4AF37]/50 transition-colors">
-                    <canvas
-                      ref={canvasRef}
-                      onMouseDown={handleStartDrawing}
-                      onMouseMove={handleDraw}
-                      onMouseUp={handleEndDrawing}
-                      onMouseLeave={handleEndDrawing}
-                      onTouchStart={handleStartDrawing}
-                      onTouchMove={handleDraw}
-                      onTouchEnd={handleEndDrawing}
-                      className="w-full h-[130px] block cursor-crosshair bg-white/[0.02] dark:bg-[#070A13] select-none"
-                    />
-                    
-                    {/* Botão flutuante para Limpar */}
-                    {hasCaptured && (
-                      <button
-                        type="button"
-                        onClick={handleClearCanvas}
-                        className="absolute bottom-2.5 right-2.5 px-2.5 py-1 text-[9px] font-black uppercase bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded transition-all focus:outline-none cursor-pointer"
-                      >
-                        Limpar
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Input de Importação de Assinatura (Upload) diretamente abaixo do Canvas */}
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-[9.5px] font-bold text-slate-400 uppercase tracking-wider">
-                      📤 Ou selecione uma imagem pronta
-                    </span>
-                    <div className="relative">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleFileUpload}
-                        className="block w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#D4AF37]/10 file:text-[#D4AF37] hover:file:bg-[#D4AF37]/20 file:cursor-pointer cursor-pointer bg-[#070A13]/50 border border-[#1E293B] rounded-lg p-1 transition-all hover:border-[#D4AF37]/30"
-                      />
-                    </div>
-                  </div>
-                </div>
- 
-                {/* Lado Direito: Preview & Status */}
-                <div className="flex flex-col justify-end gap-4 pb-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                    👁️ Preview da Assinatura Digital
-                  </span>
-
-                  {/* Preview & Status */}
-                  {signatureUrl ? (
-                    <div className="bg-[#10B981]/5 border border-[#10B981]/25 rounded-xl p-4 flex items-center justify-between gap-3 animate-fadeIn h-[130px]">
-                      <div className="flex flex-col gap-1">
-                        <span className="text-[9px] font-extrabold text-[#10B981] uppercase tracking-wider flex items-center gap-1">
-                          ● Assinatura Ativa
-                        </span>
-                        <span className="text-[8.5px] text-slate-400 font-light">Será estampada digitalmente nos contratos assinados.</span>
-                      </div>
-                      
-                      {/* Miniatura renderizada com Base64 */}
-                      <div className="bg-white p-2 rounded-lg border border-slate-200 shadow-md max-h-[80px] max-w-[150px] flex items-center justify-center overflow-hidden">
-                        <img
-                          src={signatureUrl}
-                          alt="Rubrica Digital Preview"
-                          className="max-h-[64px] max-w-[130px] object-contain"
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="bg-[#1E293B]/20 border border-[#1E293B]/40 rounded-xl p-4 flex items-center justify-center text-center h-[130px] border-dashed">
-                      <span className="text-xs text-slate-500 font-light italic">
-                        Nenhuma rubrica ou assinatura institucional carregada.
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+            <ComponenteAssinaturaOtimizado
+              initialSignatureUrl={signatureUrl}
+              onSignatureSave={(base64) => setSignatureUrl(base64)}
+              onClear={() => setSignatureUrl("")}
+            />
 
             {/* Buttons */}
             <div className="pt-2 flex justify-end gap-3 border-t border-[#1E293B]/60">
