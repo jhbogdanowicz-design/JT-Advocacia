@@ -2257,8 +2257,12 @@
               <button type="button" id="btn-lawyer-signature-redraw" style="background: none; border: none; color: var(--gold); font-size: 11px; font-weight: bold; cursor: pointer; text-decoration: underline;">Alterar Assinatura</button>
             </div>
           </div>
-          <div style="display: flex; gap: 8px;">
-            <button type="button" id="btn-lawyer-signature-clear" style="background: var(--input-bg); border: 1px solid var(--panel-border); color: var(--text-primary); font-size: 11px; font-weight: 700; text-transform: uppercase; border-radius: 8px; cursor: pointer; padding: 6px 12px;">Limpar Quadro</button>
+          <div style="display: flex; gap: 8px; align-items: center; justify-content: space-between; width: 100%;">
+            <button type="button" id="btn-lawyer-signature-clear" style="background: var(--input-bg); border: 1px solid var(--panel-border); color: var(--text-primary); font-size: 11px; font-weight: 700; text-transform: uppercase; border-radius: 8px; cursor: pointer; padding: 6px 12px; height: 32px;">Limpar Quadro</button>
+            <label class="bg-[#0f1e36] text-white hover:bg-slate-800 px-3 py-1.5 rounded text-[10px] font-bold uppercase cursor-pointer border-b-2 border-[#d4af37] transition-all flex items-center gap-1.5" style="margin-bottom: 0;">
+              📥 Importar Assinatura (PNG/JPG)
+              <input type="file" id="lawyer-signature-upload" accept="image/*" style="display: none;" />
+            </label>
           </div>
         </div>
         

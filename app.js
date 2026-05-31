@@ -298,6 +298,8 @@ const lawyerSignaturePreviewContainer = document.getElementById("lawyer-signatur
 const lawyerSignaturePreviewImg = document.getElementById("lawyer-signature-preview-img");
 let lawyerSignatureIsDrawing = false;
 let lawyerSignatureHasDrawing = false;
+const lawyerSignatureUpload = document.getElementById("lawyer-signature-upload");
+let uploadedSignatureBase64 = null;
 
 // Novos Modais e Elementos de Edição
 const btnEditLawyerProfile = document.getElementById("btn-edit-lawyer-profile");
@@ -2624,9 +2626,11 @@ editLawyerForm.addEventListener("submit", async (e) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error("Sessão inválida.");
 
-    // 1. Verificar se a assinatura foi alterada e desenhada
+    // 1. Verificar se a assinatura foi alterada e desenhada ou carregada
     let lawyerSignatureDataUrl = null;
-    if (lawyerSignaturePreviewContainer && lawyerSignaturePreviewContainer.style.display === "none" && lawyerSignatureHasDrawing) {
+    if (uploadedSignatureBase64) {
+      lawyerSignatureDataUrl = uploadedSignatureBase64;
+    } else if (lawyerSignaturePreviewContainer && lawyerSignaturePreviewContainer.style.display === "none" && lawyerSignatureHasDrawing) {
       if (lawyerSignatureCanvas) {
         lawyerSignatureDataUrl = lawyerSignatureCanvas.toDataURL("image/png");
       }
@@ -2684,6 +2688,7 @@ function initLawyerSignatureCanvas() {
   if (!lawyerSignatureCanvas) return;
 
   const ctx = lawyerSignatureCanvas.getContext("2d");
+  let activeCanvasRect = null; // Cache do bounding rect para evitar reflow lag durante o desenho
   
   // Função para reconfigurar dimensões e estilos do canvas
   const setupCanvasSize = () => {
@@ -2707,7 +2712,7 @@ function initLawyerSignatureCanvas() {
   });
 
   const getCoords = (e) => {
-    const rect = lawyerSignatureCanvas.getBoundingClientRect();
+    const rect = activeCanvasRect || lawyerSignatureCanvas.getBoundingClientRect();
     let clientX, clientY;
     if (e.touches && e.touches.length > 0) {
       clientX = e.touches[0].clientX;
@@ -2726,6 +2731,7 @@ function initLawyerSignatureCanvas() {
     e.preventDefault();
     lawyerSignatureIsDrawing = true;
     lawyerSignatureHasDrawing = true;
+    activeCanvasRect = lawyerSignatureCanvas.getBoundingClientRect(); // Caching rect on click start!
     const coords = getCoords(e);
     if (ctx) {
       ctx.beginPath();
@@ -2745,6 +2751,7 @@ function initLawyerSignatureCanvas() {
 
   const endDraw = () => {
     lawyerSignatureIsDrawing = false;
+    activeCanvasRect = null; // Limpa o cache ao terminar
   };
 
   lawyerSignatureCanvas.addEventListener("mousedown", startDraw);
@@ -2756,10 +2763,36 @@ function initLawyerSignatureCanvas() {
   lawyerSignatureCanvas.addEventListener("touchmove", drawLine, { passive: false });
   lawyerSignatureCanvas.addEventListener("touchend", endDraw);
 
+  // Escuta o input de importação de arquivo
+  if (lawyerSignatureUpload) {
+    lawyerSignatureUpload.addEventListener("change", (e) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        if (!file.type.startsWith("image/")) {
+          alert("Por favor, selecione um arquivo de imagem válido (PNG ou JPEG).");
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const base64Str = event.target?.result;
+          if (base64Str) {
+            uploadedSignatureBase64 = base64Str;
+            lawyerSignatureHasDrawing = true;
+            if (lawyerSignaturePreviewImg) lawyerSignaturePreviewImg.src = base64Str;
+            if (lawyerSignaturePreviewContainer) lawyerSignaturePreviewContainer.style.display = "flex";
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
   if (btnLawyerSignatureClear) {
     btnLawyerSignatureClear.addEventListener("click", () => {
       if (ctx) ctx.clearRect(0, 0, lawyerSignatureCanvas.width, lawyerSignatureCanvas.height);
       lawyerSignatureHasDrawing = false;
+      uploadedSignatureBase64 = null; // Reseta arquivo carregado
+      if (lawyerSignatureUpload) lawyerSignatureUpload.value = ""; // Reseta input
     });
   }
 
@@ -2768,6 +2801,8 @@ function initLawyerSignatureCanvas() {
       if (lawyerSignaturePreviewContainer) lawyerSignaturePreviewContainer.style.display = "none";
       setTimeout(setupCanvasSize, 50);
       lawyerSignatureHasDrawing = false;
+      uploadedSignatureBase64 = null; // Reseta arquivo carregado
+      if (lawyerSignatureUpload) lawyerSignatureUpload.value = ""; // Reseta input
     });
   }
 }
