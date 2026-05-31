@@ -5159,14 +5159,7 @@ const btnCloseModalEditar = document.getElementById("btn-close-modal-editar-proc
 const btnCancelarEditar = document.getElementById("btn-cancelar-editar-processo");
 const btnSalvarEditar = document.getElementById("btn-salvar-editar-processo");
 
-// Form inputs
-const editProcTitulo = document.getElementById("edit-proc-titulo");
-const editProcNumero = document.getElementById("edit-proc-numero");
-const editProcValor = document.getElementById("edit-proc-valor");
-const editProcArea = document.getElementById("edit-proc-area");
-const editProcStatus = document.getElementById("edit-proc-status");
-const editProcTribunal = document.getElementById("edit-proc-tribunal");
-const editProcVara = document.getElementById("edit-proc-vara");
+// Form inputs (using the global declarations from line 317)
 const editProcFatos = document.getElementById("edit-proc-fatos");
 
 // Function to open the edit modal
