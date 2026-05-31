@@ -42,7 +42,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     },
     {
       id: "clientes",
-      label: "Clientes",
+      label: "Prontuário de Clientes",
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"

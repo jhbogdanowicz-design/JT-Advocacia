@@ -206,6 +206,30 @@ const finDataVencimento = document.getElementById("fin-data-vencimento");
 const finLancamentosEmpty = document.getElementById("fin-lancamentos-empty");
 const finLancamentosList = document.getElementById("fin-lancamentos-list");
 
+// Módulo Financeiro Unificado (Modal Geral)
+const btnModalLancarTransacao = document.getElementById("btn-modal-lancar-transacao");
+const btnModalLancarTransacaoClient = document.getElementById("btn-modal-lancar-transacao-client");
+const modalLancamentoFinanceiro = document.getElementById("modal-lancamento-financeiro");
+const formModalLancamentoFinanceiro = document.getElementById("form-modal-lancamento-financeiro");
+const btnCloseModalFinanceiro = document.getElementById("btn-close-modal-financeiro");
+const btnCancelarFinanceiro = document.getElementById("btn-cancelar-financeiro");
+
+const finModalClienteId = document.getElementById("fin-modal-cliente-id");
+const finModalProcessoId = document.getElementById("fin-modal-processo-id");
+const finModalCategoria = document.getElementById("fin-modal-categoria");
+const finModalGrupoTipoHonorario = document.getElementById("fin-modal-grupo-tipo-honorario");
+const finModalTipoHonorario = document.getElementById("fin-modal-tipo-honorario");
+const finModalGrupoIndenizacao = document.getElementById("fin-modal-grupo-indenizacao");
+const finModalValorBruto = document.getElementById("fin-modal-valor-bruto");
+const finModalTaxaBanca = document.getElementById("fin-modal-taxa-banca");
+const finModalCotaEscritorio = document.getElementById("fin-modal-cota-escritorio");
+const finModalCotaCliente = document.getElementById("fin-modal-cota-cliente");
+const finModalGrupoValorPadrao = document.getElementById("fin-modal-grupo-valor-padrao");
+const finModalValor = document.getElementById("fin-modal-valor");
+const finModalVencimento = document.getElementById("fin-modal-vencimento");
+const finModalStatus = document.getElementById("fin-modal-status");
+
+
 // Elementos do Gráfico Financeiro no Dashboard
 const financialOverdueAlert = document.getElementById("financial-overdue-alert");
 const btnVerFinanceiroAtrasado = document.getElementById("btn-ver-financeiro-atrasado");
@@ -3827,6 +3851,257 @@ if (formLancarHonorario) {
   });
 }
 
+// =========================================================================
+// MÓDULO FINANCEIRO UNIFICADO - MODAL DE LANÇAMENTO
+// =========================================================================
+
+// Função para abrir o Modal Financeiro
+async function openModalLancamentoFinanceiro() {
+  if (!modalLancamentoFinanceiro) return;
+  
+  // Limpa formulário
+  formModalLancamentoFinanceiro.reset();
+  
+  // Ocultar blocos especiais
+  finModalGrupoIndenizacao.style.display = "none";
+  finModalGrupoTipoHonorario.style.display = "block";
+  finModalGrupoValorPadrao.style.display = "block";
+  finModalValor.required = true;
+  finModalValorBruto.required = false;
+  
+  // Resetar Box Matemático
+  finModalCotaEscritorio.innerText = "R$ 0,00";
+  finModalCotaCliente.innerText = "R$ 0,00";
+
+  // Preencher Select de Clientes
+  try {
+    finModalClienteId.innerHTML = '<option value="" disabled selected>Selecione o prontuário do cliente...</option>';
+    
+    const { data: clientsData, error: clientErr } = await supabase
+      .from("clientes")
+      .select("id, nome")
+      .order("nome", { ascending: true });
+
+    if (clientErr) throw clientErr;
+
+    (clientsData || []).forEach(c => {
+      const option = document.createElement("option");
+      option.value = c.id;
+      option.innerText = `👤 ${c.nome}`;
+      finModalClienteId.appendChild(option);
+    });
+
+    // Se o modal for aberto dentro da ficha de um cliente específico
+    if (activeClientId) {
+      finModalClienteId.value = activeClientId;
+      finModalClienteId.disabled = true; // Trava o cliente
+      await handleModalClienteChange(); // Carrega os processos
+    } else {
+      finModalClienteId.disabled = false; // Permite selecionar
+      finModalProcessoId.innerHTML = '<option value="">Geral (Sem vínculo a processo específico)</option>';
+    }
+
+    modalLancamentoFinanceiro.style.display = "flex";
+  } catch (err) {
+    console.error("Erro ao carregar clientes no modal financeiro:", err.message);
+    alert("Falha ao abrir central de lançamentos.");
+  }
+}
+
+// Fechar Modal
+function closeModalLancamentoFinanceiro() {
+  if (modalLancamentoFinanceiro) {
+    modalLancamentoFinanceiro.style.display = "none";
+  }
+}
+
+// Carregar Processos ao trocar Cliente no Modal
+async function handleModalClienteChange() {
+  const clienteId = finModalClienteId.value;
+  finModalProcessoId.innerHTML = '<option value="">Geral (Sem vínculo a processo específico)</option>';
+  
+  if (!clienteId) return;
+
+  try {
+    const { data: procsData, error: procErr } = await supabase
+      .from("processos")
+      .select("id, titulo, numero_processo, status")
+      .eq("cliente_id", clienteId);
+
+    if (procErr) throw procErr;
+
+    (procsData || []).forEach(p => {
+      const option = document.createElement("option");
+      option.value = p.id;
+      option.innerText = `📂 ${p.titulo} (${p.numero_processo || 'N/A'}) [${p.status || 'Ativo'}]`;
+      finModalProcessoId.appendChild(option);
+    });
+  } catch (err) {
+    console.error("Erro ao carregar processos no modal financeiro:", err.message);
+  }
+}
+
+// Recalcular Box Matemático de Retenção
+function recalculateModalRetention() {
+  const bruto = parseFloat(finModalValorBruto.value) || 0;
+  const taxa = parseFloat(finModalTaxaBanca.value) || 20;
+  const retencao = bruto * (taxa / 100);
+  const repasse = bruto - retencao;
+
+  finModalCotaEscritorio.innerText = retencao.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  finModalCotaCliente.innerText = repasse.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+// Escutadores de Eventos do Modal
+if (btnModalLancarTransacao) {
+  btnModalLancarTransacao.addEventListener("click", openModalLancamentoFinanceiro);
+}
+if (btnModalLancarTransacaoClient) {
+  btnModalLancarTransacaoClient.addEventListener("click", openModalLancamentoFinanceiro);
+}
+if (btnCloseModalFinanceiro) {
+  btnCloseModalFinanceiro.addEventListener("click", closeModalLancamentoFinanceiro);
+}
+if (btnCancelarFinanceiro) {
+  btnCancelarFinanceiro.addEventListener("click", closeModalLancamentoFinanceiro);
+}
+if (finModalClienteId) {
+  finModalClienteId.addEventListener("change", handleModalClienteChange);
+}
+
+// Fechamento de Backdrop Click
+if (modalLancamentoFinanceiro) {
+  modalLancamentoFinanceiro.addEventListener("click", (e) => {
+    if (e.target === modalLancamentoFinanceiro) {
+      closeModalLancamentoFinanceiro();
+    }
+  });
+}
+
+// Tratar Categoria Selecionada no Modal
+if (finModalCategoria) {
+  finModalCategoria.addEventListener("change", () => {
+    const val = finModalCategoria.value;
+    if (val === "honorario") {
+      finModalGrupoIndenizacao.style.display = "none";
+      finModalGrupoTipoHonorario.style.display = "block";
+      finModalGrupoValorPadrao.style.display = "block";
+      finModalValor.required = true;
+      finModalValorBruto.required = false;
+    } else if (val === "indenizacao") {
+      finModalGrupoIndenizacao.style.display = "block";
+      finModalGrupoTipoHonorario.style.display = "none";
+      finModalGrupoValorPadrao.style.display = "none";
+      finModalValor.required = false;
+      finModalValorBruto.required = true;
+      recalculateModalRetention();
+    } else { // Custas
+      finModalGrupoIndenizacao.style.display = "none";
+      finModalGrupoTipoHonorario.style.display = "none";
+      finModalGrupoValorPadrao.style.display = "block";
+      finModalValor.required = true;
+      finModalValorBruto.required = false;
+    }
+  });
+}
+
+// Alterações nos valores de condenação
+if (finModalValorBruto) {
+  finModalValorBruto.addEventListener("input", recalculateModalRetention);
+}
+if (finModalTaxaBanca) {
+  finModalTaxaBanca.addEventListener("input", recalculateModalRetention);
+}
+
+// Submeter o Lançamento Unificado do Modal
+if (formModalLancamentoFinanceiro) {
+  formModalLancamentoFinanceiro.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const clienteId = finModalClienteId.value;
+    const processoId = finModalProcessoId.value || null;
+    const categoria = finModalCategoria.value;
+    const vencimento = finModalVencimento.value;
+    const status = finModalStatus.value;
+
+    if (!clienteId) {
+      alert("Por favor, selecione o Prontuário do Cliente.");
+      return;
+    }
+    if (!vencimento) {
+      alert("Por favor, selecione a data de vencimento.");
+      return;
+    }
+
+    let valorFinal = 0;
+    let tipoFinal = "fixo";
+
+    if (categoria === "indenizacao") {
+      const bruto = parseFloat(finModalValorBruto.value) || 0;
+      const taxa = parseFloat(finModalTaxaBanca.value) || 20;
+      valorFinal = bruto * (taxa / 100);
+      tipoFinal = "êxito";
+      
+      if (valorFinal <= 0) {
+        alert("O valor bruto arbitrado deve ser maior que zero.");
+        return;
+      }
+    } else if (categoria === "honorario") {
+      valorFinal = parseFloat(finModalValor.value) || 0;
+      tipoFinal = finModalTipoHonorario.value;
+      
+      if (valorFinal <= 0) {
+        alert("O valor cobrado deve ser maior que zero.");
+        return;
+      }
+    } else { // Custas
+      valorFinal = parseFloat(finModalValor.value) || 0;
+      tipoFinal = "fixo";
+      
+      if (valorFinal <= 0) {
+        alert("O valor das custas deve ser maior que zero.");
+        return;
+      }
+    }
+
+    try {
+      setLoadingState(document.getElementById("btn-salvar-financeiro"), true, "Sincronizando...");
+
+      const { error: insertErr } = await supabase
+        .from("financeiro")
+        .insert({
+          cliente_id: clienteId,
+          processo_id: processoId,
+          valor_total: valorFinal,
+          tipo_honorario: tipoFinal.toLowerCase(),
+          status_pagamento: status,
+          data_vencimento: vencimento
+        });
+
+      if (insertErr) throw insertErr;
+
+      // Limpa formulário e fecha modal
+      formModalLancamentoFinanceiro.reset();
+      closeModalLancamentoFinanceiro();
+
+      // Recarrega todos os dashboards
+      if (activeClientId) {
+        loadClientFinancialData();
+      }
+      loadFinanceiroData();
+      loadDashboardData();
+      
+      alert("Lançamento patrimonial integrado com sucesso!");
+    } catch (err) {
+      console.error("Erro ao sincronizar lançamento financeiro:", err.message);
+      alert(`Erro ao sincronizar lançamento: ${err.message}`);
+    } finally {
+      setLoadingState(document.getElementById("btn-salvar-financeiro"), false, "Confirmar Lançamento");
+    }
+  });
+}
+
+
 // Manipulador para redirecionar para pendências a partir do banner de alertas
 if (btnVerFinanceiroAtrasado) {
   btnVerFinanceiroAtrasado.addEventListener("click", () => {
@@ -4126,7 +4401,7 @@ function resetAiAnalyzerPanel() {
   document.getElementById("processo-ai-input-valor").value = "";
   document.getElementById("processo-ai-input-tribunal").value = "";
   document.getElementById("processo-ai-input-vara").value = "";
-  document.getElementById("dropzone-text-main").innerText = "Arraste e solte o arquivo do processo (.txt)";
+  document.getElementById("dropzone-text-main").innerText = "Arraste e solte os autos do processo (.txt)";
   document.getElementById("dropzone-text-sub").innerText = "Ou clique aqui para selecionar do computador";
   parsedAiResult = null;
   populateAiClientsSelect();
@@ -4135,6 +4410,30 @@ function resetAiAnalyzerPanel() {
 // Chamada à API IA do Gemini
 if (btnAnalisarIa) {
   btnAnalisarIa.addEventListener("click", handleAnalisarProcessoIa);
+}
+
+// Ouvir mudança no motor selecionado para comportamento reativo na interface
+const selectMotor = document.getElementById("processo-ai-select-motor");
+if (selectMotor && btnAnalisarIa) {
+  selectMotor.addEventListener("change", () => {
+    const val = selectMotor.value;
+    if (val === "gemini") {
+      btnAnalisarIa.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search-code"><path d="M16 16a6 6 0 1 0-3-3"/><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><circle cx="17" cy="17" r="3"/><path d="m21 21-1.5-1.5"/></svg>
+        <span>Analisar com Google Gemini</span>
+      `;
+    } else if (val === "chatgpt") {
+      btnAnalisarIa.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cpu"><rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M9 1v3"/><path d="M15 1v3"/><path d="M9 20v3"/><path d="M15 20v3"/><path d="M20 9h3"/><path d="M20 15h3"/><path d="M1 9h3"/><path d="M1 15h3"/></svg>
+        <span>Analisar com OpenAI ChatGPT</span>
+      `;
+    } else if (val === "jusia") {
+      btnAnalisarIa.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-scale"><path d="m16 16 3-8 3 8c-.87.65-2.24 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-2.24 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h18"/></svg>
+        <span>Analisar com Jus IA</span>
+      `;
+    }
+  });
 }
 
 async function handleAnalisarProcessoIa() {
@@ -4154,11 +4453,22 @@ async function handleAnalisarProcessoIa() {
   resultContent.style.display = "none";
   loadingIndicator.style.display = "block";
 
+  const motor = selectMotor ? selectMotor.value : "gemini";
+  let motorNome = "Gemini";
+  let route = "/api/analisar-processo";
+  if (motor === "chatgpt") {
+    route = "/api/analisar-chatgpt";
+    motorNome = "ChatGPT";
+  } else if (motor === "jusia") {
+    route = "/api/analisar-jusia";
+    motorNome = "Jus IA";
+  }
+
   const loadingMessages = [
-    "Lendo arquivo do processo...",
-    "Consultando jurisprudência e fundamentos legais com Gemini...",
+    "Lendo os autos do processo...",
+    `Consultando jurisprudência e fundamentos legais com ${motorNome}...`,
     "Estruturando teses jurídicas robustas...",
-    "Esboçando a minuta inicial de petição com rigor técnico...",
+    `Estruturando o Parecer Técnico de Admissibilidade (${motorNome}) com rigor técnico...`,
     "Quase pronto! Organizando a análise jurídica analítica..."
   ];
   let msgIdx = 0;
@@ -4169,7 +4479,7 @@ async function handleAnalisarProcessoIa() {
   }, 2500);
 
   try {
-    const response = await fetch("/api/analisar-processo", {
+    const response = await fetch(route, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ textoDocumento: textContent })
@@ -4247,7 +4557,7 @@ if (btnCopyMinuta) {
     navigator.clipboard.writeText(textarea.value);
     btnCopyMinuta.innerText = "✓ Copiado!";
     setTimeout(() => {
-      btnCopyMinuta.innerText = "Copiar Minuta";
+      btnCopyMinuta.innerText = "Copiar Parecer Técnico (IA)";
     }, 2000);
   });
 }
@@ -4502,7 +4812,7 @@ function getAgendaStyle(tipo) {
   if (t.includes("audiência") || t.includes("audiencia")) {
     return {
       borderClass: "border-l-4 border-red-500",
-      bgClass: "rgba(239, 68, 68, 0.05)",
+      bgClass: "var(--input-bg)",
       hoverClass: "rgba(239, 68, 68, 0.1)",
       textClass: "#ef4444",
       badge: "🔴 Audiência"
@@ -4510,7 +4820,7 @@ function getAgendaStyle(tipo) {
   } else if (t.includes("prazo")) {
     return {
       borderClass: "border-l-4 border-[#d4af37]",
-      bgClass: "rgba(212, 175, 55, 0.05)",
+      bgClass: "var(--input-bg)",
       hoverClass: "rgba(212, 175, 55, 0.1)",
       textClass: "var(--gold)",
       badge: "⚜️ Prazo Processual"
@@ -4518,7 +4828,7 @@ function getAgendaStyle(tipo) {
   } else {
     return {
       borderClass: "border-l-4 border-blue-500",
-      bgClass: "rgba(59, 130, 246, 0.05)",
+      bgClass: "var(--input-bg)",
       hoverClass: "rgba(59, 130, 246, 0.1)",
       textClass: "#3b82f6",
       badge: "🔵 Reunião / Atendimento"
@@ -4563,12 +4873,12 @@ function renderCalendar() {
     
     let gridHtml = `
       <div style="min-width: 700px;">
-        <div style="display: grid; grid-template-columns: repeat(7, 1fr); border-b: 1px solid var(--panel-border); background: var(--navy);">
+        <div style="display: grid; grid-template-columns: repeat(7, 1fr); border-b: 1px solid var(--panel-border); background: var(--input-bg);">
           ${["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map(day => `
             <div style="padding: 10px 0; text-align: center; font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px;">${day}</div>
           `).join("")}
         </div>
-        <div style="display: grid; grid-template-columns: repeat(7, 1fr); grid-auto-rows: minmax(100px, auto);">
+        <div style="display: grid; grid-template-columns: repeat(7, 1fr); grid-auto-rows: minmax(100px, auto); background: var(--panel-border); gap: 1px;">
     `;
 
     // Dias do mês anterior
@@ -4611,7 +4921,7 @@ function renderCalendar() {
     agendaCalendarTitle.innerText = formatTitle.toUpperCase();
 
     let gridHtml = `
-      <div style="display: grid; grid-template-columns: repeat(7, 1fr); divide-x: 1px; background: var(--navy); min-width: 750px;">
+      <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--panel-border); min-width: 750px;">
     `;
 
     for (let i = 0; i < 7; i++) {
@@ -4625,13 +4935,13 @@ function renderCalendar() {
       });
 
       gridHtml += `
-        <div style="padding: 16px; min-height: 400px; border-right: 1px solid var(--panel-border); background: ${isToday ? "rgba(197, 168, 92, 0.03)" : "none"}; display: flex; flex-direction: column; gap: 12px;">
+        <div style="padding: 16px; min-height: 400px; background: ${isToday ? "var(--gold-light)" : "var(--input-bg)"}; display: flex; flex-direction: column; gap: 12px;">
           <div style="border-bottom: 1px solid var(--panel-border); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
             <div style="display: flex; flex-direction: column;">
               <span style="font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">${diaNome}</span>
               <span style="font-size: 14px; font-weight: 800; color: ${isToday ? "var(--gold)" : "var(--text-primary)"};">${day.getDate()} / ${day.getMonth()+1}</span>
             </div>
-            ${dayComps.length > 0 ? `<span style="font-size: 9px; font-weight: 700; background: var(--navy); border: 1px solid var(--panel-border); padding: 2px 6px; border-radius: 20px; color: var(--text-secondary);">${dayComps.length}</span>` : ""}
+            ${dayComps.length > 0 ? `<span style="font-size: 9px; font-weight: 700; background: var(--panel-bg); border: 1px solid var(--panel-border); padding: 2px 6px; border-radius: 20px; color: var(--text-secondary);">${dayComps.length}</span>` : ""}
           </div>
           <div style="display: flex; flex-direction: column; gap: 10px; overflow-y: auto; max-height: 350px;">
             ${dayComps.length === 0 ? `
@@ -4641,7 +4951,7 @@ function renderCalendar() {
               const isOnline = c.tipo === "Reunião Online" || (c.local_link && (c.local_link.includes("meet.google.com") || c.local_link.includes("teams.microsoft.com")));
               const dTime = new Date(c.data_hora).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
               return `
-                <div class="agenda-mini-card btn-edit-comp-trigger" data-id="${c.id}" style="padding: 10px; border-radius: 8px; border-left: 3px solid ${style.textClass}; background: ${style.bgClass}; border: 1px solid rgba(255,255,255,0.03); border-left-width: 3px; display: flex; flex-direction: column; gap: 6px; cursor: pointer; transition: all 0.2s;">
+                <div class="agenda-mini-card btn-edit-comp-trigger" data-id="${c.id}" style="padding: 10px; border-radius: 8px; border-left: 3px solid ${style.textClass}; background: var(--panel-bg); border: 1px solid var(--panel-border); border-left-width: 3px; display: flex; flex-direction: column; gap: 6px; cursor: pointer; transition: all 0.2s;">
                   <div style="display: flex; justify-content: space-between; font-size: 8px; font-weight: 700; color: var(--text-secondary);">
                     <span>⏱️ ${dTime}</span>
                     <span style="color: ${style.textClass};">${c.status}</span>
@@ -4670,15 +4980,15 @@ function renderCalendarCell(dayNum, isCurrentMonth, cellDate, commitmentsList, i
     return cDate.toDateString() === cellDate.toDateString();
   });
 
-  let cellStyle = `padding: 10px; border-right: 1px solid rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.03); display: flex; flex-direction: column; gap: 6px; min-height: 110px; position: relative;`;
-  if (!isCurrentMonth) cellStyle += ` background: rgba(0,0,0,0.2); opacity: 0.35;`;
-  if (isToday) cellStyle += ` background: rgba(197, 168, 92, 0.02);`;
+  let cellStyle = `padding: 10px; display: flex; flex-direction: column; gap: 6px; min-height: 110px; position: relative; background: var(--input-bg); color: var(--text-primary);`;
+  if (!isCurrentMonth) cellStyle += ` background: rgba(0,0,0,0.05); opacity: 0.5;`;
+  if (isToday) cellStyle += ` background: var(--gold-light);`;
 
   let cellHtml = `
     <div style="${cellStyle}">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <span style="font-size: 11px; font-weight: 700; font-family: 'Outfit'; color: ${isToday ? "var(--navy)" : "var(--text-secondary)"}; background: ${isToday ? "var(--gold)" : "none"}; padding: 2px 6px; border-radius: 4px;">${dayNum}</span>
-        ${dayComps.length > 0 ? `<span style="font-size: 8px; font-weight: 700; background: var(--navy); border: 1px solid var(--panel-border); color: var(--text-secondary); padding: 1px 4px; border-radius: 20px;">${dayComps.length}</span>` : ""}
+        ${dayComps.length > 0 ? `<span style="font-size: 8px; font-weight: 700; background: var(--panel-bg); border: 1px solid var(--panel-border); color: var(--text-secondary); padding: 1px 4px; border-radius: 20px;">${dayComps.length}</span>` : ""}
       </div>
       <div style="display: flex; flex-direction: column; gap: 4px; flex-grow: 1; overflow: hidden;">
   `;
@@ -4688,8 +4998,8 @@ function renderCalendarCell(dayNum, isCurrentMonth, cellDate, commitmentsList, i
     const dTime = new Date(c.data_hora).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
     const isOnline = c.tipo === "Reunião Online" || (c.local_link && (c.local_link.includes("meet.google.com") || c.local_link.includes("teams.microsoft.com")));
     cellHtml += `
-      <div class="btn-edit-comp-trigger" data-id="${c.id}" style="padding: 2px 6px; font-size: 9px; font-weight: 600; border-left: 2px solid ${style.textClass}; background: ${style.bgClass}; border-radius: 3px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s;" title="${c.titulo} - ${dTime}">
-        <span class="truncate" style="flex-grow: 1; text-align: left;">${isOnline ? "🎥 " : ""}${c.titulo}</span>
+      <div class="btn-edit-comp-trigger" data-id="${c.id}" style="padding: 2px 6px; font-size: 9px; font-weight: 600; border-left: 2px solid ${style.textClass}; background: var(--panel-bg); border: 1px solid var(--panel-border); border-left-width: 2px; border-radius: 3px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s;" title="${c.titulo} - ${dTime}">
+        <span class="truncate" style="flex-grow: 1; text-align: left; color: var(--text-primary);">${isOnline ? "🎥 " : ""}${c.titulo}</span>
         <span style="font-size: 7px; color: var(--text-secondary); font-family: monospace; margin-left: 4px; shrink-0;">${dTime}</span>
       </div>
     `;
@@ -4757,7 +5067,7 @@ function renderKanbanCard(c) {
   let actionHtml = "";
   if (c.status === "Agendado") {
     actionHtml = `
-      <div style="display: flex; gap: 10px; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.03);" class="kanban-card-actions">
+      <div style="display: flex; gap: 10px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--panel-border);" class="kanban-card-actions">
         <button type="button" class="btn-kanban-complete" data-id="${c.id}" style="background: none; border: none; color: #10b981; font-size: 10px; font-weight: 700; cursor: pointer; padding: 0;">✓ Cumprir</button>
         <button type="button" class="btn-kanban-cancel" data-id="${c.id}" style="background: none; border: none; color: #ef4444; font-size: 10px; font-weight: 700; cursor: pointer; padding: 0;">✕ Cancelar</button>
       </div>
@@ -4767,24 +5077,24 @@ function renderKanbanCard(c) {
   let joinLinkHtml = "";
   if (isOnline && c.local_link) {
     joinLinkHtml = `
-      <div style="margin-top: 6px; padding: 6px 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--panel-border); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
+      <div style="margin-top: 6px; padding: 6px 10px; background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
         <span style="color: var(--text-secondary); text-overflow: ellipsis; white-space: nowrap; overflow: hidden; max-width: 170px;" class="font-mono text-[10px]">🔗 ${c.local_link}</span>
         <a href="${c.local_link}" target="_blank" style="color: var(--gold); font-weight: 700; text-decoration: none; font-size: 10px;">Entrar ↗</a>
       </div>
     `;
   } else if (c.local_link) {
     joinLinkHtml = `
-      <div style="margin-top: 6px; padding: 6px 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--panel-border); border-radius: 6px; font-size: 10px; color: var(--text-secondary);" class="truncate">
+      <div style="margin-top: 6px; padding: 6px 10px; background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 6px; font-size: 10px; color: var(--text-secondary);" class="truncate">
         📍 Local: <strong style="color: var(--text-primary);">${c.local_link}</strong>
       </div>
     `;
   }
 
   return `
-    <div class="agenda-kanban-card btn-edit-comp-trigger" data-id="${c.id}" style="background: ${style.bgClass}; border-left: 4px solid ${style.textClass}; border: 1px solid rgba(255,255,255,0.03); border-left-width: 4px; padding: 16px; border-radius: 12px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; position: relative; transition: all 0.25s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.2)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
+    <div class="agenda-kanban-card btn-edit-comp-trigger" data-id="${c.id}" style="background: var(--input-bg); border-left: 4px solid ${style.textClass}; border: 1px solid var(--panel-border); border-left-width: 4px; padding: 16px; border-radius: 12px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; position: relative; transition: all 0.25s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-size: 8px; font-weight: 700; color: ${style.textClass}; text-transform: uppercase; background: rgba(255,255,255,0.02); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.04);">${style.badge}</span>
-        <span style="font-size: 9px; font-weight: 700; color: var(--text-secondary); background: var(--navy); border: 1px solid var(--panel-border); padding: 1px 6px; border-radius: 4px;">⏱️ ${dDate} às ${dTime}</span>
+        <span style="font-size: 8px; font-weight: 700; color: ${style.textClass}; text-transform: uppercase; background: var(--panel-bg); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--panel-border);">${style.badge}</span>
+        <span style="font-size: 9px; font-weight: 700; color: var(--text-secondary); background: var(--input-bg); border: 1px solid var(--panel-border); padding: 1px 6px; border-radius: 4px;">⏱️ ${dDate} às ${dTime}</span>
       </div>
       
       <h4 style="font-size: 13px; font-weight: 700; margin: 4px 0 0 0; color: var(--text-primary);">${isOnline ? "🎥 " : ""}${c.titulo}</h4>
@@ -5283,6 +5593,13 @@ function initFinanceiroFilters() {
   const btnVerFinanceiroAtrasado = document.getElementById("btn-ver-financeiro-atrasado");
   if (btnVerFinanceiroAtrasado) {
     btnVerFinanceiroAtrasado.addEventListener("click", () => {
+      switchPrivateView("financeiro");
+    });
+  }
+
+  const cardFinanceiroDashboard = document.getElementById("card-financeiro-dashboard");
+  if (cardFinanceiroDashboard) {
+    cardFinanceiroDashboard.addEventListener("click", () => {
       switchPrivateView("financeiro");
     });
   }

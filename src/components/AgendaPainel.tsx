@@ -169,22 +169,22 @@ export const AgendaPainel: React.FC = () => {
     if (t.includes("audiência") || t.includes("audiencia")) {
       return {
         borderClass: "border-l-4 border-red-500",
-        bgClass: "bg-red-50 hover:bg-red-100/50 border border-red-200 text-red-700",
-        textClass: "text-red-700",
+        bgClass: "bg-red-50 dark:bg-red-950/20 hover:bg-red-100/50 dark:hover:bg-red-900/30 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-300",
+        textClass: "text-red-700 dark:text-red-300",
         badge: "🔴 Audiência"
       };
     } else if (t.includes("prazo")) {
       return {
         borderClass: "border-l-4 border-[#d4af37]",
-        bgClass: "bg-amber-50 hover:bg-amber-100/50 border border-amber-200 text-amber-800",
-        textClass: "text-amber-800",
+        bgClass: "bg-amber-50 dark:bg-amber-950/20 hover:bg-amber-100/50 dark:hover:bg-amber-900/30 border border-amber-200 dark:border-amber-900/50 text-amber-800 dark:text-amber-300",
+        textClass: "text-amber-800 dark:text-amber-300",
         badge: "⚜️ Prazo Processual"
       };
     } else {
       return {
         borderClass: "border-l-4 border-blue-500",
-        bgClass: "bg-blue-50 hover:bg-blue-100/50 border border-blue-200 text-blue-700",
-        textClass: "text-blue-700",
+        bgClass: "bg-blue-50 dark:bg-blue-950/20 hover:bg-blue-100/50 dark:hover:bg-blue-900/30 border border-blue-200 dark:border-blue-900/50 text-blue-700 dark:text-blue-300",
+        textClass: "text-blue-700 dark:text-blue-300",
         badge: "🔵 Reunião / Atendimento"
       };
     }
@@ -342,31 +342,31 @@ export const AgendaPainel: React.FC = () => {
     return (
       <div 
         key={comp.id} 
-        className={`group bg-white border border-slate-200 rounded-xl p-4.5 space-y-3 shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5 relative overflow-hidden`}
+        className={`group bg-white dark:bg-[#0c1625] border border-slate-200 dark:border-slate-800 rounded-xl p-4.5 space-y-3 shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5 relative overflow-hidden`}
       >
-        <div className="absolute top-0 right-0 w-24 h-24 bg-slate-50 rounded-full blur-xl pointer-events-none"></div>
+        <div className="absolute top-0 right-0 w-24 h-24 bg-slate-50 dark:bg-slate-900 rounded-full blur-xl pointer-events-none"></div>
         
         {/* Header do Card */}
         <div className="flex justify-between items-start">
-          <span className={`text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 uppercase tracking-wider ${estilo.textClass}`}>
+          <span className={`text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 uppercase tracking-wider ${estilo.textClass}`}>
             {estilo.badge}
           </span>
-          <span className="text-[10px] text-slate-500 font-semibold bg-slate-50 px-1.5 py-0.5 rounded">
+          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded">
             ⏱️ {formatarHora(comp.data_hora)}
           </span>
         </div>
 
         {/* Titulo */}
-        <h4 className="text-sm font-semibold text-[#0f1e36] group-hover:text-[#d4af37] transition-colors leading-snug flex items-center gap-1.5">
+        <h4 className="text-sm font-semibold text-[#0f1e36] dark:text-slate-100 group-hover:text-[#d4af37] transition-colors leading-snug flex items-center gap-1.5">
           {isOnline && <span title="Reunião Virtual Ativa">🎥</span>}
           {comp.titulo}
         </h4>
 
         {/* Localização / Link */}
         {comp.tipo !== "Prazo Processual" && comp.local_link && (
-          <div className="text-xs text-slate-600 bg-slate-50 rounded px-2.5 py-1.5 flex items-center justify-between gap-2 border border-slate-100">
+          <div className="text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 rounded px-2.5 py-1.5 flex items-center justify-between gap-2 border border-slate-100 dark:border-slate-800">
             <span className="truncate flex items-center gap-1 font-mono text-[11px]">
-              {isOnline ? "🔗 Link:" : "📍 Local:"} <strong className="text-slate-800 ml-1">{comp.local_link}</strong>
+              {isOnline ? "🔗 Link:" : "📍 Local:"} <strong className="text-slate-800 dark:text-slate-200 ml-1">{comp.local_link}</strong>
             </span>
             {isOnline && (
               <a 
@@ -382,23 +382,23 @@ export const AgendaPainel: React.FC = () => {
         )}
 
         {/* Informações Unidas de Processos/Clientes */}
-        <div className="pt-2 border-t border-slate-100 flex flex-col gap-1.5 text-[11px] text-slate-500">
+        <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
           {comp.clientes && (
             <div className="flex items-center gap-1">
               <span>👤 Cliente:</span>
-              <span className="text-slate-700 font-medium truncate">{comp.clientes.nome}</span>
+              <span className="text-slate-700 dark:text-slate-300 font-medium truncate">{comp.clientes.nome}</span>
             </div>
           )}
           {comp.processos && (
             <div className="flex items-center gap-1">
               <span>⚖️ Proc:</span>
-              <span className="text-slate-700 font-mono text-[10px] truncate">{comp.processos.numero_processo}</span>
+              <span className="text-slate-700 dark:text-slate-300 font-mono text-[10px] truncate">{comp.processos.numero_processo}</span>
             </div>
           )}
         </div>
 
         {/* Ações Rápidas */}
-        <div className="pt-3 border-t border-slate-100 flex justify-between items-center text-[10px] opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-[10px] opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <div className="flex gap-2">
             {comp.status === "Agendado" && (
               <button 
@@ -428,18 +428,18 @@ export const AgendaPainel: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 p-6 space-y-6">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#070a13] text-slate-800 dark:text-slate-100 p-6 space-y-6">
       
       {/* HEADER PRINCIPAL */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-[#0c1625] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
             <span className="text-2xl">📅</span>
-            <h1 className="font-playfair font-bold text-2xl tracking-wide text-[#0f1e36]">
+            <h1 className="font-playfair font-bold text-2xl tracking-wide text-[#0f1e36] dark:text-slate-100">
               Agenda & Prazos Judiciais
             </h1>
           </div>
-          <p className="text-xs text-slate-500 font-light">
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-light">
             Painel integrado de controle para a Dra. Janaina Tarabauca Advocacia.
           </p>
         </div>
@@ -450,7 +450,7 @@ export const AgendaPainel: React.FC = () => {
           <select 
             value={filtroTipo}
             onChange={(e) => setFiltroTipo(e.target.value)}
-            className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-600 focus:outline-none focus:border-[#d4af37] cursor-pointer"
+            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-600 dark:text-slate-300 focus:outline-none focus:border-[#d4af37] cursor-pointer"
           >
             <option value="todos">🔍 Todos Eventos</option>
             <option value="audiencia">🔴 Audiências</option>
@@ -459,13 +459,13 @@ export const AgendaPainel: React.FC = () => {
           </select>
 
           {/* Toggle Switch Visual (Calendário vs Status) */}
-          <div className="bg-slate-100 border border-slate-200 rounded-xl p-1 flex gap-1">
+          <div className="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-1 flex gap-1">
             <button
               onClick={() => setViewMode("calendar")}
               className={`px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 ${
                 viewMode === "calendar"
                   ? "bg-[#d4af37] text-white shadow-sm"
-                  : "text-slate-500 hover:text-slate-700"
+                  : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
               }`}
             >
               <span>📅</span> Calendário
@@ -475,7 +475,7 @@ export const AgendaPainel: React.FC = () => {
               className={`px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 ${
                 viewMode === "status"
                   ? "bg-[#d4af37] text-white shadow-sm"
-                  : "text-slate-500 hover:text-slate-700"
+                  : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
               }`}
             >
               <span>📋</span> Status
@@ -486,25 +486,25 @@ export const AgendaPainel: React.FC = () => {
 
       {/* CONTROLES DE NAVEGAÇÃO DO CALENDÁRIO */}
       {viewMode === "calendar" && (
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white rounded-xl border border-slate-200 px-6 py-4 shadow-sm">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white dark:bg-[#0c1625] rounded-xl border border-slate-200 dark:border-slate-800 px-6 py-4 shadow-sm">
           <div className="flex items-center gap-3">
             <button 
               onClick={irParaHoje}
-              className="bg-slate-50 border border-slate-200 hover:border-slate-300 text-xs text-slate-700 px-3.5 py-1.5 rounded-lg transition-colors font-medium"
+              className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 text-xs text-slate-700 dark:text-slate-300 px-3.5 py-1.5 rounded-lg transition-colors font-medium"
             >
               Hoje
             </button>
-            <div className="flex items-center bg-slate-50 border border-slate-200 rounded-lg">
+            <div className="flex items-center bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg">
               <button 
                 onClick={calendarTab === "month" ? irParaMesAnterior : irParaSemanaAnterior}
-                className="px-3 py-1.5 text-slate-500 hover:text-slate-700 text-sm font-bold border-r border-slate-200 transition-colors"
+                className="px-3 py-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 text-sm font-bold border-r border-slate-200 dark:border-slate-800 transition-colors"
                 title="Voltar"
               >
                 ◀
               </button>
               <button 
                 onClick={calendarTab === "month" ? irParaProximoMes : irParaProximaSemana}
-                className="px-3 py-1.5 text-slate-500 hover:text-slate-700 text-sm font-bold transition-colors"
+                className="px-3 py-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 text-sm font-bold transition-colors"
                 title="Avançar"
               >
                 ▶
@@ -519,13 +519,13 @@ export const AgendaPainel: React.FC = () => {
           </div>
 
           {/* Abas internas do Calendário: Mês vs Semana */}
-          <div className="bg-slate-50 border border-slate-200 rounded-lg p-0.5 flex">
+          <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-0.5 flex">
             <button
               onClick={() => setCalendarTab("month")}
               className={`px-3 py-1.5 rounded-md text-[11px] font-semibold transition-all ${
                 calendarTab === "month"
-                  ? "bg-white text-slate-700 shadow-sm border border-slate-200/50"
-                  : "text-slate-400 hover:text-slate-600"
+                  ? "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-sm border border-slate-200/50 dark:border-slate-700/50"
+                  : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-400"
               }`}
             >
               Mensal
@@ -534,8 +534,8 @@ export const AgendaPainel: React.FC = () => {
               onClick={() => setCalendarTab("week")}
               className={`px-3 py-1.5 rounded-md text-[11px] font-semibold transition-all ${
                 calendarTab === "week"
-                  ? "bg-white text-slate-700 shadow-sm border border-slate-200/50"
-                  : "text-slate-400 hover:text-slate-600"
+                  ? "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-sm border border-slate-200/50 dark:border-slate-700/50"
+                  : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-400"
               }`}
             >
               Semanal
@@ -546,12 +546,12 @@ export const AgendaPainel: React.FC = () => {
 
       {/* CONTAINER DO FLUXO PRINCIPAL */}
       {loading ? (
-        <div className="bg-white rounded-2xl border border-slate-200 p-20 flex flex-col items-center justify-center space-y-4 shadow-sm">
-          <div className="w-10 h-10 border-4 border-slate-100 border-t-[#d4af37] rounded-full animate-spin"></div>
-          <p className="text-xs text-slate-500">Sincronizando compromissos com o banco de dados...</p>
+        <div className="bg-white dark:bg-[#0c1625] rounded-2xl border border-slate-200 dark:border-slate-800 p-20 flex flex-col items-center justify-center space-y-4 shadow-sm">
+          <div className="w-10 h-10 border-4 border-slate-100 dark:border-slate-800 border-t-[#d4af37] rounded-full animate-spin"></div>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Sincronizando compromissos com o banco de dados...</p>
         </div>
       ) : error ? (
-        <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-center space-y-3 shadow-sm">
+        <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50 rounded-2xl p-6 text-center space-y-3 shadow-sm">
           <span className="text-2xl">⚠️</span>
           <h3 className="text-red-700 font-bold text-sm">Falha na Sincronização</h3>
           <p className="text-xs text-slate-500 max-w-md mx-auto">{error}</p>
@@ -567,23 +567,23 @@ export const AgendaPainel: React.FC = () => {
           
           {/* FORMATO 1: CALENDÁRIO INTELIGENTE (FORÇADO bg-white E text-slate-700) */}
           {viewMode === "calendar" && (
-            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+            <div className="bg-white dark:bg-[#0c1625] rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
               
               {/* VISUALIZAÇÃO MENSAL */}
               {calendarTab === "month" && (
                 <div className="w-full overflow-x-auto">
-                  <div className="min-w-[700px] bg-white">
+                  <div className="min-w-[700px] bg-white dark:bg-[#0c1625]">
                     {/* Linha dos Dias da Semana */}
-                    <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50">
+                    <div className="grid grid-cols-7 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
                       {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map(day => (
-                        <div key={day} className="py-3 text-center text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                        <div key={day} className="py-3 text-center text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
                           {day}
                         </div>
                       ))}
                     </div>
 
                     {/* Grade de Células do Calendário */}
-                    <div className="grid grid-cols-7 grid-rows-6 border-slate-200 bg-white">
+                    <div className="grid grid-cols-7 grid-rows-6 border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0c1625]">
                       {gridCalendarioMes.map((cell, idx) => {
                         const cellCompromissos = obterCompromissosDoDia(cell.date);
                         const éHoje = new Date().toDateString() === cell.date.toDateString();
@@ -591,21 +591,23 @@ export const AgendaPainel: React.FC = () => {
                         return (
                           <div
                             key={idx}
-                            className={`min-h-[110px] border-r border-b border-slate-200 p-2 flex flex-col space-y-1.5 transition-colors relative ${
-                              cell.isCurrentMonth ? "bg-white text-[#0f1e36]" : "bg-slate-50/50 text-slate-400 opacity-60"
-                            } ${éHoje ? "bg-[#d4af37]/5" : ""}`}
+                            className={`min-h-[110px] border-r border-b border-slate-200 dark:border-slate-800 p-2 flex flex-col space-y-1.5 transition-colors relative ${
+                              cell.isCurrentMonth 
+                                ? "bg-white text-[#0f1e36] dark:bg-slate-900 dark:text-slate-100" 
+                                : "bg-slate-50/50 dark:bg-slate-900/40 text-slate-400 dark:text-slate-500 opacity-60"
+                            } ${éHoje ? "bg-[#d4af37]/5 dark:bg-[#d4af37]/10" : ""}`}
                           >
                             {/* Dia do Mês */}
                             <div className="flex justify-between items-center">
                               <span className={`text-xs font-bold font-mono px-1.5 py-0.5 rounded-md ${
                                 éHoje 
                                   ? "bg-[#d4af37] text-white" 
-                                  : "text-slate-600"
+                                  : "text-slate-600 dark:text-slate-300"
                               }`}>
                                 {cell.dayNum}
                               </span>
                               {cellCompromissos.length > 0 && (
-                                <span className="text-[9px] bg-slate-100 text-slate-500 font-semibold px-1 rounded-full border border-slate-200">
+                                <span className="text-[9px] bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-semibold px-1 rounded-full border border-slate-200 dark:border-slate-700">
                                   {cellCompromissos.length}
                                 </span>
                               )}
@@ -647,7 +649,7 @@ export const AgendaPainel: React.FC = () => {
 
               {/* VISUALIZAÇÃO SEMANAL */}
               {calendarTab === "week" && (
-                <div className="grid grid-cols-1 md:grid-cols-7 divide-y md:divide-y-0 md:divide-x divide-slate-200 bg-white">
+                <div className="grid grid-cols-1 md:grid-cols-7 divide-y md:divide-y-0 md:divide-x divide-slate-200 dark:divide-slate-800 bg-white dark:bg-[#0c1625]">
                   {gridCalendarioSemana.map((day, idx) => {
                     const cellCompromissos = obterCompromissosDoDia(day);
                     const éHoje = new Date().toDateString() === day.toDateString();
@@ -657,23 +659,23 @@ export const AgendaPainel: React.FC = () => {
                       <div
                         key={idx}
                         className={`p-4 min-h-[350px] space-y-4 transition-colors ${
-                          éHoje ? "bg-[#d4af37]/5" : "bg-white"
+                          éHoje ? "bg-[#d4af37]/5 dark:bg-[#d4af37]/10" : "bg-white dark:bg-[#0c1625]"
                         }`}
                       >
                         {/* Cabeçalho do Dia */}
-                        <div className="border-b border-slate-200 pb-3 flex justify-between items-center bg-white">
-                          <div className="flex flex-col bg-white">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        <div className="border-b border-slate-200 dark:border-slate-800 pb-3 flex justify-between items-center bg-white dark:bg-[#0c1625]">
+                          <div className="flex flex-col bg-white dark:bg-[#0c1625]">
+                            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
                               {diaNome}
                             </span>
                             <span className={`text-sm font-extrabold font-mono mt-0.5 ${
-                              éHoje ? "text-[#d4af37]" : "text-[#0f1e36]"
+                              éHoje ? "text-[#d4af37]" : "text-[#0f1e36] dark:text-slate-100"
                             }`}>
                               {day.getDate()} / {day.getMonth() + 1}
                             </span>
                           </div>
                           {cellCompromissos.length > 0 && (
-                            <span className="text-[10px] bg-slate-100 text-slate-500 font-bold px-2 py-0.5 rounded-full border border-slate-200">
+                            <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700">
                               {cellCompromissos.length}
                             </span>
                           )}
@@ -682,7 +684,7 @@ export const AgendaPainel: React.FC = () => {
                         {/* Lista de Compromissos do Dia */}
                         <div className="space-y-2.5 overflow-y-auto max-h-[400px]">
                           {cellCompromissos.length === 0 ? (
-                            <div className="text-center py-10 text-slate-400 text-[10px] font-light italic">
+                            <div className="text-center py-10 text-slate-400 dark:text-slate-500 text-[10px] font-light italic">
                               Sem compromissos
                             </div>
                           ) : (
@@ -703,13 +705,13 @@ export const AgendaPainel: React.FC = () => {
                                       {comp.status}
                                     </span>
                                   </div>
-                                  <h4 className="font-bold text-[#0f1e36] line-clamp-2 leading-tight">
+                                  <h4 className="font-bold text-[#0f1e36] dark:text-slate-100 line-clamp-2 leading-tight">
                                     {isOnline && <span className="mr-1">🎥</span>}
                                     {comp.titulo}
                                   </h4>
                                   
                                   {comp.clientes && (
-                                    <span className="text-[9.5px] text-slate-500 font-light truncate">
+                                    <span className="text-[9.5px] text-slate-500 dark:text-slate-400 font-light truncate">
                                       👤 {comp.clientes.nome}
                                     </span>
                                   )}
@@ -737,22 +739,22 @@ export const AgendaPainel: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               
               {/* COLUNA 1: PENDENTE / AGENDADO */}
-              <div className="bg-white rounded-2xl border border-slate-200 p-4.5 flex flex-col space-y-4 shadow-sm">
-                <div className="flex justify-between items-center pb-3.5 border-b border-slate-200">
+              <div className="bg-white dark:bg-[#0c1625] rounded-2xl border border-slate-200 dark:border-slate-800 p-4.5 flex flex-col space-y-4 shadow-sm">
+                <div className="flex justify-between items-center pb-3.5 border-b border-slate-200 dark:border-slate-800">
                   <div className="flex items-center gap-2">
                     <span className="text-amber-500">📋</span>
-                    <h3 className="font-bold text-sm text-[#0f1e36]">
+                    <h3 className="font-bold text-sm text-[#0f1e36] dark:text-slate-100">
                       Pendentes / Agendados
                     </h3>
                   </div>
-                  <span className="text-xs bg-slate-100 text-slate-500 font-bold px-2 py-0.5 rounded-full border border-slate-200">
+                  <span className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700">
                     {columnsStatus.pendentes.length}
                   </span>
                 </div>
 
                 <div className="flex-1 overflow-y-auto space-y-3.5 max-h-[600px] pr-1">
                   {columnsStatus.pendentes.length === 0 ? (
-                    <div className="text-center py-20 text-slate-400 text-xs font-light italic">
+                    <div className="text-center py-20 text-slate-400 dark:text-slate-500 text-xs font-light italic">
                       Nenhum compromisso pendente.
                     </div>
                   ) : (
@@ -762,22 +764,22 @@ export const AgendaPainel: React.FC = () => {
               </div>
 
               {/* COLUNA 2: EM ANDAMENTO (Compromissos de Hoje) */}
-              <div className="bg-white rounded-2xl border border-slate-200 p-4.5 flex flex-col space-y-4 shadow-sm ring-1 ring-[#d4af37]/10">
-                <div className="flex justify-between items-center pb-3.5 border-b border-[#d4af37]/20">
+              <div className="bg-white dark:bg-[#0c1625] rounded-2xl border border-slate-200 dark:border-slate-800 p-4.5 flex flex-col space-y-4 shadow-sm ring-1 ring-[#d4af37]/10">
+                <div className="flex justify-between items-center pb-3.5 border-b border-[#d4af37]/20 dark:border-[#d4af37]/30">
                   <div className="flex items-center gap-2">
                     <span className="text-blue-500">⚡</span>
-                    <h3 className="font-bold text-sm text-[#0f1e36] flex items-center gap-1.5">
+                    <h3 className="font-bold text-sm text-[#0f1e36] dark:text-slate-100 flex items-center gap-1.5">
                       Foco de Hoje <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
                     </h3>
                   </div>
-                  <span className="text-xs bg-[#d4af37]/10 text-[#d4af37] font-bold px-2 py-0.5 rounded-full border border-[#d4af37]/20">
+                  <span className="text-xs bg-[#d4af37]/10 dark:bg-[#d4af37]/20 text-[#d4af37] font-bold px-2 py-0.5 rounded-full border border-[#d4af37]/20 dark:border-[#d4af37]/30">
                     {columnsStatus.emAndamento.length}
                   </span>
                 </div>
 
                 <div className="flex-1 overflow-y-auto space-y-3.5 max-h-[600px] pr-1">
                   {columnsStatus.emAndamento.length === 0 ? (
-                    <div className="text-center py-20 text-slate-400 text-xs font-light italic">
+                    <div className="text-center py-20 text-slate-400 dark:text-slate-500 text-xs font-light italic">
                       Sem compromissos agendados para hoje.
                     </div>
                   ) : (
@@ -787,22 +789,22 @@ export const AgendaPainel: React.FC = () => {
               </div>
 
               {/* COLUNA 3: CONCLUÍDO (Prazos Cumpridos e Histórico) */}
-              <div className="bg-white rounded-2xl border border-slate-200 p-4.5 flex flex-col space-y-4 shadow-sm">
-                <div className="flex justify-between items-center pb-3.5 border-b border-slate-200">
+              <div className="bg-white dark:bg-[#0c1625] rounded-2xl border border-slate-200 dark:border-slate-800 p-4.5 flex flex-col space-y-4 shadow-sm">
+                <div className="flex justify-between items-center pb-3.5 border-b border-slate-200 dark:border-slate-800">
                   <div className="flex items-center gap-2">
                     <span className="text-emerald-500">✓</span>
-                    <h3 className="font-bold text-sm text-[#0f1e36]">
+                    <h3 className="font-bold text-sm text-[#0f1e36] dark:text-slate-100">
                       Concluídos / Histórico
                     </h3>
                   </div>
-                  <span className="text-xs bg-slate-100 text-slate-500 font-bold px-2 py-0.5 rounded-full border border-slate-200">
+                  <span className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700">
                     {columnsStatus.concluidos.length}
                   </span>
                 </div>
 
                 <div className="flex-1 overflow-y-auto space-y-3.5 max-h-[600px] pr-1">
                   {columnsStatus.concluidos.length === 0 ? (
-                    <div className="text-center py-20 text-slate-400 text-xs font-light italic">
+                    <div className="text-center py-20 text-slate-400 dark:text-slate-500 text-xs font-light italic">
                       Nenhum compromisso finalizado.
                     </div>
                   ) : (
@@ -820,3 +822,4 @@ export const AgendaPainel: React.FC = () => {
     </div>
   );
 };
+

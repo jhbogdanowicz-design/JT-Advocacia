@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
+import { ModalLancamentoFinanceiro } from "./ModalLancamentoFinanceiro";
 
 interface AbaFinanceiroProps {
   clienteId: string;
@@ -26,59 +27,15 @@ interface LancamentoFinanceiro {
 }
 
 export const AbaFinanceiro: React.FC<AbaFinanceiroProps> = ({ clienteId }) => {
-  // Estados para formulário
-  const [tipoHonorario, setTipoHonorario] = useState<string>("Fixo");
-  const [valorTotalInput, setValorTotalInput] = useState<string>("");
-  const [dataVencimento, setDataVencimento] = useState<string>("");
-  const [processoId, setProcessoId] = useState<string>("");
-  
-  // Lista de processos do cliente
-  const [processos, setProcessos] = useState<ProcessoOption[]>([]);
-  
   // Lista de lançamentos
   const [lancamentos, setLancamentos] = useState<LancamentoFinanceiro[]>([]);
   
   const [loading, setLoading] = useState<boolean>(true);
-  const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Formatar Moeda para Mask em tempo real (BRL R$)
-  const formatarValorMoeda = (valorRaw: string): string => {
-    const apenasNumeros = valorRaw.replace(/\D/g, "");
-    if (!apenasNumeros) return "";
-    const valorFloat = parseFloat(apenasNumeros) / 100;
-    return valorFloat.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL"
-    });
-  };
+  // Controle do Modal de Novo Lançamento
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  const handleValorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value;
-    const formatado = formatarValorMoeda(raw);
-    setValorTotalInput(formatado);
-  };
-
-  // Obter valor flutuante a partir da string monetária R$
-  const obterValorFloat = (valorString: string): number => {
-    const apenasNumeros = valorString.replace(/\D/g, "");
-    return parseFloat(apenasNumeros) / 100 || 0;
-  };
-
-  // Buscar processos do cliente para popular o select
-  const fetchProcessos = async () => {
-    try {
-      const { data, error: procErr } = await supabase
-        .from("processos")
-        .select("id, titulo, numero_processo")
-        .eq("cliente_id", clienteId);
-
-      if (procErr) throw procErr;
-      setProcessos(data || []);
-    } catch (err: any) {
-      console.error("Erro ao buscar processos do cliente:", err.message);
-    }
-  };
 
   // Buscar lançamentos financeiros
   const fetchLancamentos = async () => {
@@ -124,63 +81,9 @@ export const AbaFinanceiro: React.FC<AbaFinanceiroProps> = ({ clienteId }) => {
 
   useEffect(() => {
     if (clienteId) {
-      fetchProcessos();
       fetchLancamentos();
     }
   }, [clienteId]);
-
-  // Enviar lançamento
-  const handleSalvarHonorario = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!valorTotalInput) {
-      alert("Por favor, preencha o valor do honorário.");
-      return;
-    }
-    if (!dataVencimento) {
-      alert("Por favor, informe a data de vencimento.");
-      return;
-    }
-
-    const valorFloat = obterValorFloat(valorTotalInput);
-    if (valorFloat <= 0) {
-      alert("O valor total deve ser maior que zero.");
-      return;
-    }
-
-    try {
-      setSaving(true);
-      
-      // Criar payload de inserção
-      // Nota: o Supabase JT-Advocacia armazena valores em minúsculo ('fixo', 'mensal', etc)
-      const novoLancamento = {
-        cliente_id: clienteId,
-        processo_id: processoId || null,
-        valor_total: valorFloat,
-        tipo_honorario: tipoHonorario.toLowerCase(), // Salvar no padrão minúsculo do banco
-        status_pagamento: "pendente", // Default pendente
-        data_vencimento: dataVencimento
-      };
-
-      const { error: insertErr } = await supabase
-        .from("financeiro")
-        .insert([novoLancamento]);
-
-      if (insertErr) throw insertErr;
-
-      alert("Honorário lançado com sucesso!");
-      // Resetar formulário
-      setValorTotalInput("");
-      setDataVencimento("");
-      setProcessoId("");
-      
-      // Recarregar extrato
-      fetchLancamentos();
-    } catch (err: any) {
-      alert("Erro ao salvar lançamento financeiro: " + err.message);
-    } finally {
-      setSaving(false);
-    }
-  };
 
   // Marcar como pago
   const handleMarcarPago = async (id: string) => {
@@ -255,99 +158,43 @@ export const AbaFinanceiro: React.FC<AbaFinanceiroProps> = ({ clienteId }) => {
   return (
     <div className="space-y-6 text-slate-100">
       
-      {/* SEÇÃO DUAL: FORMULÁRIO DE CADASTRO & EXTRATO */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* FORMULÁRIO DE NOVO LANÇAMENTO */}
-        <div className="bg-[#0f172a] rounded-2xl border border-slate-800 p-5 space-y-4 shadow-lg h-fit">
-          <div className="flex items-center gap-2 pb-3.5 border-b border-slate-800">
-            <span className="text-lg">💰</span>
-            <h3 className="font-playfair font-bold text-slate-200 text-sm tracking-wide">
-              Lançar Novo Honorário
-            </h3>
-          </div>
-
-          <form onSubmit={handleSalvarHonorario} className="space-y-4.5">
-            {/* Tipo */}
-            <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Tipo de Honorário</label>
-              <select
-                value={tipoHonorario}
-                onChange={(e) => setTipoHonorario(e.target.value)}
-                className="w-full bg-[#070a13] border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#d4af37] cursor-pointer"
-              >
-                <option value="Fixo">Fixo</option>
-                <option value="Mensal">Mensal</option>
-                <option value="Êxito">Êxito</option>
-              </select>
-            </div>
-
-            {/* Valor */}
-            <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Valor Total</label>
-              <input
-                type="text"
-                required
-                placeholder="R$ 0,00"
-                value={valorTotalInput}
-                onChange={handleValorChange}
-                className="w-full bg-[#070a13] border border-slate-800 rounded-lg px-4 py-2.5 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-[#d4af37] font-mono"
-              />
-            </div>
-
-            {/* Data de Vencimento */}
-            <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Data de Vencimento</label>
-              <input
-                type="date"
-                required
-                value={dataVencimento}
-                onChange={(e) => setDataVencimento(e.target.value)}
-                className="w-full bg-[#070a13] border border-slate-800 rounded-lg px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#d4af37]"
-              />
-            </div>
-
-            {/* Processo Opcional */}
-            <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Processo Vinculado (Opcional)</label>
-              <select
-                value={processoId}
-                onChange={(e) => setProcessoId(e.target.value)}
-                className="w-full bg-[#070a13] border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#d4af37] cursor-pointer"
-              >
-                <option value="">Nenhum processo</option>
-                {processos.map((proc) => (
-                  <option key={proc.id} value={proc.id}>
-                    {proc.titulo} {proc.numero_processo ? `(${proc.numero_processo})` : ""}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Botão de Envio */}
-            <button
-              type="submit"
-              disabled={saving}
-              className="w-full bg-[#d4af37] text-[#070a13] hover:bg-[#f3e5ab] py-2.5 rounded-lg text-xs font-semibold transition-all shadow-md disabled:opacity-40"
-            >
-              {saving ? "Salvando..." : "💾 Lançar Honorário"}
-            </button>
-          </form>
-        </div>
-
-        {/* TABELA DE EXTRATO FINANCEIRO */}
-        <div className="lg:col-span-2 bg-[#0f172a] rounded-2xl border border-slate-800 p-5 space-y-4 shadow-lg flex flex-col">
-          <div className="flex justify-between items-center pb-3.5 border-b border-slate-800">
+      {/* EXTRATO FINANCEIRO UNIFICADO */}
+      <div className="w-full bg-[#0f172a] rounded-2xl border border-slate-800 p-5 space-y-4 shadow-lg flex flex-col">
+        <div className="flex justify-between items-center pb-3.5 border-b border-slate-800 flex-wrap gap-3">
+          <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
               <span className="text-lg">📋</span>
               <h3 className="font-playfair font-bold text-slate-200 text-sm tracking-wide">
                 Extrato Financeiro do Cliente
               </h3>
             </div>
-            <span className="text-[11px] bg-slate-900 border border-slate-800 text-slate-400 font-bold px-2 py-0.5 rounded-full">
+            <span className="text-[11px] bg-slate-900 border border-slate-800 text-slate-400 font-bold px-2.5 py-0.5 rounded-full">
               {lancamentos.length} lançamentos
             </span>
           </div>
+
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 bg-[#0a192f] hover:bg-[#0f2444] text-[#d4af37] border border-[#d4af37]/60 hover:border-[#d4af37] px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer focus:outline-none"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-3.5 h-3.5"
+            >
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            + Novo Lançamento Contratual
+          </button>
+        </div>
 
           {loading ? (
             <div className="flex-1 flex flex-col justify-center items-center py-20 space-y-3">
@@ -445,7 +292,13 @@ export const AbaFinanceiro: React.FC<AbaFinanceiroProps> = ({ clienteId }) => {
           )}
         </div>
 
-      </div>
+      {isModalOpen && (
+        <ModalLancamentoFinanceiro
+          clienteId={clienteId}
+          onClose={() => setIsModalOpen(false)}
+          onSuccess={fetchLancamentos}
+        />
+      )}
 
     </div>
   );
