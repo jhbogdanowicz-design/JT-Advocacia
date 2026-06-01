@@ -17,58 +17,12 @@ export const EspecialidadesHome: React.FC = () => {
   const specialties: Specialty[] = [
     {
       id: 1,
-      titulo: "Direito Médico e da Saúde",
-      subtitulo: "Destaque Especializado",
-      destaque: true,
-      foco: "Defesa médica, regulação hospitalar e planos de saúde",
-      descricao:
-        "Defesa de profissionais da saúde em processos ético-disciplinares e erro médico. Atuação em glosas hospitalares, regulação de clínicas médicas e odontológicas, além de ações judiciais contra abusos de planos de saúde, garantindo a liberação de cirurgias, tratamentos complexos e medicamentos de alto custo.",
-      icone: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={1.8}
-          stroke="currentColor"
-          className="w-8 h-8 text-amber-500"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.248-8.25-3.286zm0 13.036h.008v.008H12v-.008z"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: 2,
-      titulo: "Direito do Trabalho e Previdenciário",
-      foco: "Cálculos complexos e regimes de alta governança",
-      descricao:
-        "Defesa integral dos direitos trabalhistas de executivos e profissionais. Atuação em rescisões complexas, cálculos de passivos ocultos, horas extras corporativas, equiparações salariais, estabilidades especiais e assessoria jurídica em transição de carreira para regimes de alta governança corporativa.",
-      icone: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={1.8}
-          stroke="currentColor"
-          className="w-8 h-8 text-amber-500"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M20.25 14.15v4.25c0 .621-.504 1.125-1.125 1.125H4.875A1.125 1.125 0 013.75 18.4v-4.25m16.5 0a2.25 2.25 0 00-2.25-2.25H6a2.25 2.25 0 00-2.25 2.25m16.5 0V7.493c0-.83-.49-1.576-1.25-1.897L13.5 3.321a2.25 2.25 0 00-2.25 0L4.75 5.596c-.76.32-1.25 1.067-1.25 1.897v6.657"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: 3,
       titulo: "Direito Civil e Contratos",
+      subtitulo: "Destaque Estratégico",
+      destaque: true,
       foco: "Elaboração estratégica e assessoria preventiva",
       descricao:
-        "Elaboração, análise e revisão contratual de alta complexidade (nacionais e internacionais). Assessoria estratégica em direito de propriedade, direitos reais, renegociações de dívidas ativas, prevenção de litígios e auditoria prévia para mitigar passivos civis em transações financeiras e comerciais.",
+        "Elaboração e análise de contratos de alta complexidade. Assessoria em direito de propriedade, direitos reais, renegociações de dívidas, prevenção de litígios e auditoria prévia para mitigar passivos em transações civis e comerciais.",
       icone: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -87,11 +41,11 @@ export const EspecialidadesHome: React.FC = () => {
       ),
     },
     {
-      id: 4,
-      titulo: "Direito Digital, LGPD & Compliance",
-      foco: "Segurança de dados sensíveis e conformidade digital",
+      id: 2,
+      titulo: "Compliance",
+      foco: "Segurança corporativa e conformidade legal",
       descricao:
-        "Adequação de empresas, escritórios e clínicas médicas à Lei Geral de Proteção de Dados (LGPD). Estruturação de canais de denúncia, políticas de privacidade, termos de uso, auditorias de segurança da informação, contratos de tecnologia e mitigação de responsabilidade civil em incidentes cibernéticos.",
+        "Implementação de programas de compliance robustos, adequação preventiva à LGPD, auditorias internas de conformidade regulatória, estruturação de canais de ética e integridade, e gestão estratégica de riscos operacionais e reputacionais.",
       icone: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -110,11 +64,11 @@ export const EspecialidadesHome: React.FC = () => {
       ),
     },
     {
-      id: 5,
-      titulo: "Direito Corporativo e Societário",
-      foco: "Blindagem jurídica patrimonial e reorganização societária",
+      id: 3,
+      titulo: "Direito do Trabalho e Previdenciário",
+      foco: "Cálculos complexos e regimes de alta governança",
       descricao:
-        "Assessoria integral em fusões, aquisições (M&A), constituição de holdings familiares e blindagem patrimonial. Reorganização societária estratégica, elaboração de acordos de sócios, governança corporativa ativa e planejamento jurídico preventivo para mitigação de riscos fiscais e operacionais em negócios.",
+        "Defesa integral dos direitos trabalhistas de executivos e profissionais. Atuação em rescisões complexas, cálculos de passivos ocultos, estabilidades e assessoria em transição de carreira para regimes de alta governança corporativa.",
       icone: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -127,7 +81,30 @@ export const EspecialidadesHome: React.FC = () => {
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94-3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"
+            d="M20.25 14.15v4.25c0 .621-.504 1.125-1.125 1.125H4.875A1.125 1.125 0 013.75 18.4v-4.25m16.5 0a2.25 2.25 0 00-2.25-2.25H6a2.25 2.25 0 00-2.25 2.25m16.5 0V7.493c0-.83-.49-1.576-1.25-1.897L13.5 3.321a2.25 2.25 0 00-2.25 0L4.75 5.596c-.76.32-1.25 1.067-1.25 1.897v6.657"
+          />
+        </svg>
+      ),
+    },
+    {
+      id: 4,
+      titulo: "Direito Médico e da Saúde",
+      foco: "Defesa médica, regulação de clínicas e planos de saúde",
+      descricao:
+        "Defesa de profissionais da saúde em processos ético-disciplinares e erro médico. Atuação em glosas hospitalares, regulação de clínicas e ações contra abusos de planos de saúde, garantindo a liberação de cirurgias e tratamentos vitais.",
+      icone: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.8}
+          stroke="currentColor"
+          className="w-8 h-8 text-amber-500"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.248-8.25-3.286zm0 13.036h.008v.008H12v-.008z"
           />
         </svg>
       ),
