@@ -858,12 +858,12 @@ body {
   }
 
   .nav-item svg {
-    width: 18px;
-    height: 18px;
+    width: 22px;
+    height: 22px;
   }
 
   .nav-item span {
-    display: block; /* Garante que os nomes dos módulos fiquem legíveis embaixo dos ícones */
+    display: none !important; /* Oculta rótulos no mobile para evitar esmagamento e garantir acessibilidade a todos os módulos */
   }
 
   .nav-item:hover {
