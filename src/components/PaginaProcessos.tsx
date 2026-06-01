@@ -147,6 +147,7 @@ export const PaginaProcessos: React.FC = () => {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [loadingClientes, setLoadingClientes] = useState<boolean>(false);
   const [clienteSelecionadoId, setClienteSelecionadoId] = useState<string>("");
+  const [processoSelecionadoGeradorId, setProcessoSelecionadoGeradorId] = useState<string>("");
   const [tipoPeca, setTipoPeca] = useState<string>("inicial_erro");
   const [motorIA, setMotorIA] = useState<AIEngine>("jusia");
   const [loadingPeca, setLoadingPeca] = useState<boolean>(false);
@@ -276,6 +277,24 @@ export const PaginaProcessos: React.FC = () => {
   const abrirEdicao = (proc: ProcessoCompleto) => {
     setProcessoSelecionado(proc);
     setModalEditarAberto(true);
+  };
+
+  // ── Carregar processo selecionado no Gerador de IA
+  const handleCarregarProcessoNoGerador = (proc: ProcessoCompleto) => {
+    if (proc.cliente_id) {
+      setClienteSelecionadoId(proc.cliente_id);
+    }
+    setProcessoSelecionadoGeradorId(proc.id);
+    setMotorIA("jusia");
+    setPecaTexto("");
+    setPecaError(null);
+
+    setTimeout(() => {
+      const container = document.getElementById("gerador-pecas-container");
+      if (container) {
+        container.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 100);
   };
 
   // Pre-populate the Edit Form Inputs when selected process changes
@@ -549,6 +568,7 @@ OAB/SP 123.456`);
   };
 
   const clienteSelecionado = clientes.find(c => c.id === clienteSelecionadoId);
+  const processoSelecionadoGerador = processosCompletos.find(p => p.id === processoSelecionadoGeradorId);
 
   const getEspecialidadeLabel = () => {
     if (!clienteSelecionadoId || !clienteSelecionado) return "Especialista Sênior em Direito";
@@ -591,7 +611,14 @@ OAB/SP 123.456`);
     systemPromptPrefix = `Atue como o motor Google Gemini Pro especializado em ${areaDireito} brasileiro. Elabore um parecer completo com linguagem fluida e abrangência doutrinária. `;
   }
 
-  const promptMinuta = `${systemPromptPrefix}Com base nos Fatos Narrados e Observações Gerais do cliente anexados a seguir, elabore uma minuta jurídica profissional contendo: 1) Dos Fatos (resumo cronológico técnico); 2) Do Direito (fundamentação baseada em doutrina e legislação aplicável); 3) Dos Pedidos e do Pedido de Liminar (se aplicável ao tipo de peça selecionado). Use uma linguagem extremamente técnica, formal e robusta.
+  const promptMinuta = (() => {
+    if (motorIA === "jusia") {
+      const fatosProntuario = clienteSelecionado?.observacoes || "Nenhum fato clínico relatado no prontuário do cliente.";
+      const teorProcesso = processoSelecionadoGerador?.observacoes_internas || "Nenhum fato ou teor do processo cadastrado.";
+      return `Atue como um especialista sênior em Direito Médico. Analise os fatos clínicos do prontuário: ${fatosProntuario} em conjunto com o Teor do Processo/Fatos do Caso: ${teorProcesso}. Com base na natureza deste processo, gere IMEDIATAMENTE uma peça jurídica inicial na estrutura padrão do contencioso de saúde: 1) Dos Fatos, 2) Dos Fundamentos Jurídicos Técnicos (citando responsabilidade civil médica/resoluções CFM aplicáveis) e 3) Dos Pedidos. Retorne o documento pronto para revisão.`;
+    }
+
+    return `${systemPromptPrefix}Com base nos Fatos Narrados e Observações Gerais do cliente anexados a seguir, elabore uma minuta jurídica profissional contendo: 1) Dos Fatos (resumo cronológico técnico); 2) Do Direito (fundamentação baseada em doutrina e legislação aplicável); 3) Dos Pedidos e do Pedido de Liminar (se aplicável ao tipo de peça selecionado). Use uma linguagem extremamente técnica, formal e robusta.
 
 Fatos do cliente: 
 "${clienteSelecionado?.observacoes || ""}"
@@ -600,6 +627,7 @@ Tipo de Peça Processual a ser gerada:
 "${getTipoPecaLabel(tipoPeca)}"
 
 Responda redigindo a petição ou tese de defesa completa, com qualificações e espaços para preenchimento posterior.`;
+  })();
 
   const handleEsbocarPeca = async () => {
     if (!clienteSelecionadoId || !clienteSelecionado?.observacoes) {
@@ -616,10 +644,13 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          fatosNarrados: clienteSelecionado.observacoes,
+          fatosNarrados: motorIA === "jusia" 
+            ? `${clienteSelecionado.observacoes || ""}\n\n${processoSelecionadoGerador?.observacoes_internas || ""}`.trim()
+            : clienteSelecionado.observacoes,
           tipoPeca: getTipoPecaLabel(tipoPeca),
           motor: motorIA,
-          areaInteresse: clienteSelecionado.areas_interesse || ""
+          areaInteresse: clienteSelecionado.areas_interesse || "",
+          promptCustom: promptMinuta
         })
       });
 
@@ -1047,6 +1078,7 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
           ) : processosCompletos.length === 0 ? (
             <div className="text-center py-16 space-y-3 text-slate-400 dark:text-slate-500">
               <div className="text-4xl">\u2696\ufe0f</div>
+              <div className="text-4xl">⚖️</div>
               <p className="font-medium text-sm">Nenhum processo cadastrado ainda.</p>
               <p className="text-xs font-light">Cadastre processos na aba de clientes ou diretamente pelo Supabase.</p>
             </div>
@@ -1055,7 +1087,7 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
               {processosCompletos.map(proc => {
                 const statusColor = {
                   "Em andamento": "bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-500/25",
-                  "Aguardando decis\u00e3o": "bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/25",
+                  "Aguardando decisão": "bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/25",
                   "Recurso pendente": "bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-500/25",
                   "Arquivado": "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700",
                   "Encerrado": "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/25"
@@ -1073,9 +1105,13 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
                         <h3 className="font-bold text-sm text-[#0f1e36] dark:text-slate-100 leading-tight truncate group-hover:text-[#d4af37] transition-colors">
                           {proc.titulo}
                         </h3>
-                        <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400 mt-0.5 truncate">
-                          {proc.numero_processo || "N\u00ba n\u00e3o informado"}
-                        </p>
+                        <button
+                          type="button"
+                          onClick={() => handleCarregarProcessoNoGerador(proc)}
+                          className="text-[10px] font-mono text-blue-600 dark:text-blue-400 hover:underline mt-0.5 truncate block text-left"
+                        >
+                          {proc.numero_processo || "Nº não informado"}
+                        </button>
                       </div>
                       {proc.status && (
                         <span className={`shrink-0 text-[9px] font-bold px-2 py-0.5 rounded-full border ${statusColor}`}>
@@ -1088,25 +1124,25 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
                     <div className="space-y-1 text-[11px] text-slate-500 dark:text-slate-400">
                       {proc.clientes && (
                         <div className="flex items-center gap-1.5">
-                          <span>\ud83d\udc64</span>
+                          <span>👤</span>
                           <span className="truncate text-slate-700 dark:text-slate-300 font-medium">{proc.clientes.nome}</span>
                         </div>
                       )}
                       {proc.area_direito && (
                         <div className="flex items-center gap-1.5">
-                          <span>\ud83d\udcda</span>
+                          <span>📚</span>
                           <span>{proc.area_direito}</span>
                         </div>
                       )}
                       {(proc.tribunal || proc.vara) && (
                         <div className="flex items-center gap-1.5">
-                          <span>\ud83c\udfdb\ufe0f</span>
-                          <span className="truncate">{[proc.tribunal, proc.vara].filter(Boolean).join(" \u2014 ")}</span>
+                          <span>🏛️</span>
+                          <span className="truncate">{[proc.tribunal, proc.vara].filter(Boolean).join(" — ")}</span>
                         </div>
                       )}
                       {proc.valor_causa && (
                         <div className="flex items-center gap-1.5">
-                          <span>\ud83d\udcb0</span>
+                          <span>💰</span>
                           <span className="font-mono">
                             {Number(proc.valor_causa).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                           </span>
@@ -1120,14 +1156,14 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
                         ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
                         : "bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400"
                     }`}>
-                      {temFatos ? "\u2713 Fatos disponibles para IA" : "\u26a0\ufe0f Sem fatos cadastrados"}
+                      {temFatos ? "✓ Fatos disponíveis para IA" : "⚠️ Sem fatos cadastrados"}
                     </div>
 
-                    {/* Bot\u00f5es de a\u00e7\u00e3o */}
+                    {/* Botões de ação */}
                     <div className="flex gap-2 pt-1">
                       <button type="button" onClick={() => abrirEdicao(proc)}
                         className="flex-1 flex items-center justify-center gap-1 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-[#0f1e36] dark:text-slate-200 text-[10px] font-bold px-3 py-2 rounded-lg transition-all">
-                        \u270f\ufe0f Editar
+                        ✏️ Editar
                       </button>
                       <button type="button" onClick={() => { setProcessoParaIA(proc); setTextoIAProcesso(""); setErroIAProcesso(null); }}
                         className={`flex-1 flex items-center justify-center gap-1 text-[10px] font-bold px-3 py-2 rounded-lg transition-all ${
@@ -1135,7 +1171,7 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
                             ? "bg-[#0f1e36] hover:bg-[#1a2d4a] text-[#d4af37] border border-[#d4af37]/30 hover:border-[#d4af37]/60 shadow-sm"
                             : "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700 cursor-not-allowed"
                         }`}>
-                        \ud83e\udd16 Gerar IA
+                        🤖 Gerar IA
                       </button>
                     </div>
                   </div>
@@ -1146,8 +1182,8 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
         </div>
       </div>
 
-      {/* \u2500\u2500 \ud83d\udcd1 NOVO PAINEL: Gerador de Pe\u00e7as e Teses Judiciais (por cliente) \u2500\u2500\u2500\u2500\u2500\u2500\u2500 */}
-      <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm print:border-none print:shadow-none print:p-0 print:bg-white print:text-black">
+      {/* ── 📑 NOVO PAINEL: Gerador de Peças e Teses Judiciais (por cliente) ──────── */}
+      <div id="gerador-pecas-container" className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm print:border-none print:shadow-none print:p-0 print:bg-white print:text-black">
         <div className="border-b border-slate-100 dark:border-slate-800 pb-3 mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 print:hidden">
           <div>
             <h2 className="font-bold text-sm text-[#0f1e36] dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
@@ -1184,7 +1220,7 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
         </div>
 
         {/* Client & Document Selectors */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 print:hidden">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 print:hidden">
           <div>
             <label className="block text-xs font-bold text-[#0f1e36] dark:text-slate-300 uppercase mb-1">
               Selecione o Cliente (Prontuário)
@@ -1193,16 +1229,35 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
               value={clienteSelecionadoId}
               onChange={e => {
                 setClienteSelecionadoId(e.target.value);
+                setProcessoSelecionadoGeradorId(""); // Reset process selection when client changes
                 setPecaTexto("");
                 setPecaError(null);
               }}
               disabled={loadingClientes}
               className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#d4af37] text-[#0f1e36] dark:text-slate-100"
             >
-              <option value="">-- Escolha um Cliente para puxar Fatos Narrados --</option>
+              <option value="">-- Escolha um Cliente --</option>
               {clientes.map(c => (
                 <option key={c.id} value={c.id}>
                   👤 {c.nome} {c.cpf_cnpj ? ` — ${c.cpf_cnpj}` : ""}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-[#0f1e36] dark:text-slate-300 uppercase mb-1">
+              Vincular Processo (Opcional)
+            </label>
+            <select 
+              value={processoSelecionadoGeradorId}
+              onChange={e => setProcessoSelecionadoGeradorId(e.target.value)}
+              disabled={!clienteSelecionadoId}
+              className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#d4af37] text-[#0f1e36] dark:text-slate-100 disabled:opacity-50"
+            >
+              <option value="">-- Nenhum processo selecionado (Fatos apenas do Prontuário) --</option>
+              {processosCompletos.filter(p => p.cliente_id === clienteSelecionadoId).map(p => (
+                <option key={p.id} value={p.id}>
+                  ⚖️ {p.titulo} ({p.numero_processo || "Sem número"})
                 </option>
               ))}
             </select>
@@ -1226,20 +1281,46 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
 
         {/* Fatos Narrados Preview */}
         {clienteSelecionadoId && (
-          <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 rounded p-3 mb-4 print:hidden">
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-                Relato e Observações do Prontuário
-              </span>
-              <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-500/25">
-                Sincronizado
-              </span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 print:hidden">
+            <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 rounded p-3">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                  Relato e Observações do Prontuário
+                </span>
+                <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-500/25">
+                  Sincronizado
+                </span>
+              </div>
+              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed h-24 overflow-y-auto whitespace-pre-wrap font-sans">
+                {clienteSelecionado?.observacoes || (
+                  <span className="text-red-500 font-medium">⚠️ Este prontuário não possui relato de fatos.</span>
+                )}
+              </p>
             </div>
-            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed max-h-24 overflow-y-auto whitespace-pre-wrap font-sans">
-              {clienteSelecionado?.observacoes || (
-                <span className="text-red-500 font-medium">⚠️ Este prontuário não possui relato de fatos ou observações gerais cadastradas. Atualize o prontuário na página de Clientes.</span>
-              )}
-            </p>
+            
+            <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 rounded p-3">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                  Teor do Processo / Fatos do Caso
+                </span>
+                <span className={`text-[9px] font-bold px-2 py-0.5 rounded border ${
+                  processoSelecionadoGerador
+                    ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/25"
+                    : "text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border-slate-200"
+                }`}>
+                  {processoSelecionadoGerador ? "VINCULADO" : "NÃO VINCULADO"}
+                </span>
+              </div>
+              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed h-24 overflow-y-auto whitespace-pre-wrap font-sans">
+                {processoSelecionadoGerador ? (
+                  processoSelecionadoGerador.observacoes_internas || (
+                    <span className="text-amber-500 font-medium">⚠️ Este processo não possui observações/fatos cadastrados.</span>
+                  )
+                ) : (
+                  <span className="text-slate-400 font-light">Selecione ou clique em um processo para mesclar dados processuais com prontuários de clientes na geração por IA.</span>
+                )}
+              </p>
+            </div>
           </div>
         )}
 
@@ -1314,16 +1395,22 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
                 >
                   🔄 Limpar
                 </button>
-                <button 
-                  type="button"
-                  onClick={() => window.print()} 
-                  className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#0f1e36] dark:text-slate-200 text-xs font-bold uppercase px-3 py-1.5 rounded border border-slate-300 dark:border-slate-700 cursor-pointer"
-                >
-                  🖨️ Imprimir / Salvar PDF
-                </button>
               </div>
             )}
           </div>
+
+          {/* Botão de Impressão Forçado e Isolado (z-index 50) */}
+          {pecaTexto && (
+            <div className="block my-4 clear-both relative z-50 print:hidden">
+              <button 
+                type="button" 
+                onClick={() => window.print()} 
+                className="bg-amber-500 hover:bg-amber-600 text-[#0f1e36] font-bold text-xs uppercase tracking-wider px-6 py-3 rounded shadow-md inline-flex items-center gap-2"
+              >
+                🖨️ IMPRIMIR / SALVAR PDF AGORA
+              </button>
+            </div>
+          )}
 
           {/* CABEÇALHO TIMBRADO JURÍDICO - EXCLUSIVO PARA IMPRESSÃO */}
           <div className="hidden print:block mb-8 border-b-2 border-[#d4af37] pb-4 text-center">
@@ -1345,18 +1432,6 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
           <pre className="hidden print:block whitespace-pre-wrap font-mono text-[11px] text-black bg-white leading-relaxed p-0 border-none outline-none">
             {pecaTexto}
           </pre>
-
-          {pecaTexto && (
-            <div className="flex justify-end my-4 print:hidden">
-              <button
-                type="button"
-                onClick={() => window.print()}
-                className="bg-slate-100 hover:bg-slate-200 text-[#0f1e36] font-bold text-xs uppercase tracking-wide px-5 py-2.5 rounded border border-slate-300 flex items-center gap-2 transition-all cursor-pointer"
-              >
-                🖨️ Imprimir / Salvar PDF da Peça
-              </button>
-            </div>
-          )}
         </div>
       </div>
 

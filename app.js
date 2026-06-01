@@ -4612,7 +4612,7 @@ function renderProcessesGrid(processes) {
 
     card.innerHTML = `
       <div class="cliente-card-header" style="flex-direction: column; align-items: flex-start; gap: 8px;">
-        <span class="badge-tipo" style="background: rgba(197, 168, 92, 0.1); border-color: rgba(197, 168, 92, 0.2); font-size: 10px; margin: 0;">CNJ: ${p.numero_processo || "Não informado"}</span>
+        <button type="button" class="btn-load-proc-generator" data-id="${p.id}" style="background: transparent; border: none; color: #3b82f6; text-decoration: underline; font-size: 10px; margin: 0; padding: 0; cursor: pointer; text-align: left; font-family: monospace;">CNJ: ${p.numero_processo || "Não informado"}</button>
         <h3 class="cliente-card-title" title="${p.titulo}" style="font-size: 15px; margin: 4px 0; font-family:'Outfit'; font-weight:600; color:var(--text-primary);">${p.titulo}</h3>
         <span style="font-size: 12px; color: var(--gold); font-weight: 500;">👤 Cliente: <strong>${clientName}</strong></span>
       </div>
@@ -4652,6 +4652,18 @@ function renderProcessesGrid(processes) {
       btnEdit.addEventListener("click", (e) => {
         e.preventDefault();
         openEditProcessModal(p);
+      });
+    }
+
+    const btnLoadGenerator = card.querySelector(".btn-load-proc-generator");
+    if (btnLoadGenerator) {
+      btnLoadGenerator.addEventListener("click", (e) => {
+        e.preventDefault();
+        openEditProcessModal(p);
+        setTimeout(() => {
+          const btnJusIaModal = document.getElementById("btn-gerar-peca-jusia");
+          if (btnJusIaModal) btnJusIaModal.click();
+        }, 150);
       });
     }
   });
