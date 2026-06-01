@@ -691,7 +691,11 @@ Dra. Janaina Tarabauca (Contratada)`;
             ) : (
               <select
                 value={clienteSelecionadoId}
-                onChange={(e) => setClienteSelecionadoId(e.target.value)}
+                onChange={(e) => {
+                  setClienteSelecionadoId(e.target.value);
+                  setMinutaTexto(""); // Limpa o rascunho/esboço anterior
+                  handleClearSignature(); // Reseta assinaturas vinculadas
+                }}
                 className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2.5 text-xs text-[#0f1e36] dark:text-slate-200 focus:outline-none focus:border-[#d4af37] cursor-pointer font-semibold"
               >
                 <option value="">Selecione um cliente...</option>
@@ -806,29 +810,7 @@ Dra. Janaina Tarabauca (Contratada)`;
               >
                 {loadingMinuta ? "Processando Minuta Jurídica..." : "Gerar Minuta por IA"}
               </button>
-
-              {clienteSelecionadoId && (
-                <button
-                  type="button"
-                  onClick={() => setVisualizarPrompt(!visualizarPrompt)}
-                  className="text-xs text-[#0f1e36] dark:text-[#d4af37] hover:underline font-bold"
-                >
-                  {visualizarPrompt ? "Ocultar Prompt" : "Ver Prompt de Injeção"}
-                </button>
-              )}
             </div>
-
-            {/* Prompt de Injeção Visível */}
-            {visualizarPrompt && promptMock && (
-              <div className="bg-slate-50 dark:bg-slate-900 border border-[#d4af37]/35 rounded-xl p-4 space-y-2.5 animate-slideDown">
-                <span className="text-[9px] font-bold text-[#d4af37] tracking-widest uppercase block">
-                  ⚙️ Prompt Estruturado Enviado
-                </span>
-                <pre className="text-[10px] text-slate-500 dark:text-slate-400 font-mono whitespace-pre-wrap leading-relaxed select-all max-h-48 overflow-y-auto">
-                  {promptMock}
-                </pre>
-              </div>
-            )}
 
             {/* Área de Texto da Minuta Editável */}
             <div className="space-y-2">
