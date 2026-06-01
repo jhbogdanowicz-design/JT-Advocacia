@@ -825,12 +825,13 @@ Dra. Janaina Tarabauca (Contratada)`;
               ) : minutaTexto ? (
                 <>
                   {/* CABEÇALHO TIMBRADO JURÍDICO - EXCLUSIVO PARA IMPRESSÃO */}
-                  <div className="hidden print:block mb-8 border-b-2 border-[#d4af37] pb-4">
-                    <div className="text-center">
-                      <h2 className="font-playfair font-extrabold text-xl text-[#0f1e36] tracking-wider uppercase">
-                        JT - JANAINA TARABAUCA ADVOGADOS
+                  <div className="hidden print:flex print:items-center print:gap-4 mb-8 border-b-2 border-[#d4af37] pb-4">
+                    <img src="/logo-jt.png" alt="JT" className="h-12 w-12 object-contain" />
+                    <div>
+                      <h2 className="font-playfair font-extrabold text-xl text-[#0f1e36] tracking-wider uppercase m-0">
+                        Janaina Tarabauca Advogados
                       </h2>
-                      <p className="text-[10px] uppercase tracking-widest text-[#d4af37] font-bold mt-1">
+                      <p className="text-[10px] uppercase tracking-widest text-[#d4af37] font-bold mt-0.5">
                         Direito Médico e da Saúde
                       </p>
                     </div>

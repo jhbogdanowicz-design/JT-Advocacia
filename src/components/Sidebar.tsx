@@ -154,17 +154,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside className="w-64 bg-[#0f172a] text-slate-100 flex flex-col h-screen border-r border-slate-800 shrink-0 print:hidden">
-      {/* LOGO */}
-      <div className="flex items-center gap-3 px-6 py-5 border-b border-slate-800">
-        <div className="w-10 h-10 rounded-lg overflow-hidden border border-[#d4af37]/30 flex items-center justify-center bg-slate-900">
-          <img src="/logo.jpg" alt="JT Advocacia" className="w-full h-full object-cover onError={(e)=>{e.currentTarget.style.display='none'}}" />
-        </div>
-        <div className="flex flex-col">
-          <h2 className="font-playfair font-extrabold text-lg text-slate-100 tracking-wider m-0 leading-tight">
+      {/* LOGO — IDENTIDADE PREMIUM */}
+      <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-800">
+        <div className="bg-white rounded-lg border border-[#d4af37]/50 flex items-center justify-center shadow-md shrink-0 overflow-hidden" style={{width: 44, height: 44}}>
+          <img
+            src="/logo-jt.png"
+            alt="Logo Janaina Tarabauca Advogados"
+            className="w-full h-full object-contain"
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+              const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+              if (fallback) fallback.style.display = "flex";
+            }}
+          />
+          <span
+            className="font-playfair font-extrabold text-[#0f1e36] text-base hidden items-center justify-center w-full h-full"
+            aria-hidden="true"
+          >
             JT
-          </h2>
-          <span className="text-[9px] font-bold text-[#d4af37] tracking-widest uppercase">
-            ADVOCACIA
+          </span>
+        </div>
+        <div className="flex flex-col min-w-0">
+          <span className="text-[11px] font-extrabold tracking-widest text-slate-100 uppercase leading-tight truncate">
+            Janaina Tarabauca
+          </span>
+          <span className="text-[9px] font-bold tracking-wider text-[#d4af37] uppercase mt-0.5">
+            Advogados Associados
           </span>
         </div>
       </div>
