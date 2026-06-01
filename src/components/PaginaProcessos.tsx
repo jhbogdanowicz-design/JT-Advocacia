@@ -1302,6 +1302,18 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
           <pre className="hidden print:block whitespace-pre-wrap font-mono text-[11px] text-black bg-white leading-relaxed p-0 border-none outline-none">
             {pecaTexto}
           </pre>
+
+          {pecaTexto && (
+            <div className="flex justify-end my-4 print:hidden">
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="bg-slate-100 hover:bg-slate-200 text-[#0f1e36] font-bold text-xs uppercase tracking-wide px-5 py-2.5 rounded border border-slate-300 flex items-center gap-2 transition-all cursor-pointer"
+              >
+                🖨️ Imprimir / Salvar PDF da Peça
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
