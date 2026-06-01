@@ -551,6 +551,153 @@
       .quote-card { padding: 18px 16px; gap: 14px; }
       .quote-text { font-size: 14px; }
     }
+
+    /* ── LIGHT MODE OVERRIDES FOR HERO, PILLARS AND AUTH CARD ───────────────── */
+    [data-theme="light"] .hero-premium {
+      background: radial-gradient(ellipse 80% 60% at 70% 50%, rgba(197,168,92,0.06) 0%, transparent 70%),
+                  radial-gradient(ellipse 50% 80% at 10% 30%, rgba(241,245,249,0.95) 0%, transparent 80%),
+                  #F8FAFC;
+    }
+    [data-theme="light"] .hero-eyebrow {
+      color: #a38545;
+      background: rgba(197, 168, 92, 0.08);
+      border-color: rgba(197, 168, 92, 0.22);
+    }
+    [data-theme="light"] .hero-headline {
+      color: #0F172A;
+    }
+    [data-theme="light"] .hero-headline em {
+      color: #a38545;
+    }
+    [data-theme="light"] .hero-subheadline {
+      color: #475569;
+    }
+    [data-theme="light"] .hero-trust-item {
+      color: #475569;
+    }
+    [data-theme="light"] .hero-btn-secondary {
+      color: #0F172A;
+      border-color: rgba(197, 168, 92, 0.35);
+    }
+    [data-theme="light"] .hero-btn-secondary:hover {
+      background: rgba(197, 168, 92, 0.06);
+      color: #a38545;
+      border-color: #a38545;
+    }
+    [data-theme="light"] .hero-img-frame {
+      border-color: rgba(197,168,92,0.25);
+      box-shadow: 0 20px 40px rgba(15,23,42,0.08);
+    }
+    [data-theme="light"] .hero-img-badge {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: rgba(197,168,92,0.3);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+    [data-theme="light"] .hero-img-badge-title {
+      color: #0F172A;
+    }
+    [data-theme="light"] .hero-img-badge-sub {
+      color: #a38545;
+    }
+    [data-theme="light"] .quote-card {
+      background: rgba(255, 255, 255, 0.75);
+      border-color: rgba(197, 168, 92, 0.22);
+      box-shadow: 0 10px 30px rgba(15,23,42,0.06), 0 1px 4px rgba(197,168,92,0.04);
+    }
+    [data-theme="light"] .quote-text {
+      color: #0F172A;
+    }
+    [data-theme="light"] .quote-author {
+      color: #a38545;
+    }
+    [data-theme="light"] .quote-refresh {
+      border-color: rgba(197,168,92,0.4);
+      color: #a38545;
+    }
+    [data-theme="light"] .quote-refresh:hover {
+      background: rgba(197,168,92,0.08);
+      border-color: #a38545;
+    }
+
+    [data-theme="light"] .pillars-section {
+      background: #F1F5F9;
+      border-top-color: rgba(197,168,92,0.15);
+      border-bottom-color: rgba(197,168,92,0.15);
+    }
+    [data-theme="light"] .pillar-card {
+      border-color: rgba(197,168,92,0.2);
+      background: rgba(255,255,255,0.75);
+    }
+    [data-theme="light"] .pillar-card:hover {
+      border-color: rgba(197,168,92,0.4);
+      background: rgba(255,255,255,0.95);
+    }
+    [data-theme="light"] .pillar-title {
+      color: #0F172A;
+    }
+    [data-theme="light"] .pillar-desc {
+      color: #475569;
+    }
+    [data-theme="light"] .pillar-num {
+      color: rgba(197,168,92,0.3);
+    }
+
+    [data-theme="light"] .auth-premium-wrap {
+      background: linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%);
+    }
+    [data-theme="light"] .auth-premium-wrap::before {
+      background: radial-gradient(ellipse 60% 50% at 50% 40%, rgba(197,168,92,0.06) 0%, transparent 70%);
+    }
+    [data-theme="light"] .auth-premium-card {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: rgba(197, 168, 92, 0.22);
+      box-shadow: 0 32px 80px rgba(15,23,42,0.08), 0 0 0 1px rgba(197,168,92,0.05);
+    }
+    [data-theme="light"] .auth-logo-name {
+      color: #0F172A;
+    }
+    [data-theme="light"] .auth-logo-sub {
+      color: #a38545;
+    }
+    [data-theme="light"] .auth-form-title {
+      color: #0F172A;
+    }
+    [data-theme="light"] .auth-form-sub {
+      color: #475569;
+    }
+    [data-theme="light"] .auth-premium-label {
+      color: #475569;
+    }
+    [data-theme="light"] .auth-premium-input {
+      background: #FFFFFF;
+      border-color: rgba(197,168,92,0.3);
+      color: #0F172A;
+    }
+    [data-theme="light"] .auth-premium-input:focus {
+      border-color: #a38545;
+      box-shadow: 0 0 0 3px rgba(197,168,92,0.15);
+    }
+    [data-theme="light"] .auth-premium-input::placeholder {
+      color: #94A3B8;
+    }
+    [data-theme="light"] .auth-premium-btn {
+      background: #0f1e36;
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(15,23,42,0.15);
+    }
+    [data-theme="light"] .auth-premium-btn:hover {
+      background: #1a2e4a;
+      box-shadow: 0 8px 24px rgba(15,23,42,0.25);
+    }
+    [data-theme="light"] .auth-divider {
+      border-top-color: rgba(197,168,92,0.15);
+    }
+    [data-theme="light"] .auth-premium-link {
+      color: #a38545;
+    }
+    [data-theme="light"] .auth-premium-link:hover {
+      color: #0F172A;
+    }
   </style>
   <!-- Proteção Anti-Bot: Cloudflare Turnstile -->
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
