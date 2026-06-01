@@ -33,7 +33,6 @@ export const PaginaContratos: React.FC = () => {
 
   // Estado da Minuta Gerada
   const [minutaTexto, setMinutaTexto] = useState<string>("");
-  const [visualizarPrompt, setVisualizarPrompt] = useState<boolean>(false);
 
   // Estados do Canvas de Assinatura
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -294,7 +293,6 @@ export const PaginaContratos: React.FC = () => {
   const handleNovoContrato = () => {
     setClienteSelecionadoId("");
     setMinutaTexto("");
-    setVisualizarPrompt(false);
     setTipoPlano("mensal");
     setDataInicio(new Date().toISOString().split("T")[0]);
     setDiaRenovacao(5);
@@ -302,39 +300,6 @@ export const PaginaContratos: React.FC = () => {
     setSignatureImgUrl(null);
     handleClearSignature();
   };
-
-  // Prompt Mock Interno Utilizado
-  const promptMock = useMemo(() => {
-    if (!clienteAtivo) return "";
-
-    const fatos = clienteAtivo.observacoes || "Nenhum relato de fatos cadastrado no prontuário.";
-    const area = clienteAtivo.areas_interesse || "Direito Médico / Geral";
-    const docTipo =
-      clienteAtivo.tipo_pessoa === "PJ"
-        ? "Contrato de Assessoria Médica Preventiva e Auditoria Corporativa"
-        : "Contrato de Prestação de Serviços de Defesa Médica Contenciosa";
-
-    return `Você é o JUS IA, um assistente jurídico sênior e parecerista altamente qualificado.
-Esboce um ${docTipo} personalizado com base nas informações do cliente a seguir:
-
-DADOS CONTRATUAIS DE SUPORTE:
-- Advogado Responsável: Dra. Janaina Tarabauca
-- Nome do Cliente: ${clienteAtivo.nome}
-- Documento: ${clienteAtivo.cpf_cnpj || "Não cadastrado"}
-- Área de Foco: ${area}
-
-RELATO DE FATOS E NECESSIDADES DO PRONTUÁRIO:
-"${fatos}"
-
-DIRETRIZES DE REDAÇÃO CONTRATUAL:
-1. Comece com um cabeçalho profissional e qualificação completa das partes.
-2. Defina o Objeto do Contrato de forma clara, focando na defesa e conformidade exigida nos fatos.
-3. Estabeleça Obrigações da Contratada (Dra. Janaina Tarabauca) e Obrigações do Contratante de acordo com o padrão ético da OAB.
-4. Escreva uma cláusula de confidencialidade estrita (segredo de justiça e sigilo médico).
-5. Defina o Foro de eleição competente para solucionar eventuais litígios.
-
-Responda redigindo a estrutura completa do contrato em prosa jurídica formal e legível.`;
-  }, [clienteAtivo]);
 
   // Ação de geração de Minuta via IA
   const handleGerarMinuta = async () => {

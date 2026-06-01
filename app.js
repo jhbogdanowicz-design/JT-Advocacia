@@ -251,9 +251,6 @@ const contratosPreviewNome = document.getElementById("contratos-preview-nome");
 const contratosPreviewDoc = document.getElementById("contratos-preview-doc");
 const contratosPreviewFatos = document.getElementById("contratos-preview-fatos");
 const btnContratosEsbocar = document.getElementById("btn-contratos-esbocar");
-const btnContratosPromptToggle = document.getElementById("btn-contratos-prompt-toggle");
-const contratosPromptCard = document.getElementById("contratos-prompt-card");
-const contratosPromptText = document.getElementById("contratos-prompt-text");
 const btnContratosCopiar = document.getElementById("btn-contratos-copiar");
 const contratosMinutaLoading = document.getElementById("contratos-minuta-loading");
 const contratosMinutaLoadingStatus = document.getElementById("contratos-minuta-loading-status");
@@ -6526,10 +6523,20 @@ function triggerContratoClientSelected() {
     
     btnContratosEsbocar.removeAttribute("disabled");
     btnContratosAtivarPlano.removeAttribute("disabled");
-    btnContratosPromptToggle.style.display = "inline-block";
     
-    const prompt = generateContratosPromptText(client);
-    contratosPromptText.textContent = prompt;
+    // Limpa o rascunho anterior, botões de PDF e canvas de assinatura
+    if (contratosMinutaTextarea) contratosMinutaTextarea.value = "";
+    if (btnContratosPrintPreview) btnContratosPrintPreview.style.display = "none";
+    if (btnContratosPrintSigned) btnContratosPrintSigned.style.display = "none";
+    contratosSignatureDataUrl = null;
+    
+    if (contratosAssinaturaContainer) contratosAssinaturaContainer.style.display = "none";
+    if (contratosCanvasSuccess) contratosCanvasSuccess.style.display = "none";
+    if (contratosCanvasPad) {
+      const ctx = contratosCanvasPad.getContext("2d");
+      if (ctx) ctx.clearRect(0, 0, contratosCanvasPad.width, contratosCanvasPad.height);
+    }
+    signaturePadHasDrawing = false;
   } else {
     resetContratosPreview();
   }
@@ -6539,14 +6546,11 @@ function resetContratosPreview() {
   contratosClientPreview.style.display = "none";
   btnContratosEsbocar.setAttribute("disabled", "true");
   btnContratosAtivarPlano.setAttribute("disabled", "true");
-  btnContratosPromptToggle.style.display = "none";
-  contratosPromptCard.style.display = "none";
-  btnContratosPromptToggle.textContent = "Ver Prompt de Injeção";
-  contratosPromptText.textContent = "";
   
   if (btnContratosPrintPreview) btnContratosPrintPreview.style.display = "none";
   if (btnContratosPrintSigned) btnContratosPrintSigned.style.display = "none";
   contratosSignatureDataUrl = null;
+  if (contratosMinutaTextarea) contratosMinutaTextarea.value = "";
   
   if (contratosAssinaturaContainer) contratosAssinaturaContainer.style.display = "none";
   if (contratosCanvasSuccess) contratosCanvasSuccess.style.display = "none";
@@ -6811,17 +6815,7 @@ function initContratosModule() {
     contratosClientSelect.addEventListener("change", triggerContratoClientSelected);
   }
   
-  if (btnContratosPromptToggle && contratosPromptCard) {
-    btnContratosPromptToggle.addEventListener("click", () => {
-      if (contratosPromptCard.style.display === "none") {
-        contratosPromptCard.style.display = "block";
-        btnContratosPromptToggle.textContent = "Ocultar Prompt da IA";
-      } else {
-        contratosPromptCard.style.display = "none";
-        btnContratosPromptToggle.textContent = "Ver Prompt de Injeção";
-      }
-    });
-  }
+
   
   if (btnContratosEsbocar) {
     btnContratosEsbocar.addEventListener("click", executeEsbocarContrato);
