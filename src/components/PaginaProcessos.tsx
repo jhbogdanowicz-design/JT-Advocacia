@@ -1373,44 +1373,36 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
         <div className="mt-4">
           <div className="flex justify-between items-center mb-2 print:hidden">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Minuta Jurídica Gerada</span>
-            {pecaTexto && (
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    navigator.clipboard.writeText(pecaTexto);
-                    alert("Copiado para a área de transferência com sucesso!");
-                  }}
-                  className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#0f1e36] dark:text-slate-200 text-xs font-bold uppercase px-3 py-1.5 rounded border border-slate-300 dark:border-slate-700 cursor-pointer"
-                >
-                  📋 Copiar Minuta
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPecaTexto("");
-                    setPecaError(null);
-                  }}
-                  className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#0f1e36] dark:text-slate-200 text-xs font-bold uppercase px-3 py-1.5 rounded border border-slate-300 dark:border-slate-700 cursor-pointer"
-                >
-                  🔄 Limpar
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Botão de Impressão Forçado e Isolado (z-index 50) */}
-          {pecaTexto && (
-            <div className="block my-4 clear-both relative z-50 print:hidden">
-              <button 
-                type="button" 
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
                 onClick={() => window.print()} 
-                className="bg-amber-500 hover:bg-amber-600 text-[#0f1e36] font-bold text-xs uppercase tracking-wider px-6 py-3 rounded shadow-md inline-flex items-center gap-2"
+                className="bg-amber-500 hover:bg-amber-600 text-[#0f1e36] font-bold text-xs uppercase tracking-wider px-6 py-3 rounded shadow-md inline-flex items-center gap-2 cursor-pointer"
               >
                 🖨️ IMPRIMIR / SALVAR PDF AGORA
               </button>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(pecaTexto);
+                  alert("Copiado para a área de transferência com sucesso!");
+                }}
+                className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#0f1e36] dark:text-slate-200 text-xs font-bold uppercase px-3 py-1.5 rounded border border-slate-300 dark:border-slate-700 cursor-pointer"
+              >
+                📋 Copiar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setPecaTexto("");
+                  setPecaError(null);
+                }}
+                className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#0f1e36] dark:text-slate-200 text-xs font-bold uppercase px-3 py-1.5 rounded border border-slate-300 dark:border-slate-700 cursor-pointer"
+              >
+                🔄 Limpar
+              </button>
             </div>
-          )}
+          </div>
 
           {/* CABEÇALHO TIMBRADO JURÍDICO - EXCLUSIVO PARA IMPRESSÃO */}
           <div className="hidden print:block mb-8 border-b-2 border-[#d4af37] pb-4 text-center">
@@ -1432,6 +1424,30 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
           <pre className="hidden print:block whitespace-pre-wrap font-mono text-[11px] text-black bg-white leading-relaxed p-0 border-none outline-none">
             {pecaTexto}
           </pre>
+        </div>
+
+        {/* ── FORCED VISIBLE ACTION BAR - DECOUPLED FROM HIERARCHY BUG ─────── */}
+        <div className="w-full mt-6 p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm block clear-both relative z-50 print:hidden">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <h4 className="text-xs font-bold text-[#0f1e36] dark:text-slate-300 uppercase tracking-wide">
+                Ações do Documento Gerado
+              </h4>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                Clique ao lado para exportar a petição/tese da Jus IA diretamente para PDF ou impressora.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                console.log("Forçando impressão do sistema...");
+                window.print();
+              }}
+              className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 active:scale-95 text-[#0f1e36] font-extrabold text-xs uppercase tracking-widest px-8 py-4 rounded shadow-lg flex items-center justify-center gap-3 transition-all border-b-4 border-amber-700 cursor-pointer"
+            >
+              <span>🖨️ IMPRIMIR / SALVAR PDF AGORA</span>
+            </button>
+          </div>
         </div>
       </div>
 
