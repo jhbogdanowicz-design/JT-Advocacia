@@ -50,6 +50,102 @@
         gap: 24px !important;
       }
     }
+
+    /* ── FRASE DO DIA ─────────────────────────────────────────────────────── */
+    .quote-section {
+      padding: 0 24px 0;
+      max-width: 1200px;
+      margin: -28px auto 0;
+      position: relative;
+      z-index: 10;
+    }
+    .quote-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      background: #fff;
+      border-left: 5px solid #d4af37;
+      border-radius: 0 14px 14px 0;
+      padding: 24px 28px;
+      box-shadow: 0 8px 40px rgba(15,30,54,0.10), 0 1px 4px rgba(212,175,55,0.08);
+      opacity: 0;
+      transform: translateY(12px);
+      animation: quoteFadeIn 0.7s ease 0.3s forwards;
+    }
+    [data-theme="dark"] .quote-card {
+      background: #0f172a;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.35), 0 1px 4px rgba(212,175,55,0.10);
+    }
+    @keyframes quoteFadeIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .quote-icon {
+      font-size: 36px;
+      line-height: 1;
+      color: #d4af37;
+      flex-shrink: 0;
+      margin-top: 2px;
+      font-family: 'Playfair Display', Georgia, serif;
+      font-weight: 800;
+    }
+    .quote-body {
+      flex: 1;
+      min-width: 0;
+    }
+    .quote-label {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: #d4af37;
+      background: rgba(212,175,55,0.09);
+      border: 1px solid rgba(212,175,55,0.25);
+      border-radius: 20px;
+      padding: 2px 10px;
+      margin-bottom: 10px;
+    }
+    .quote-text {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 16px;
+      font-style: italic;
+      font-weight: 500;
+      color: #0f1e36;
+      line-height: 1.65;
+      margin: 0 0 10px 0;
+    }
+    [data-theme="dark"] .quote-text {
+      color: #e2e8f0;
+    }
+    .quote-author {
+      font-size: 11px;
+      font-weight: 700;
+      color: #d4af37;
+      letter-spacing: 0.5px;
+      font-style: normal;
+    }
+    .quote-refresh {
+      background: none;
+      border: 1px solid rgba(212,175,55,0.30);
+      color: #d4af37;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+      flex-shrink: 0;
+      align-self: center;
+      line-height: 1;
+    }
+    .quote-refresh:hover {
+      background: rgba(212,175,55,0.10);
+      border-color: #d4af37;
+    }
+    @media (max-width: 640px) {
+      .quote-section { margin-top: 0; padding: 16px 16px 0; }
+      .quote-card { padding: 18px 16px; gap: 14px; }
+      .quote-text { font-size: 14px; }
+    }
   </style>
   <!-- Proteção Anti-Bot: Cloudflare Turnstile -->
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
@@ -111,6 +207,24 @@
         </div>
       </div>
     </section>
+
+    <!-- ── FRASE DO DIA ──────────────────────────────────────────────────── -->
+    <div class="quote-section" id="frase-do-dia-section" aria-label="Frase do Dia">
+      <div class="quote-card" id="quote-card">
+        <span class="quote-icon" aria-hidden="true">&ldquo;</span>
+        <div class="quote-body">
+          <span class="quote-label">⚖️ Frase do Dia</span>
+          <p class="quote-text" id="quote-text">Carregando...</p>
+          <span class="quote-author" id="quote-author"></span>
+        </div>
+        <button
+          class="quote-refresh"
+          id="quote-refresh-btn"
+          title="Próxima frase"
+          aria-label="Ver outra frase"
+        >↻</button>
+      </div>
+    </div>
 
     <!-- DIFFERENTIALS / FEATURES SECTION -->
     <section class="landing-differentials" id="diferenciais">
@@ -3082,5 +3196,93 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <script type="module" src="app.js"></script>
+
+  <!-- ── MOTOR DE FRASES DO DIA ─────────────────────────────────────────── -->
+  <script>
+    (function () {
+      const listaDeFrases = [
+        {
+          texto: "A medicina cura o corpo; a justiça cura os direitos. Unidas, defendemos a dignidade humana.",
+          autor: "— JT Advocacia"
+        },
+        {
+          texto: "O bom direito médico não busca apenas vencer processos, mas proteger o ato de cuidar.",
+          autor: "— Princípio do Direito Médico Brasileiro"
+        },
+        {
+          texto: "A justiça é a constante e firme vontade de dar a cada um o que é seu.",
+          autor: "— Ulpiano, Jurista Romano"
+        },
+        {
+          texto: "Diante de um erro, a lei é o escudo; diante da verdade, a justiça é o destino.",
+          autor: "— JT Advocacia"
+        },
+        {
+          texto: "Nenhum paciente deve suportar o peso de um dano sem que a lei estenda seus braços em defesa da sua dignidade.",
+          autor: "— Doutrina do Direito da Saúde"
+        },
+        {
+          texto: "A responsabilidade médica não é punição ao cuidador; é o reconhecimento de que vidas merecem proteção.",
+          autor: "— JT Advocacia"
+        },
+        {
+          texto: "Onde a medicina termina, o direito começa — e juntos nunca deixam o cidadão desamparado.",
+          autor: "— Direito Médico e da Saúde"
+        },
+        {
+          texto: "O acesso à saúde é um direito fundamental; impedir tratamento vital é negar a própria vida.",
+          autor: "— Constituição Federal, Art. 196"
+        },
+        {
+          texto: "A advocacia de excelência não é a mais barulhenta, mas a mais precisa — cirúrgica como um bisturi.",
+          autor: "— JT Advocacia"
+        },
+        {
+          texto: "Um laudo pode condenar ou absolver; um advogado preparado sabe a diferença entre os dois.",
+          autor: "— Direito Médico-Pericial"
+        },
+        {
+          texto: "A justiça não é uma dádiva; é um direito conquistado com prova, técnica e perseverança.",
+          autor: "— Rui Barbosa"
+        },
+        {
+          texto: "Todo profissional de saúde merece defesa técnica qualificada — porque errar é humano, mas responder sem suporte jurídico é injusto.",
+          autor: "— JT Advocacia"
+        }
+      ];
+
+      let ultimoIndex = -1;
+
+      function exibirFraseAleatoria() {
+        let idx;
+        do { idx = Math.floor(Math.random() * listaDeFrases.length); }
+        while (idx === ultimoIndex && listaDeFrases.length > 1);
+        ultimoIndex = idx;
+
+        const frase = listaDeFrases[idx];
+        const elTexto  = document.getElementById('quote-text');
+        const elAutor  = document.getElementById('quote-author');
+        const elCard   = document.getElementById('quote-card');
+
+        if (!elTexto || !elAutor || !elCard) return;
+
+        // Fade-out rápido, troca conteúdo, fade-in
+        elCard.style.transition = 'opacity 0.25s ease';
+        elCard.style.opacity = '0';
+        setTimeout(function () {
+          elTexto.textContent  = frase.texto;
+          elAutor.textContent  = frase.autor;
+          elCard.style.opacity = '1';
+        }, 250);
+      }
+
+      // Dispara no carregamento da página
+      document.addEventListener('DOMContentLoaded', function () {
+        exibirFraseAleatoria();
+        var btn = document.getElementById('quote-refresh-btn');
+        if (btn) btn.addEventListener('click', exibirFraseAleatoria);
+      });
+    })();
+  </script>
 </body>
 </html>
