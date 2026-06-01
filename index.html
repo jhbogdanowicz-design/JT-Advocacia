@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <!-- SEO Básico e Autoridade de Marca -->
-  <title>JT - Janaina Tarabauca Advogados | Direito Médico e da Saúde</title>
-  <meta name="description" content="Escritório especializado em Direito Médico e da Saúde. Defesa de médicos, erro médico, liberação de tratamento por planos de saúde e liminares médicas. Atendimento com a Dra. Janaina Tarabauca." />
+  <title>JT - Janaina Tarabauca Advogados | Advocacia de Alta Performance e Assessoria Jurídica Estratégica</title>
+  <meta name="description" content="Escritório de advocacia premium especializado em soluções estratégicas de alto impacto nas esferas cível, trabalhista, empresarial, regulatória e da saúde. Atendimento de excelência com a Dra. Janaina Tarabauca." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://www.jt-janainatarabauca.com.br" />
 
@@ -21,15 +21,15 @@
   <!-- Open Graph / Facebook / WhatsApp (Garante visual profissional ao compartilhar o link) -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://www.jt-janainatarabauca.com.br" />
-  <meta property="og:title" content="JT - Janaina Tarabauca Advogados | Especialistas em Direito Médico" />
-  <meta property="og:description" content="Defesa jurídica estratégica em Direito Médico, Odontológico e da Saúde. Fale com a Dra. Janaina Tarabauca." />
+  <meta property="og:title" content="JT - Janaina Tarabauca Advogados | Advocacia de Alta Performance" />
+  <meta property="og:description" content="Assessoria jurídica e contencioso de alta complexidade nas áreas cível, empresarial, trabalhista e da saúde. Fale com a Dra. Janaina Tarabauca." />
   <meta property="og:image" content="https://www.jt-janainatarabauca.com.br/og-image.jpg" /> <!-- Coloque uma imagem corporativa com essa nomenclatura na pasta public -->
 
   <!-- Twitter / X -->
   <meta property="twitter:card" content="summary_large_image" />
   <meta property="twitter:url" content="https://www.jt-janainatarabauca.com.br" />
   <meta property="twitter:title" content="JT - Janaina Tarabauca Advogados" />
-  <meta property="twitter:description" content="Consultoria e contencioso especializado em Direito Médico." />
+  <meta property="twitter:description" content="Consultoria jurídica estratégica e contencioso de alta complexidade." />
 
   <!-- Favicon e Apple Touch Icon -->
   <link rel="icon" type="image/png" href="/logo-jt.png" />
@@ -190,8 +190,10 @@
     .hero-visual {
       position: relative;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
+      gap: 20px;
+      width: 100%;
     }
     .hero-img-frame {
       position: relative;
@@ -464,46 +466,30 @@
     .auth-premium-link:hover { color: #f0d080; text-decoration: underline; }
 
     /* ── FRASE DO DIA ─────────────────────────────────────────────────────── */
-    .quote-section {
-      background: #f8f7f4;
-      border-top: 1px solid rgba(212,175,55,0.15);
-      border-bottom: 1px solid rgba(212,175,55,0.15);
-      padding: 40px 40px;
-      margin: 0;
-      position: relative;
-      z-index: 1;
-    }
-    [data-theme="dark"] .quote-section {
-      background: #0a1221;
-    }
-    .quote-inner {
-      max-width: 1280px;
-      margin: 0 auto;
-    }
     .quote-card {
       display: flex;
       align-items: flex-start;
       gap: 20px;
-      background: #fff;
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(212, 175, 55, 0.15);
       border-left: 5px solid #d4af37;
       border-radius: 12px;
-      padding: 28px 32px;
-      box-shadow: 0 2px 20px rgba(15,30,54,0.07), 0 1px 4px rgba(212,175,55,0.06);
+      padding: 24px 28px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25), 0 1px 4px rgba(212, 175, 55, 0.08);
       opacity: 0;
       transform: translateY(12px);
       animation: quoteFadeIn 0.7s ease 0.3s forwards;
-      max-width: 860px;
+      max-width: 580px;
+      width: 100%;
+      box-sizing: border-box;
       margin: 0 auto;
-    }
-    [data-theme="dark"] .quote-card {
-      background: #0f172a;
-      box-shadow: 0 2px 20px rgba(0,0,0,0.25), 0 1px 4px rgba(212,175,55,0.08);
     }
     @keyframes quoteFadeIn {
       to { opacity: 1; transform: translateY(0); }
     }
     .quote-icon {
-      font-size: 36px;
+      font-size: 32px;
       line-height: 1;
       color: #d4af37;
       flex-shrink: 0;
@@ -522,23 +508,20 @@
       letter-spacing: 2.5px;
       text-transform: uppercase;
       color: #d4af37;
-      background: rgba(212,175,55,0.09);
-      border: 1px solid rgba(212,175,55,0.25);
+      background: rgba(212, 175, 55, 0.09);
+      border: 1px solid rgba(212, 175, 55, 0.25);
       border-radius: 20px;
       padding: 2px 10px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
     .quote-text {
       font-family: 'Playfair Display', Georgia, serif;
-      font-size: 16px;
+      font-size: 15px;
       font-style: italic;
       font-weight: 500;
-      color: #0f1e36;
-      line-height: 1.65;
-      margin: 0 0 10px 0;
-    }
-    [data-theme="dark"] .quote-text {
       color: #e2e8f0;
+      line-height: 1.6;
+      margin: 0 0 8px 0;
     }
     .quote-author {
       font-size: 11px;
@@ -565,7 +548,6 @@
       border-color: #d4af37;
     }
     @media (max-width: 640px) {
-      .quote-section { padding: 28px 16px; }
       .quote-card { padding: 18px 16px; gap: 14px; }
       .quote-text { font-size: 14px; }
     }
@@ -650,42 +632,43 @@
 
         <!-- Coluna da imagem -->
         <div class="hero-visual">
-          <div class="hero-img-frame">
-            <img src="modern_law_office.png" alt="Escritório premium de advocacia" loading="eager" fetchpriority="high">
-            <div class="hero-img-overlay"></div>
-            <div class="hero-img-badge">
-              <span class="hero-img-badge-icon">⚖️</span>
-              <div class="hero-img-badge-text">
-                <span class="hero-img-badge-title">Dra. Janaina Tarabauca</span>
-                <span class="hero-img-badge-sub">Advogados Associados</span>
+          <div class="hero-visual-wrapper" style="position: relative; width: 100%; max-width: 580px; display: flex; justify-content: center;">
+            <div class="hero-img-frame">
+              <img src="modern_law_office.png" alt="Escritório premium de advocacia" loading="eager" fetchpriority="high">
+              <div class="hero-img-overlay"></div>
+              <div class="hero-img-badge">
+                <span class="hero-img-badge-icon">⚖️</span>
+                <div class="hero-img-badge-text">
+                  <span class="hero-img-badge-title">Dra. Janaina Tarabauca</span>
+                  <span class="hero-img-badge-sub">Advogados Associados</span>
+                </div>
               </div>
             </div>
+            <div class="hero-gold-corner" aria-hidden="true"></div>
+            <div class="hero-gold-corner-bl" aria-hidden="true"></div>
           </div>
-          <div class="hero-gold-corner" aria-hidden="true"></div>
-          <div class="hero-gold-corner-bl" aria-hidden="true"></div>
+
+          <!-- Frase do dia (Embaixo da imagem, simetricamente integrada ao fluxo) -->
+          <div class="quote-card" id="quote-card">
+            <span class="quote-icon" aria-hidden="true">&ldquo;</span>
+            <div class="quote-body">
+              <span class="quote-label">⚖️ Inspiração Jurídica</span>
+              <p class="quote-text" id="quote-text">Carregando...</p>
+              <span class="quote-author" id="quote-author"></span>
+            </div>
+            <button
+              class="quote-refresh"
+              id="quote-refresh-btn"
+              title="Próxima frase"
+              aria-label="Ver outra frase"
+            >↻</button>
+          </div>
         </div>
 
       </div>
     </section>
 
-    <!-- ── FRASE DO DIA ──────────────────────────────────────────────────── -->
-    <div class="quote-section" id="frase-do-dia-section" aria-label="Frase do Dia">
-      <div class="quote-card" id="quote-card">
-        <span class="quote-icon" aria-hidden="true">&ldquo;</span>
-        <div class="quote-body">
-          <span class="quote-label">⚖️ Frase do Dia</span>
-          <p class="quote-text" id="quote-text">Carregando...</p>
-          <span class="quote-author" id="quote-author"></span>
-        </div>
-        <button
-          class="quote-refresh"
-          id="quote-refresh-btn"
-          title="Próxima frase"
-          aria-label="Ver outra frase"
-        >↻</button>
-        </div>
-      </div>
-    </div>
+
 
     <!-- ── TRÊS PILARES DE SEGURANÇA ────────────────────────────────────────── -->
     <section class="pillars-section" aria-label="Diferenciais do Escritório">
@@ -708,8 +691,8 @@
         <div class="pillar-card">
           <span class="pillar-num">03</span>
           <span class="pillar-icon">💼</span>
-          <h3 class="pillar-title">Prontuário Clínico-Jurídico Blindado</h3>
-          <p class="pillar-desc">Histórico integrado do cliente com acompanhamento em tempo real do passivo processual, prazos fatais e registros documentais criptografados.</p>
+          <h3 class="pillar-title">Blindagem Contratual & Patrimonial</h3>
+          <p class="pillar-desc">Análise proativa de riscos, estruturação de contratos de alta governança e compliance para proteger o patrimônio pessoal e empresarial.</p>
         </div>
 
       </div>
@@ -763,33 +746,52 @@
 
       <div class="landing-areas-grid">
         
-        <!-- Card 1: Direito Médico e da Saúde (Destaque Principal) -->
+        <!-- Card 1: Direito Civil e Contratos (Destaque Principal) -->
         <div class="specialty-card destaque">
           <div class="specialty-card-header">
             <div class="specialty-icon-wrapper">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.248-8.25-3.286zm0 13.036h.008v.008H12v-.008z"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
             </div>
             <span class="specialty-num">01</span>
           </div>
           <div class="specialty-content">
-            <span class="specialty-badge">Destaque Especializado</span>
-            <h3 class="specialty-title">Direito Médico e da Saúde</h3>
-            <span class="specialty-foco">Defesa médica, regulação de clínicas e planos de saúde</span>
-            <p class="specialty-desc">Defesa de profissionais da saúde em processos ético-disciplinares e erro médico. Atuação em glosas hospitalares, regulação de clínicas e ações contra abusos de planos de saúde, garantindo a liberação de cirurgias e medicamentos de alto custo.</p>
+            <span class="specialty-badge">Destaque Estratégico</span>
+            <h3 class="specialty-title">Direito Civil e Contratos</h3>
+            <span class="specialty-foco">Elaboração estratégica e assessoria preventiva</span>
+            <p class="specialty-desc">Elaboração e análise de contratos de alta complexidade. Assessoria em direito de propriedade, direitos reais, renegociações de dívidas, prevenção de litígios e auditoria prévia para mitigar passivos em transações civis e comerciais.</p>
           </div>
-          <a href="https://wa.me/5511947534587?text=Ol%C3%A1%2C%20Gostaria%20de%20falar%20com%20um%20especialista%20sobre%20uma%20consulta%20jur%C3%ADdica%20referente%20a%20Direito%20M%C3%A9dico%20e%20da%20Sa%C3%BAde." target="_blank" rel="noopener noreferrer" class="specialty-footer">
+          <a href="https://wa.me/5511947534587?text=Ol%C3%A1%2C%20Gostaria%20de%20falar%20com%20um%20especialista%20sobre%20uma%20consulta%20jur%C3%ADdica%20referente%20a%20Direito%20Civil%20e%20Contratos." target="_blank" rel="noopener noreferrer" class="specialty-footer">
             <span>Consulta Jurídica</span>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="arrow-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" /></svg>
           </a>
         </div>
 
-        <!-- Card 2: Direito do Trabalho e Previdenciário -->
+        <!-- Card 2: Direito Corporativo e Societário -->
+        <div class="specialty-card">
+          <div class="specialty-card-header">
+            <div class="specialty-icon-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94-3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/></svg>
+            </div>
+            <span class="specialty-num">02</span>
+          </div>
+          <div class="specialty-content">
+            <h3 class="specialty-title">Direito Corporativo e Societário</h3>
+            <span class="specialty-foco">Blindagem jurídica patrimonial e governança ativa</span>
+            <p class="specialty-desc">Assessoria em fusões e aquisições (M&A), constituição de holdings e blindagem patrimonial. Reorganização societária de alta performance, governança ativa e planejamento preventivo para mitigação de riscos fiscais e operacionais.</p>
+          </div>
+          <a href="https://wa.me/5511947534587?text=Ol%C3%A1%2C%20Gostaria%20de%20falar%20com%20um%20especialista%20sobre%20uma%20consulta%20jur%C3%ADdica%20referente%20a%20Direito%20Corporativo%20e%20Societ%C3%A1rio." target="_blank" rel="noopener noreferrer" class="specialty-footer">
+            <span>Consulta Jurídica</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="arrow-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" /></svg>
+          </a>
+        </div>
+
+        <!-- Card 3: Direito do Trabalho e Previdenciário -->
         <div class="specialty-card">
           <div class="specialty-card-header">
             <div class="specialty-icon-wrapper">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 .621-.504 1.125-1.125 1.125H4.875A1.125 1.125 0 013.75 18.4v-4.25m16.5 0a2.25 2.25 0 00-2.25-2.25H6a2.25 2.25 0 00-2.25 2.25m16.5 0V7.493c0-.83-.49-1.576-1.25-1.897L13.5 3.321a2.25 2.25 0 00-2.25 0L4.75 5.596c-.76.32-1.25 1.067-1.25 1.897v6.657"/></svg>
             </div>
-            <span class="specialty-num">02</span>
+            <span class="specialty-num">03</span>
           </div>
           <div class="specialty-content">
             <h3 class="specialty-title">Direito do Trabalho e Previdenciário</h3>
@@ -797,25 +799,6 @@
             <p class="specialty-desc">Defesa integral dos direitos trabalhistas de executivos e profissionais. Atuação em rescisões complexas, cálculos de passivos ocultos, estabilidades e assessoria em transição de carreira para regimes de alta governança corporativa.</p>
           </div>
           <a href="https://wa.me/5511947534587?text=Ol%C3%A1%2C%20Gostaria%20de%20falar%20com%20um%20especialista%20sobre%20uma%20consulta%20jur%C3%ADdica%20referente%20a%20Direito%20do%20Trabalho%20e%20Previdenci%C3%A1rio." target="_blank" rel="noopener noreferrer" class="specialty-footer">
-            <span>Consulta Jurídica</span>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="arrow-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" /></svg>
-          </a>
-        </div>
-
-        <!-- Card 3: Direito Civil e Contratos -->
-        <div class="specialty-card">
-          <div class="specialty-card-header">
-            <div class="specialty-icon-wrapper">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
-            </div>
-            <span class="specialty-num">03</span>
-          </div>
-          <div class="specialty-content">
-            <h3 class="specialty-title">Direito Civil e Contratos</h3>
-            <span class="specialty-foco">Elaboração estratégica e assessoria preventiva</span>
-            <p class="specialty-desc">Elaboração e análise de contratos de alta complexidade. Assessoria em direito de propriedade, direitos reais, renegociações de dívidas, prevenção de litígios e auditoria prévia para mitigar passivos em transações civis e comerciais.</p>
-          </div>
-          <a href="https://wa.me/5511947534587?text=Ol%C3%A1%2C%20Gostaria%20de%20falar%20com%20um%20especialista%20sobre%20uma%20consulta%20jur%C3%ADdica%20referente%20a%20Direito%20Civil%20e%20Contratos." target="_blank" rel="noopener noreferrer" class="specialty-footer">
             <span>Consulta Jurídica</span>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="arrow-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" /></svg>
           </a>
@@ -831,8 +814,8 @@
           </div>
           <div class="specialty-content">
             <h3 class="specialty-title">Direito Digital, LGPD & Compliance</h3>
-            <span class="specialty-foco">Segurança de dados sensíveis e conformidade digital</span>
-            <p class="specialty-desc">Adequação de empresas e clínicas médicas às regras da LGPD. Estruturação de canais de denúncia, termos de uso, políticas de privacidade, auditoria de segurança da informação jurídica e mitigação de responsabilidade em vazamentos.</p>
+            <span class="specialty-foco">Segurança de dados e conformidade corporativa</span>
+            <p class="specialty-desc">Adequação de empresas, corporações e escritórios às regras da LGPD. Estruturação de canais de denúncia, termos de uso, políticas de privacidade, auditoria de segurança da informação jurídica e mitigação de responsabilidade em vazamentos.</p>
           </div>
           <a href="https://wa.me/5511947534587?text=Ol%C3%A1%2C%20Gostaria%20de%20falar%20com%20um%20especialista%20sobre%20uma%20consulta%20jur%C3%ADdica%20referente%20a%20Direito%20Digital%2C%20LGPD%20%26%20Compliance." target="_blank" rel="noopener noreferrer" class="specialty-footer">
             <span>Consulta Jurídica</span>
@@ -840,20 +823,20 @@
           </a>
         </div>
 
-        <!-- Card 5: Direito Corporativo e Societário -->
+        <!-- Card 5: Direito Médico e da Saúde -->
         <div class="specialty-card">
           <div class="specialty-card-header">
             <div class="specialty-icon-wrapper">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94-3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.248-8.25-3.286zm0 13.036h.008v.008H12v-.008z"/></svg>
             </div>
             <span class="specialty-num">05</span>
           </div>
           <div class="specialty-content">
-            <h3 class="specialty-title">Direito Corporativo e Societário</h3>
-            <span class="specialty-foco">Blindagem jurídica patrimonial e reorganização societária</span>
-            <p class="specialty-desc">Assessoria em fusões e aquisições (M&A), constituição de holdings e blindagem patrimonial. Reorganização societária de alta performance, governança ativa e planejamento preventivo para mitigação de riscos fiscais e operacionais.</p>
+            <h3 class="specialty-title">Direito Médico e da Saúde</h3>
+            <span class="specialty-foco">Defesa médica, regulação de clínicas e planos de saúde</span>
+            <p class="specialty-desc">Defesa de profissionais da saúde em processos ético-disciplinares e erro médico. Atuação em glosas hospitalares, regulação de clínicas e ações contra abusos de planos de saúde, garantindo a liberação de cirurgias e tratamentos vitais.</p>
           </div>
-          <a href="https://wa.me/5511947534587?text=Ol%C3%A1%2C%20Gostaria%20de%20falar%20com%20um%20especialista%20sobre%20uma%20consulta%20jur%C3%ADdica%20referente%20a%20Direito%20Corporativo%20e%20Societ%C3%A1rio." target="_blank" rel="noopener noreferrer" class="specialty-footer">
+          <a href="https://wa.me/5511947534587?text=Ol%C3%A1%2C%20Gostaria%20de%20falar%20com%20um%20especialista%20sobre%20uma%20consulta%20jur%C3%ADdica%20referente%20a%20Direito%20M%C3%A9dico%20e%20da%20Sa%C3%BAde." target="_blank" rel="noopener noreferrer" class="specialty-footer">
             <span>Consulta Jurídica</span>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="arrow-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" /></svg>
           </a>
@@ -3790,285 +3773,348 @@
           texto: "A liminar médica não é privilégio; é urgência de quem não pode esperar pela burocracia para sobreviver.",
           autor: "— JT Advocacia"
         },
-        {
-          texto: "O plano de saúde que nega cobertura necessária não apenas descumpre contrato — desrespeita a dignidade humana.",
-          autor: "— STJ, Jurisprudência Consolidada"
+          texto: "A lei é a razão isenta de paixão.",
+          autor: "— Aristóteles"
         },
         {
-          texto: "O Judiciário é a última trincheira do cidadão. Que nunca precise usá-la; mas que sempre esteja pronta.",
-          autor: "— JT Advocacia"
+          texto: "Onde não há lei, não há liberdade.",
+          autor: "— John Locke"
         },
         {
-          texto: "Defender um médico não é defender o erro; é garantir que a verdade seja apurada com rigor e equidade.",
-          autor: "— JT Advocacia"
+          texto: "A justiça não consiste em ser neutro entre o certo e o errado, mas em descobrir o certo e defendê-lo.",
+          autor: "— Theodore Roosevelt"
         },
         {
-          texto: "A perícia médico-legal é a ponte entre dois mundos que precisam se compreender para fazer justiça.",
-          autor: "— Medicina Legal"
+          texto: "O direito é a arte do bem e da equidade.",
+          autor: "— Celso, Digesto Romano"
         },
         {
-          texto: "Curar é arte e ciência. Julgar é técnica e consciência. Quando se unem, servem ao ser humano.",
-          autor: "— JT Advocacia"
+          texto: "Justiça tardia é justiça negada.",
+          autor: "— William Ewart Gladstone"
         },
         {
-          texto: "A deontologia médica e a ética jurídica têm o mesmo norte: o ser humano como fim, nunca como meio.",
-          autor: "— CFM e OAB"
-        },
-        {
-          texto: "O Código de Ética Médica não pune o médico; orienta o cuidador. A lei complementa essa orientação.",
-          autor: "— CFM — Resolução 2.217/2018"
-        },
-        {
-          texto: "Em direito, o silêncio pode falar mais alto que qualquer argumento mal fundamentado.",
-          autor: "— Teoria da Prova"
-        },
-        {
-          texto: "Um prontuário bem preenchido é a melhor defesa de um profissional de saúde.",
-          autor: "— JT Advocacia"
-        },
-        {
-          texto: "A tecnicidade sem humanidade é instrumento vazio; a humanidade sem tecnicidade é boa vontade sem resultado.",
-          autor: "— JT Advocacia"
-        },
-        {
-          texto: "Toda petição é uma narrativa. Narrativas bem contadas mudam o curso da história — e do processo.",
-          autor: "— JT Advocacia"
-        },
-        {
-          texto: "O direito à saúde é pré-condição para o exercício de todos os demais direitos fundamentais.",
-          autor: "— Doutrina Constitucional Brasileira"
-        },
-        {
-          texto: "Tratar é um ato de fé na ciência. Defender é um ato de fé na justiça.",
-          autor: "— JT Advocacia"
-        },
-        {
-          texto: "A jurisprudência é o retrato vivo do que a sociedade considera justo em cada época.",
-          autor: "— Teoria do Direito"
-        },
-        {
-          texto: "O médico tem o dever de informar; o paciente tem o direito de decidir. O consentimento é sagrado.",
-          autor: "— Princípio da Autonomia do Paciente"
-        },
-        {
-          texto: "A culpa médica não se presume — ela se demonstra com laudo, evidência e nexo causal robusto.",
-          autor: "— STJ, Resp 1.696.284"
-        },
-        {
-          texto: "Não existe medicina perfeita nem direito perfeito. Existe o compromisso diário de buscar ambos.",
-          autor: "— JT Advocacia"
-        },
-        {
-          texto: "O advogado que não se atualiza é um soldado que vai à guerra com armas do século passado.",
-          autor: "— JT Advocacia"
-        },
-        {
-          texto: "Cada processo é único como cada paciente. O tratamento padronizado falha em ambos os casos.",
-          autor: "— JT Advocacia"
-        },
-        {
-          texto: "A boa-fé não é ingenuidade jurídica; é o princípio que civiliza as relações entre médicos, pacientes e o sistema.",
-          autor: "— Princípio da Boa-Fé Objetiva, CC/2002"
-        },
-        {
-          texto: "O dano moral existe quando a dor ultrapassa a tolerância razoável que a vida em sociedade impõe.",
-          autor: "— Doutrina Civil Brasileira"
-        },
-        {
-          texto: "A cautelar é o direito gritando que não pode esperar.",
-          autor: "— JT Advocacia"
-        },
-        {
-          texto: "Não se pode fazer grande medicina sem coragem. Não se pode fazer grande advocacia sem a mesma virtude.",
-          autor: "— JT Advocacia"
-        },
-        {
-          texto: "A Constituição de 1988 não é apenas um documento; é a promessa de um país que se recusa a deixar seus cidadãos desamparados.",
+          texto: "A Constituição é a voz da cidadania organizada e o limite do poder absoluto.",
           autor: "— Doutrina Constitucional"
         },
         {
-          texto: "O prontuário médico é um documento jurídico. Trate-o como tal desde o primeiro atendimento.",
-          autor: "— JT Advocacia"
+          texto: "A advocacia é a trincheira onde a liberdade humana se defende contra a opressão.",
+          autor: "— Rui Barbosa"
         },
         {
-          texto: "A lei não é estática; ela respira com a sociedade e se transforma com a jurisprudência.",
-          autor: "— Teoria do Direito Vivo"
+          texto: "A paz não é a ausência de conflito, mas a presença da justiça.",
+          autor: "— Harrison Ford"
         },
         {
-          texto: "Um processo perdido por falta de prova não é derrota do direito; é derrota da estratégia.",
-          autor: "— JT Advocacia"
+          texto: "Onde há sociedade, há direito; onde há direito, há justiça.",
+          autor: "— Máxima Jurídica"
         },
         {
-          texto: "O sigilo médico é direito do paciente, não privilégio do médico.",
-          autor: "— CFM — Código de Ética Médica"
+          texto: "A verdade é o oxigênio da justiça. Sem ela, o processo é apenas um mecanismo de força.",
+          autor: "— Doutrina Processual"
         },
         {
-          texto: "Cada paciente que busca justiça carrega em si a história de um sistema que falhou. Nossa missão é não falhar também.",
-          autor: "— JT Advocacia"
+          texto: "O devido processo legal é a maior garantia civilizada contra o arbítrio estatal.",
+          autor: "— Teoria Geral do Direito"
         },
         {
-          texto: "A advocacia preventiva vale mais que mil litígios reativos.",
-          autor: "— JT Advocacia"
-        },
-        {
-          texto: "O nexo causal é a espinha dorsal da responsabilidade civil. Sem ele, não há indenização justa.",
-          autor: "— Doutrina da Responsabilidade Civil"
-        },
-        {
-          texto: "Quem defende a vida na medicina e quem defende o direito na advocacia são, no fundo, o mesmo ser humano comprometido.",
-          autor: "— JT Advocacia"
-        },
-        {
-          texto: "O Direito não é um conjunto de normas; é um projeto coletivo de vida digna.",
-          autor: "— Ronald Dworkin"
-        },
-        {
-          texto: "Nenhum diploma autoriza o abuso. A excelência técnica deve andar ao lado da responsabilidade ética.",
-          autor: "— JT Advocacia"
-        },
-        {
-          texto: "A saúde suplementar tem obrigação de cobrir o necessário. O que é necessário define a medicina, não a operadora.",
-          autor: "— ANS e Jurisprudência do STJ"
-        },
-        {
-          texto: "O juiz não é inimigo do médico nem aliado do paciente. É árbitro da verdade produzida nos autos.",
-          autor: "— JT Advocacia"
-        },
-        {
-          texto: "Conhecer os próprios direitos é o primeiro passo para exercê-los.",
-          autor: "— JT Advocacia"
-        },
-        {
-          texto: "A advocacia médica especializada não é luxo; é necessidade de quem enfrenta a máquina judiciária sem preparo técnico.",
-          autor: "— JT Advocacia"
-        },
-        {
-          texto: "Dar a cada um o que é seu exige antes saber o que é de cada um. Esse é o trabalho do jurista.",
-          autor: "— Clóvis Beviláqua"
-        },
-        {
-          texto: "A liberdade sem direito é arbítrio; o direito sem liberdade é tirania.",
+          texto: "A lei deve ser como a morte, que não poupa a ninguém.",
           autor: "— Montesquieu"
         },
         {
-          texto: "A impunidade não é ausência de sentença; é ausência de justiça.",
-          autor: "— JT Advocacia"
-        },
-        {
-          texto: "O direito ao tratamento de saúde não pode ser negado por cláusulas abusivas escondidas em letras miúdas.",
-          autor: "— CDC — Art. 51"
-        },
-        {
-          texto: "O advogado que conhece medicina fala a língua do perito. Isso muda tudo no tribunal.",
-          autor: "— JT Advocacia"
-        },
-        {
-          texto: "Não é a ciência que julga o médico — é o direito. Por isso o médico precisa conhecer ambos.",
-          autor: "— JT Advocacia"
-        },
-        {
-          texto: "A dignidade da pessoa humana é o fundamento de toda a ordem jurídica brasileira.",
+          texto: "A dignidade da pessoa humana é o ponto de partida e o destino final de toda ordem jurídica.",
           autor: "— CF/1988, Art. 1º, III"
         },
         {
-          texto: "A ética médica e a ética jurídica não divergem: ambas colocam o ser humano no centro.",
-          autor: "— JT Advocacia"
+          texto: "O bom juiz ouve com paciência, responde com sabedoria e decide com imparcialidade.",
+          autor: "— Sócrates"
         },
         {
-          texto: "Saber quando agir e quando esperar é a sabedoria que separa o bom advogado do excelente.",
-          autor: "— JT Advocacia"
+          texto: "A igualdade perante a lei é o alicerce sob o qual se ergue uma nação livre.",
+          autor: "— Rui Barbosa"
         },
         {
-          texto: "O processo civil é uma batalha de argumentos, não de egos. Vence quem prova, não quem grita.",
-          autor: "— Doutrina Processual Civil"
+          texto: "A advocacia não é profissão para covardes.",
+          autor: "— Sobral Pinto"
         },
         {
-          texto: "A saúde não tem preço; por isso, quando negada, o preço que se paga é a vida.",
-          autor: "— JT Advocacia"
+          texto: "A ética na advocacia não é um acessório; é a própria substância do exercício profissional.",
+          autor: "— Código de Ética da OAB"
         },
         {
-          texto: "O direito à informação adequada é tão fundamental quanto o direito ao tratamento em si.",
-          autor: "— Princípio do Consentimento Informado"
+          texto: "Leis sem valores morais são vazias; valores sem leis são inoperantes.",
+          autor: "— Immanuel Kant"
         },
         {
-          texto: "O bom médico trata o paciente, não a doença. O bom advogado defende a pessoa, não o caso.",
-          autor: "— JT Advocacia"
-        },
-        {
-          texto: "Toda lesão que poderia ser evitada com cuidado razoável é uma lesão juridicamente relevante.",
-          autor: "— Teoria da Culpa Médica"
-        },
-        {
-          texto: "O sistema de saúde falha às vezes; a advocacia especializada existe para corrigir essas falhas com a força da lei.",
-          autor: "— JT Advocacia"
-        },
-        {
-          texto: "A medicina progride porque erra e aprende. O direito progride porque questiona e evolui.",
-          autor: "— JT Advocacia"
-        },
-        {
-          texto: "Sem acesso à justiça, os direitos são apenas palavras bonitas em papel.",
-          autor: "— Mauro Cappelletti"
-        },
-        {
-          texto: "O perito médico-legal é os olhos da ciência dentro do tribunal.",
-          autor: "— Medicina Legal Brasileira"
-        },
-        {
-          texto: "A advocacia hospitalar preventiva evita a maioria dos litígios. Investir nela é mais inteligente que enfrentar processos.",
-          autor: "— JT Advocacia"
-        },
-        {
-          texto: "O direito de defesa é sagrado. Ninguém deve enfrentar acusação sem suporte técnico qualificado.",
+          texto: "O direito de defesa é a base de todas as liberdades públicas.",
           autor: "— CF/1988, Art. 5º, LV"
         },
         {
-          texto: "A obrigação do médico, em regra, é de meio — não de resultado. Confundir os dois é o maior erro do leigo diante da medicina.",
-          autor: "— Doutrina da Responsabilidade Civil Médica"
+          texto: "A força do direito deve sempre superar o direito da força.",
+          autor: "— Doutrina de Direito Internacional"
         },
         {
-          texto: "Não há vitória no processo que valha mais que a paz conquistada pelo caminho certo.",
+          texto: "A justiça é o vínculo que une os homens em um Estado de Direito.",
+          autor: "— Cícero"
+        },
+        {
+          texto: "Não há verdadeira liberdade onde o direito de um indivíduo termina arbitrariamente.",
+          autor: "— Herbert Spencer"
+        },
+        {
+          texto: "A justiça social é o único caminho para a paz duradoura.",
+          autor: "— Declaração da OIT"
+        },
+
+        // ── DIREITO CIVIL, CONTRATOS E NEGÓCIOS ────────────────────────────
+        {
+          texto: "O contrato é a lei entre as partes, mas deve sempre respirar a boa-fé objetiva.",
+          autor: "— Princípio Geral dos Contratos"
+        },
+        {
+          texto: "A clareza nas cláusulas contratuais evita anos de litígio desnecessário nos tribunais.",
           autor: "— JT Advocacia"
         },
         {
-          texto: "O contrato de plano de saúde é de adesão. As cláusulas ambíguas devem ser interpretadas a favor do consumidor.",
-          autor: "— STJ — Súmula 609"
+          texto: "A boa-fé não se presume apenas nas palavras, mas se demonstra na conduta diária das partes.",
+          autor: "— Código Civil, Art. 113"
         },
         {
-          texto: "A advocacia é o ofício de transformar dor em argumento e argumento em justiça.",
+          texto: "Um contrato bem elaborado não é aquele que prevê o litígio, mas o que ensina as partes a conviver sem ele.",
           autor: "— JT Advocacia"
         },
         {
-          texto: "Quando a ciência hesita, o direito precisa ser firme. Quando o direito vacila, a ciência precisa esclarecer.",
+          texto: "A segurança jurídica é o pilar invisível que sustenta a confiança nas relações civis.",
+          autor: "— Teoria Geral do Direito Civil"
+        },
+        {
+          texto: "Onde há ambiguidade no contrato, a interpretação deve favorecer a parte que aderiu.",
+          autor: "— Código de Defesa do Consumidor"
+        },
+        {
+          texto: "A propriedade obriga; seu uso deve cumprir uma função social legítima.",
+          autor: "— Constituição Federal, Art. 5º, XXIII"
+        },
+        {
+          texto: "A responsabilidade civil é o mecanismo que a lei criou para que o dano não fique sem reparação.",
+          autor: "— Código Civil, Art. 927"
+        },
+        {
+          texto: "A autonomia da vontade é sagrada, mas encontra seu limite na dignidade do outro.",
+          autor: "— Doutrina Civilista"
+        },
+        {
+          texto: "O acordo preventivo vale mais que uma sentença imposta após uma década de desgaste emocional.",
           autor: "— JT Advocacia"
         },
         {
-          texto: "O ônus da prova é o mapa do processo. Quem sabe onde está o mapa, sabe para onde o caso caminha.",
+          texto: "Na dúvida, interpreta-se o contrato a favor da conservação do negócio jurídico.",
+          autor: "— Princípio da Conservação dos Contratos"
+        },
+        {
+          texto: "O dano moral não é o mero aborrecimento, mas a dor profunda que afeta a paz da alma.",
+          autor: "— Doutrina da Responsabilidade Civil"
+        },
+        {
+          texto: "A obrigação de indenizar nasce quando a conduta violadora quebra a harmonia social.",
+          autor: "— Teoria Geral da Culpa"
+        },
+        {
+          texto: "Documentar cada transação é blindar a sua tranquilidade para o futuro.",
+          autor: "— JT Advocacia"
+        },
+        {
+          texto: "A prescrição é o tempo punindo quem dorme sobre os próprios direitos.",
+          autor: "— Brocardo: Dormientibus non succurrit jus"
+        },
+        {
+          texto: "O contrato de adesão exige clareza absoluta; o consumidor tem direito à transparência total.",
+          autor: "— Jurisprudência do STJ"
+        },
+        {
+          texto: "A função social do contrato equilibra de forma justa o lucro e o desenvolvimento social.",
+          autor: "— Código Civil, Art. 421"
+        },
+        {
+          texto: "A posse pacífica é a base do desenvolvimento social e da harmonia no campo e na cidade.",
+          autor: "— Doutrina dos Direitos Reais"
+        },
+        {
+          texto: "Uma notificação extrajudicial precisa pode resolver em dias o que levaria anos na justiça.",
+          autor: "— JT Advocacia"
+        },
+        {
+          texto: "A boa advocacia civilista estuda minuciosamente a realidade do cliente antes de exigir qualquer cláusula.",
+          autor: "— JT Advocacia"
+        },
+
+        // ── DIREITO EMPRESARIAL, SOCIETÁRIO E COMPLIANCE ─────────────────────
+        {
+          texto: "A governança corporativa robusta transforma conformidade e compliance em vantagem competitiva real.",
+          autor: "— JT Advocacia"
+        },
+        {
+          texto: "A segurança jurídica é o ativo de maior valor intangível para uma empresa em crescimento.",
+          autor: "— Doutrina de Direito Empresarial"
+        },
+        {
+          texto: "A holding familiar não é apenas economia tributária; é a preservação e sucessão pacífica do patrimônio.",
+          autor: "— JT Advocacia"
+        },
+        {
+          texto: "Empresas inteligentes não gerenciam crises; elas estruturam compliance ativo para evitá-las.",
+          autor: "— Teoria Geral do Compliance"
+        },
+        {
+          texto: "A desconsideração da personalidade jurídica é exceção; a autonomia patrimonial legítima deve ser defendida.",
+          autor: "— Código Civil, Art. 50"
+        },
+        {
+          texto: "O contrato social é a certidão de nascimento da empresa; cada cláusula genérica pode decretar o seu fim.",
+          autor: "— JT Advocacia"
+        },
+        {
+          texto: "O acordo de sócios é o seguro que garante a continuidade dos negócios diante de divergências humanas.",
+          autor: "— JT Advocacia"
+        },
+        {
+          texto: "Processos de M&A exigem auditoria jurídica cirúrgica — o verdadeiro valor está nos passivos descobertos a tempo.",
+          autor: "— JT Advocacia"
+        },
+        {
+          texto: "O sigilo de segredos comerciais é garantia de competitividade e integridade no livre mercado.",
+          autor: "— Lei de Propriedade Industrial"
+        },
+        {
+          texto: "A livre iniciativa é o motor do país, e o direito é o trilho que garante a segurança do percurso.",
+          autor: "— CF/1988, Art. 170"
+        },
+        {
+          texto: "Compliance trabalhista ativo impede a formação de passivos invisíveis que destroem o valuation.",
+          autor: "— JT Advocacia"
+        },
+        {
+          texto: "A responsabilidade social das empresas é a contrapartida ética do direito de atuar no mercado.",
+          autor: "— Teoria da Governança Ativa"
+        },
+        {
+          texto: "A recuperação judicial é a mão protetora da lei salvando empregos e viabilizando a função social corporativa.",
+          autor: "— Lei 11.101/05"
+        },
+        {
+          texto: "O risco faz parte do negócio; a ausência de gestão profissional do risco jurídico é negligência estratégica.",
+          autor: "— JT Advocacia"
+        },
+        {
+          texto: "A proteção da marca é a blindagem jurídica da identidade e da reputação construídas com anos de esforço.",
+          autor: "— Propriedade Industrial"
+        },
+        {
+          texto: "A governança ativa protege a diretoria contra responsabilização pessoal por atos legítimos de gestão.",
+          autor: "— Doutrina: Business Judgment Rule"
+        },
+        {
+          texto: "Planejamento tributário lícito e técnico é direito de toda empresa que busca sustentabilidade no mercado.",
+          autor: "— Direito Tributário Nacional"
+        },
+        {
+          texto: "A ética corporativa atrai investidores institucionais e fideliza clientes conscientes.",
+          autor: "— Governança ESG"
+        },
+        {
+          texto: "Auditorias jurídicas preventivas periódicas funcionam como exames de rotina para a longevidade corporativa.",
+          autor: "— JT Advocacia"
+        },
+        {
+          texto: "O compliance digital protege a empresa contra multas regulatórias e incidentes graves de vazamento.",
+          autor: "— LGPD Empresarial"
+        },
+
+        // ── DIREITO DO TRABALHO E VALOR HUMANO ─────────────────────────────
+        {
+          texto: "O trabalho humano não é mera mercadoria; é a expressão viva da dignidade e progresso social.",
+          autor: "— Declaração de Filadélfia"
+        },
+        {
+          texto: "O equilíbrio no ambiente laboral é a chave para a produtividade sustentável e a paz das organizações.",
+          autor: "— JT Advocacia"
+        },
+        {
+          texto: "A justiça trabalhista visa restabelecer o equilíbrio nas relações contratuais onde impera a assimetria.",
+          autor: "— Doutrina Trabalhista"
+        },
+        {
+          texto: "Compliance trabalhista robusto protege a empresa e valoriza o colaborador engajado.",
+          autor: "— JT Advocacia"
+        },
+        {
+          texto: "O salário detém natureza alimentar; sua proteção é a garantia de subsistência de famílias inteiras.",
+          autor: "— CLT e CF/1988"
+        },
+        {
+          texto: "A prevenção ativa de acidentes laborais é dever ético e legal inegociável de toda corporação.",
+          autor: "— Segurança e Medicina do Trabalho"
+        },
+        {
+          texto: "Cargos de alta gestão e executivos demandam contratos trabalhistas customizados de altíssimo rigor.",
+          autor: "— JT Advocacia"
+        },
+        {
+          texto: "Qualquer reestruturação de rotinas laborais deve sempre zelar pelo patamar civilizatório de direitos.",
+          autor: "— STF"
+        },
+        {
+          texto: "O assédio moral corrói a saúde e a produtividade; erradicá-lo é dever corporativo ético e legal.",
+          autor: "— Doutrina Trabalhista"
+        },
+        {
+          texto: "Rotinas de teletrabalho exigem regras contratuais nítidas para garantir a desconexão saudável.",
+          autor: "— CLT, Direito Digital"
+        },
+        {
+          texto: "A conciliação é a vitória do bom senso sobre a morosidade e o desgaste emocional do litígio.",
+          autor: "— Conselho Nacional de Justiça"
+        },
+        {
+          texto: "A isonomia salarial para trabalho de igual valor é pilar essencial da equidade no mercado corporativo.",
+          autor: "— CF/1988, Art. 7º"
+        },
+        {
+          texto: "Passivos trabalhistas ocultos são prevenidos com auditoria constante de rotinas, turnos e jornadas.",
+          autor: "— JT Advocacia"
+        },
+        {
+          texto: "A boa-fé mútua constrói relações de emprego sólidas e resilientes ao longo do tempo.",
+          autor: "— Doutrina de Direito do Trabalho"
+        },
+        {
+          texto: "A negociação coletiva de alto nível é o caminho mais maduro para harmonizar interesses corporativos e laborais.",
+          autor: "— Direito Coletivo"
+        },
+
+        // ── ADVOCACIA ESTRATÉGICA, TECNOLOGIA E RIGOR TÉCNICO ────────────────
+        {
+          texto: "A advocacia sem tese estratégica é como um navio à deriva consumindo energia sem rumo.",
+          autor: "— JT Advocacia"
+        },
+        {
+          texto: "A inteligência jurídica e a Jus IA proprietária organizam o passado para traçar o melhor plano para o amanhã.",
+          autor: "— JT Advocacia"
+        },
+        {
+          texto: "O rigor técnico minucioso na inicial esculpe a viabilidade da vitória ao fim do processo.",
+          autor: "— Doutrina de Direito Processual"
+        },
+        {
+          texto: "O advogado não promete êxito em litígios, mas empenha todo o seu rigor científico na tese defendida.",
+          autor: "— Estatuto da Advocacia, OAB"
+        },
+        {
+          texto: "A advocacia premium alia a sensibilidade do acolhimento humano à frieza técnica da análise estatística.",
+          autor: "— JT Advocacia"
+        },
+        {
+          texto: "O sucesso probatório demanda dedicação pericial, método lógico e organização de dados impecável.",
           autor: "— Teoria Geral da Prova"
-        },
-        {
-          texto: "Um erro não torna o médico desumanizado; a negação do erro sim.",
-          autor: "— JT Advocacia"
-        },
-        {
-          texto: "A tutela de urgência existe porque a Justiça que demora pode ser a injustiça que mata.",
-          autor: "— CPC/2015, Art. 300"
-        },
-        {
-          texto: "Toda pessoa tem direito a um julgamento justo — seja ela paciente, médico ou qualquer ser humano.",
-          autor: "— Declaração Universal dos Direitos Humanos, Art. 10"
-        },
-        {
-          texto: "Leis sem valores são mecanismos. Valores sem leis são sonhos. A advocacia une os dois.",
-          autor: "— JT Advocacia"
-        },
-        {
-          texto: "O CFM não é inimigo do médico; é o guardião do padrão que protege médicos e pacientes ao mesmo tempo.",
-          autor: "— JT Advocacia"
-        },
-        {
-          texto: "Quando o conhecimento técnico encontra a paixão pela justiça, nasce a advocacia que transforma vidas.",
-          autor: "— JT Advocacia"
         },
         {
           texto: "A advocacia especializada em direito médico é necessidade de um país com mais de 200 milhões de usuários do sistema de saúde.",
