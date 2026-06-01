@@ -2736,4 +2736,31 @@ input:checked + .slider:before {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
+
+  body.printing-boleto #app-layout,
+  body.printing-boleto .modal-overlay:not(#modal-contratos-boleto),
+  body.printing-boleto #processos-print-area,
+  body.printing-boleto #contratos-print-area {
+    display: none !important;
+  }
+  body.printing-boleto #modal-contratos-boleto {
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    background: #fff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  body.printing-boleto #modal-contratos-boleto .modal-card {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+  body.printing-boleto .print-hidden {
+    display: none !important;
+  }
 }

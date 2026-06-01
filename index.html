@@ -41,6 +41,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   
+  <style>
+    @media (min-width: 992px) {
+      .contratos-planos-grid {
+        display: grid !important;
+        grid-template-columns: 1.2fr 0.8fr !important;
+        gap: 24px !important;
+      }
+    }
+  </style>
   <!-- Proteção Anti-Bot: Cloudflare Turnstile -->
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
@@ -1671,34 +1680,93 @@
                 </div>
               </div>
 
-              <!-- Detalhes do Contrato e Recorrência -->
-              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
-                <div class="form-group">
-                  <label class="form-label" for="contratos-plano-inicio">Início da Vigência *</label>
-                  <input type="date" id="contratos-plano-inicio" class="form-input-premium">
-                </div>
-                <div class="form-group">
-                  <label class="form-label" for="contratos-plano-renovacao">Dia de Renovação *</label>
-                  <input type="number" id="contratos-plano-renovacao" class="form-input-premium" value="5" min="1" max="31">
-                </div>
-                <div class="form-group">
-                  <label class="form-label" for="contratos-plano-valor">Valor Recorrência (R$) *</label>
-                  <input type="text" id="contratos-plano-valor" class="form-input-premium" value="1.500,00" style="font-family: monospace; font-weight: 700; color: var(--text-primary);">
-                </div>
-              </div>
+              <!-- 2-Column Grid Layout -->
+              <div class="contratos-planos-grid" style="display: grid; grid-template-columns: 1fr; gap: 24px; margin-top: 8px;">
+                
+                <!-- Left Column: Config / Actions -->
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                  <h4 style="font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.1em; margin: 0; border-bottom: 1px solid var(--panel-border); padding-bottom: 6px;">
+                    🛠️ Parâmetros de Faturamento
+                  </h4>
 
-              <!-- Box Informativo -->
-              <div style="background: rgba(16, 185, 129, 0.05); border: 1px dashed var(--success-color); border-radius: 12px; padding: 16px;">
-                <span style="font-size: 9.5px; font-weight: 700; color: var(--success-color); tracking-widest: 0.08em; text-transform: uppercase; display: block; margin-bottom: 4px;">⚡ Integração de Caixa Automática (Módulo Financeiro)</span>
-                <p style="font-size: 11px; color: var(--text-secondary); margin:0; font-weight: 300; line-height: 1.5;">
-                  Ao ativar este plano, o sistema criará imediatamente o lançamento da primeira fatura no módulo <strong>Financeiro</strong> como <strong>Pendente</strong>, vinculando o prontuário deste cliente e registrando de forma integrada no faturamento consolidado.
-                </p>
-              </div>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                      <label class="form-label" for="contratos-plano-inicio">Início da Vigência *</label>
+                      <input type="date" id="contratos-plano-inicio" class="form-input-premium">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="contratos-plano-renovacao">Dia de Renovação *</label>
+                      <input type="number" id="contratos-plano-renovacao" class="form-input-premium" value="5" min="1" max="31">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="contratos-plano-valor">Valor Recorrência (R$) *</label>
+                      <input type="text" id="contratos-plano-valor" class="form-input-premium" value="1.500,00" style="font-family: monospace; font-weight: 700; color: var(--text-primary);">
+                    </div>
+                  </div>
 
-              <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 8px;">
-                <button type="button" id="btn-contratos-ativar-plano" class="btn-primary" style="width: auto; margin:0; padding: 12px 28px; font-weight: 800;" disabled>
-                  Ativar Assinatura Recorrente
-                </button>
+                  <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <button type="button" id="btn-contratos-atualizar-valores" class="btn-primary" style="flex: 1; background: var(--input-bg); border: 1px solid var(--panel-border); color: var(--text-primary); font-weight: 700; margin: 0; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;" disabled>
+                      💾 Atualizar Valores
+                    </button>
+                    <button type="button" id="btn-contratos-ativar-plano" class="btn-primary" style="flex: 1; margin: 0; padding: 12px 20px; font-weight: 800; min-height: 44px; display: inline-flex; align-items: center; justify-content: center;" disabled>
+                      + Ativar Plano
+                    </button>
+                  </div>
+
+                  <!-- Box Informativo -->
+                  <div style="background: rgba(16, 185, 129, 0.05); border: 1px dashed var(--success-color); border-radius: 12px; padding: 16px; margin-top: 8px;">
+                    <span style="font-size: 9.5px; font-weight: 700; color: var(--success-color); tracking-widest: 0.08em; text-transform: uppercase; display: block; margin-bottom: 4px;">⚡ Integração de Caixa Automática</span>
+                    <p style="font-size: 11px; color: var(--text-secondary); margin:0; font-weight: 300; line-height: 1.5;">
+                      Ao ativar este plano, o sistema criará faturas recorrentes no módulo <strong>Financeiro</strong> como <strong>Pendente</strong>, vinculando o prontuário deste cliente e integrando no faturamento consolidado.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Right Column: Billing Panel (Histórico de Cobranças) -->
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 6px;">
+                    <h4 style="font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin: 0;">
+                      💳 Painel de Emissão de Cobranças
+                    </h4>
+                    <button type="button" id="btn-contratos-recarregar-mensalidades" style="background: none; border: none; color: var(--gold); font-size: 9.5px; font-weight: 700; cursor: pointer; display: none;">
+                      🔄 Recarregar
+                    </button>
+                  </div>
+
+                  <!-- State: Selecione um cliente -->
+                  <div id="contratos-billing-no-client" style="background: rgba(0,0,0,0.15); border: 1px solid var(--panel-border); border-radius: 12px; padding: 32px 16px; text-align: center; font-size: 11px; font-style: italic; color: var(--text-secondary);">
+                    Selecione um cliente para ver o histórico de faturamento recorrente.
+                  </div>
+
+                  <!-- State: Carregando -->
+                  <div id="contratos-billing-loading" style="display: none; text-align: center; padding: 24px;">
+                    <div class="spinner-premium" style="width: 24px; height: 24px; border: 3px solid rgba(255,255,255,0.05); border-top-color: var(--gold); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 8px;"></div>
+                    <span style="font-size: 11px; color: var(--text-secondary);">Carregando faturamento...</span>
+                  </div>
+
+                  <!-- State: Sem faturamento -->
+                  <div id="contratos-billing-empty" style="display: none; background: rgba(0,0,0,0.15); border: 1px solid var(--panel-border); border-radius: 12px; padding: 32px 16px; text-align: center; font-size: 11px; font-style: italic; color: var(--text-secondary);">
+                    Nenhum faturamento recorrente encontrado para este cliente.
+                  </div>
+
+                  <!-- State: Table of Billings -->
+                  <div id="contratos-billing-table-container" style="display: none; overflow-x: auto; border: 1px solid var(--panel-border); border-radius: 12px; background: rgba(0,0,0,0.1);">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 11px; font-family: 'Outfit';">
+                      <thead>
+                        <tr style="border-bottom: 1px solid var(--panel-border); background: rgba(255,255,255,0.02); color: var(--text-secondary); font-weight: 700;">
+                          <th style="padding: 10px 12px;">Competência</th>
+                          <th style="padding: 10px 12px; text-align: right;">Valor</th>
+                          <th style="padding: 10px 12px; text-align: center;">Status</th>
+                          <th style="padding: 10px 12px; text-align: center;">Ações</th>
+                        </tr>
+                      </thead>
+                      <tbody id="contratos-billing-table-body" style="color: var(--text-primary);">
+                        <!-- Dinâmico -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
               </div>
             </div>
 
@@ -2791,6 +2859,182 @@
           <button type="submit" class="btn-primary" id="btn-salvar-editar-processo" style="width: auto; margin:0; padding: 10px 24px; font-weight: 600;">Confirmar Alterações</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 8: BOLETO BANCÁRIO (CONTRATOS)
+       ========================================================================= -->
+  <div class="modal-overlay" id="modal-contratos-boleto" style="display: none;">
+    <div class="modal-card" style="max-width: 750px; width: 95%; background: #fff; color: #000; border: 1.5px solid var(--gold); padding: 24px; border-radius: 16px;">
+      <div class="modal-header" style="border-bottom: 1px solid #ddd; padding-bottom: 12px; margin-bottom: 16px;">
+        <h3 style="color: #0f1e36; margin: 0;">💵 Visualização de Boleto de Cobrança</h3>
+        <button type="button" class="btn-close-modal" id="btn-close-modal-boleto" style="color: #000;">&times;</button>
+      </div>
+      <div id="boleto-print-content" style="background: #fff; padding: 16px; font-family: 'Outfit', sans-serif;">
+        <!-- Topo: Logotipo e Linha Digitável -->
+        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 4px; margin-bottom: 12px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-weight: 900; font-size: 20px; color: #000;">Itaú</span>
+            <span style="font-weight: 700; font-size: 16px; border-left: 2.5px solid #000; border-right: 2.5px solid #000; padding: 0 10px; margin-left: 8px;">341-7</span>
+          </div>
+          <span id="boleto-linha-digitavel" style="font-family: monospace; font-weight: bold; font-size: 11px; color: #000;">34191.79001 01245.690008 12345.678901 9 99000000000000</span>
+        </div>
+
+        <!-- Tabela Principal do Boleto -->
+        <table style="width: 100%; border-collapse: collapse; border: 1.5px solid #000; font-size: 10px; color: #000; margin-bottom: 16px;">
+          <tbody>
+            <tr>
+              <td colspan="4" style="border: 1px solid #000; padding: 4px; width: 80%;">
+                <span style="font-size: 7px; color: #555; text-transform: uppercase; font-weight: bold; display: block;">Local de Pagamento</span>
+                <strong style="text-transform: uppercase;">PREFERENCIALMENTE NAS CASAS LOTÉRICAS ATÉ O VENCIMENTO</strong>
+              </td>
+              <td style="border: 1px solid #000; padding: 4px; width: 20%; background: #f9f9f9;">
+                <span style="font-size: 7px; color: #555; text-transform: uppercase; font-weight: bold; display: block;">Vencimento</span>
+                <strong id="boleto-preview-vencimento">00/00/0000</strong>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="4" style="border: 1px solid #000; padding: 4px;">
+                <span style="font-size: 7px; color: #555; text-transform: uppercase; font-weight: bold; display: block;">Beneficiário</span>
+                <strong style="text-transform: uppercase;">JT ADVOGADOS ASSOCIADOS (CNPJ: 12.345.678/0001-90)</strong>
+              </td>
+              <td style="border: 1px solid #000; padding: 4px; background: #f9f9f9;">
+                <span style="font-size: 7px; color: #555; text-transform: uppercase; font-weight: bold; display: block;">Agência / Código Beneficiário</span>
+                <strong>1900 / 12345-6</strong>
+              </td>
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 4px; width: 25%;">
+                <span style="font-size: 7px; color: #555; text-transform: uppercase; font-weight: bold; display: block;">Data do Documento</span>
+                <span id="boleto-preview-data-doc">00/00/0000</span>
+              </td>
+              <td style="border: 1px solid #000; padding: 4px; width: 25%;">
+                <span style="font-size: 7px; color: #555; text-transform: uppercase; font-weight: bold; display: block;">Nº do Documento</span>
+                <span id="boleto-preview-num-doc">M-000000</span>
+              </td>
+              <td style="border: 1px solid #000; padding: 4px; width: 15%;">
+                <span style="font-size: 7px; color: #555; text-transform: uppercase; font-weight: bold; display: block;">Espécie Doc.</span>
+                <span>DM</span>
+              </td>
+              <td style="border: 1px solid #000; padding: 4px; width: 15%;">
+                <span style="font-size: 7px; color: #555; text-transform: uppercase; font-weight: bold; display: block;">Aceite</span>
+                <span>N</span>
+              </td>
+              <td style="border: 1px solid #000; padding: 4px; background: #f9f9f9;">
+                <span style="font-size: 7px; color: #555; text-transform: uppercase; font-weight: bold; display: block;">Nosso Número</span>
+                <strong>00012456-9</strong>
+              </td>
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 4px;">
+                <span style="font-size: 7px; color: #555; text-transform: uppercase; font-weight: bold; display: block;">Uso do Banco</span>
+                <span>&nbsp;</span>
+              </td>
+              <td style="border: 1px solid #000; padding: 4px;">
+                <span style="font-size: 7px; color: #555; text-transform: uppercase; font-weight: bold; display: block;">Carteira</span>
+                <span>109</span>
+              </td>
+              <td style="border: 1px solid #000; padding: 4px;">
+                <span style="font-size: 7px; color: #555; text-transform: uppercase; font-weight: bold; display: block;">Espécie Moeda</span>
+                <span>REAL</span>
+              </td>
+              <td style="border: 1px solid #000; padding: 4px;">
+                <span style="font-size: 7px; color: #555; text-transform: uppercase; font-weight: bold; display: block;">Quantidade</span>
+                <span>&nbsp;</span>
+              </td>
+              <td style="border: 1px solid #000; padding: 4px; background: #f9f9f9;">
+                <span style="font-size: 7px; color: #555; text-transform: uppercase; font-weight: bold; display: block;">(=) Valor do Documento</span>
+                <strong id="boleto-preview-valor-doc" style="font-size: 11px;">R$ 0,00</strong>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="4" rowspan="2" style="border: 1px solid #000; padding: 8px; vertical-align: top;">
+                <span style="font-size: 7px; color: #555; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 4px;">Instruções de Responsabilidade do Beneficiário</span>
+                <div style="font-weight: 600; font-size: 9px; line-height: 1.4; text-transform: uppercase;">
+                  • MULTA DE R$ 50,00 APÓS O VENCIMENTO<br>
+                  • JUROS DE 1% AO MÊS SOBRE O SALDO DEVEDOR<br>
+                  • NÃO RECEBER APÓS 30 DIAS DE ATRASO. CONTACTAR O ESCRITÓRIO JT ADVOGADOS
+                </div>
+              </td>
+              <td style="border: 1px solid #000; padding: 4px; background: #f9f9f9;">
+                <span style="font-size: 7px; color: #555; text-transform: uppercase; font-weight: bold; display: block;">(-) Desconto / Abatimento</span>
+                <span>&nbsp;</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 4px; background: #f9f9f9;">
+                <span style="font-size: 7px; color: #555; text-transform: uppercase; font-weight: bold; display: block;">(+) Valor Cobrado</span>
+                <strong id="boleto-preview-valor-cobrado" style="font-size: 11px;">R$ 0,00</strong>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="5" style="border: 1px solid #000; padding: 8px; vertical-align: top;">
+                <span style="font-size: 7px; color: #555; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 2px;">Pagador (Sacado)</span>
+                <strong id="boleto-preview-pagador-nome" style="font-size: 12px; display: block;">Nome do Cliente</strong>
+                <span id="boleto-preview-pagador-documento" style="display: block; margin-top: 2px;">CPF/CNPJ: 000.000.000-00 — CEP: 01311-100</span>
+                <span id="boleto-preview-pagador-endereco" style="display: block; margin-top: 2px; font-style: italic;">Endereço: Cadastrado no prontuário do cliente</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Código de Barras Renderizado por Traços Flex -->
+        <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 4px; align-items: flex-start; page-break-inside: avoid;">
+          <div id="boleto-barcode-lines" style="display: flex; align-items: stretch; height: 48px; background: #fff; padding-left: 8px; select-none: true;">
+            <!-- Linhas geradas dinamicamente via JS -->
+          </div>
+          <span style="font-size: 7px; color: #666; font-family: monospace; padding-left: 8px;">Ficha de Compensação - Autenticação Mecânica</span>
+        </div>
+      </div>
+
+      <!-- Ações do Modal -->
+      <div style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid #ddd; padding-top: 16px; margin-top: 16px;" class="print-hidden">
+        <button type="button" class="btn-secondary" id="btn-close-boleto" style="width: auto; margin:0; padding: 10px 20px; color: #333; background: #f1f1f1; border: 1px solid #ccc; border-radius: 6px; cursor: pointer;">Fechar</button>
+        <button type="button" class="btn-primary" id="btn-print-boleto" style="width: auto; margin:0; padding: 10px 24px; font-weight: 600; background: var(--navy, #0f1e36); color: #fff; border: none; border-radius: 6px; cursor: pointer; border-bottom: 2px solid var(--gold);">🖨️ Imprimir Boleto</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 9: PAGAMENTO POR PIX IMEDIATO (CONTRATOS)
+       ========================================================================= -->
+  <div class="modal-overlay" id="modal-contratos-pix" style="display: none;">
+    <div class="modal-card" style="max-width: 460px; width: 90%; background: var(--panel-bg); color: var(--text-primary); border: 1.5px solid var(--gold); padding: 24px; border-radius: 16px; text-align: center;">
+      <div class="modal-header" style="border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 16px;">
+        <h3 style="color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 8px; justify-content: center; width: 100%;">
+          <span>⚡</span> Cobrança via PIX Imediato
+        </h3>
+        <button type="button" class="btn-close-modal" id="btn-close-modal-pix">&times;</button>
+      </div>
+      
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; margin: 16px 0;">
+        <span style="font-size: 10px; font-weight: 700; color: var(--gold); text-transform: uppercase; tracking-widest: 1px;">
+          QR Code Pix Dinâmico
+        </span>
+        
+        <!-- QR Code Container -->
+        <div style="background: #fff; padding: 12px; border-radius: 12px; border: 1px solid var(--panel-border); width: 204px; height: 204px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+          <img id="pix-qr-code-img" src="" alt="Código QR Pix" style="width: 180px; height: 180px; display: block;" />
+        </div>
+
+        <div style="text-align: center; max-width: 320px; font-size: 11px; color: var(--text-secondary); line-height: 1.5; font-weight: 300;">
+          Abra o aplicativo do seu banco, escolha a opção <strong>Pagar com Pix / Ler QR Code</strong> e aponte a câmera para a imagem acima.
+        </div>
+
+        <div style="border-top: 1px solid var(--panel-border); width: 100%; padding-top: 16px; display: flex; flex-direction: column; align-items: stretch; gap: 8px;">
+          <label style="font-size: 10px; font-weight: 700; color: var(--gold); text-transform: uppercase; text-align: left;">Código PIX Copia e Cola</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="pix-copia-cola-input" readonly style="flex: 1; height: 38px; border-radius: 8px; border: 1px solid var(--panel-border); background: rgba(0,0,0,0.2); color: var(--text-primary); padding: 0 12px; font-family: monospace; font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" />
+            <button type="button" id="btn-pix-copiar" class="btn-primary" style="width: auto; margin: 0; padding: 0 16px; height: 38px; font-size: 11px; font-weight: 700;">Copiar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ações do Modal -->
+      <div style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--panel-border); padding-top: 16px; margin-top: 16px;">
+        <button type="button" class="btn-secondary" id="btn-close-pix" style="width: auto; margin:0; padding: 10px 20px;">Fechar</button>
+      </div>
     </div>
   </div>
 

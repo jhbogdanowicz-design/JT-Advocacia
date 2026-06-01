@@ -264,6 +264,25 @@ const contratosPlanoInicio = document.getElementById("contratos-plano-inicio");
 const contratosPlanoRenovacao = document.getElementById("contratos-plano-renovacao");
 const contratosPlanoValor = document.getElementById("contratos-plano-valor");
 const btnContratosAtivarPlano = document.getElementById("btn-contratos-ativar-plano");
+const btnContratosAtualizarValores = document.getElementById("btn-contratos-atualizar-valores");
+const btnContratosRecarregarMensalidades = document.getElementById("btn-contratos-recarregar-mensalidades");
+const contratosBillingNoClient = document.getElementById("contratos-billing-no-client");
+const contratosBillingLoading = document.getElementById("contratos-billing-loading");
+const contratosBillingEmpty = document.getElementById("contratos-billing-empty");
+const contratosBillingTableContainer = document.getElementById("contratos-billing-table-container");
+const contratosBillingTableBody = document.getElementById("contratos-billing-table-body");
+
+// Modais de faturamento de contratos
+const modalContratosBoleto = document.getElementById("modal-contratos-boleto");
+const btnCloseModalBoleto = document.getElementById("btn-close-modal-boleto");
+const btnCloseBoleto = document.getElementById("btn-close-boleto");
+const btnPrintBoleto = document.getElementById("btn-print-boleto");
+const modalContratosPix = document.getElementById("modal-contratos-pix");
+const btnCloseModalPix = document.getElementById("btn-close-modal-pix");
+const btnClosePix = document.getElementById("btn-close-pix");
+const pixQrCodeImg = document.getElementById("pix-qr-code-img");
+const pixCopiaColaInput = document.getElementById("pix-copia-cola-input");
+const btnPixCopiar = document.getElementById("btn-pix-copiar");
 
 // Elementos de Assinatura do Contrato
 const contratosAssinaturaContainer = document.getElementById("contratos-assinatura-container");
@@ -6433,6 +6452,8 @@ let contratosActivePlano = "mensal";
 let signaturePadIsDrawing = false;
 let signaturePadHasDrawing = false;
 let contratosSignatureDataUrl = null;
+let activeMensalidadeSelecionada = null;
+let contratosMensalidadesList = [];
 
 function resizeContractsCanvas() {
   if (contratosCanvasPad) {
@@ -6510,6 +6531,259 @@ async function loadContratosData() {
   }
 }
 
+// --- LOGICA DE COBRANÇA RECORRENTE E MODAIS DE PAGAMENTO ---
+function renderBoletoBarcode(container) {
+  if (!container) return;
+  container.innerHTML = "";
+  const pattern = [3,1,2,4,1,3,2,1,4,2,3,1,2,1,4,3,2,1,4,1,3,2,1,4,2,3,1,2,1,4,3,2,1,4,1,3,2,1,4,2,3,1,2,1,4,3,2,1];
+  pattern.forEach((w, i) => {
+    const bar = document.createElement("div");
+    bar.style.backgroundColor = "#000";
+    bar.style.width = `${w}px`;
+    bar.style.marginRight = `${(i % 3 === 0) ? w : 1}px`;
+    container.appendChild(bar);
+  });
+}
+
+async function loadContratosMensalidades(clienteId) {
+  if (!clienteId) return;
+
+  const client = contratosClientesList.find(c => c.id === clienteId);
+  if (!client) return;
+
+  // Mostra loading
+  if (contratosBillingNoClient) contratosBillingNoClient.style.display = "none";
+  if (contratosBillingEmpty) contratosBillingEmpty.style.display = "none";
+  if (contratosBillingTableContainer) contratosBillingTableContainer.style.display = "none";
+  if (contratosBillingLoading) contratosBillingLoading.style.display = "block";
+  if (btnContratosRecarregarMensalidades) btnContratosRecarregarMensalidades.style.display = "inline-block";
+
+  try {
+    const { data, error } = await supabase
+      .from("financeiro")
+      .select("*")
+      .eq("cliente_id", clienteId)
+      .order("data_vencimento", { ascending: false });
+
+    if (error) throw error;
+
+    const filtered = (data || [])
+      .filter(item => item.tipo_honorario === "mensal")
+      .map(item => {
+        const date = new Date(item.data_vencimento + "T00:00:00");
+        const mesStr = date.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+        const competencia = mesStr.charAt(0).toUpperCase() + mesStr.slice(1);
+        
+        let status = item.status_pagamento;
+        if (status === "pendente") {
+          const venc = new Date(item.data_vencimento + "T00:00:00");
+          const hoje = new Date();
+          venc.setHours(0,0,0,0);
+          hoje.setHours(0,0,0,0);
+          if (venc < hoje) {
+            status = "atrasado";
+          }
+        }
+
+        return {
+          competencia,
+          valor: parseFloat(item.valor_total) || 0,
+          vencimento: new Date(item.data_vencimento + "T00:00:00").toLocaleDateString("pt-BR"),
+          status: status,
+          id_financeiro: item.id
+        };
+      });
+
+    contratosMensalidadesList = filtered;
+
+    if (contratosMensalidadesList.length === 0) {
+      // Mock das mensalidades igual ao React
+      const valorPadrao = client.valor_mensalidade || (contratosActivePlano === "mensal" ? 1500 : 15000);
+      const diaPadrao = client.dia_vencimento || 5;
+
+      contratosMensalidadesList = [
+        {
+          competencia: "Maio de 2026",
+          valor: Number(valorPadrao),
+          vencimento: `${diaPadrao.toString().padStart(2, "0")}/05/2026`,
+          status: "pago"
+        },
+        {
+          competencia: "Junho de 2026",
+          valor: Number(valorPadrao),
+          vencimento: `${diaPadrao.toString().padStart(2, "0")}/06/2026`,
+          status: "pendente"
+        },
+        {
+          competencia: "Julho de 2026",
+          valor: Number(valorPadrao),
+          vencimento: `${diaPadrao.toString().padStart(2, "0")}/07/2026`,
+          status: "pendente"
+        }
+      ];
+    }
+
+    renderContratosMensalidadesTable(client);
+
+  } catch (err) {
+    console.error("Erro ao carregar mensalidades de contratos:", err);
+  } finally {
+    if (contratosBillingLoading) contratosBillingLoading.style.display = "none";
+  }
+}
+
+function renderContratosMensalidadesTable(client) {
+  if (!contratosBillingTableBody) return;
+  contratosBillingTableBody.innerHTML = "";
+
+  if (contratosMensalidadesList.length === 0) {
+    if (contratosBillingEmpty) contratosBillingEmpty.style.display = "block";
+    if (contratosBillingTableContainer) contratosBillingTableContainer.style.display = "none";
+    return;
+  }
+
+  if (contratosBillingEmpty) contratosBillingEmpty.style.display = "none";
+  if (contratosBillingTableContainer) contratosBillingTableContainer.style.display = "block";
+
+  contratosMensalidadesList.forEach(m => {
+    const tr = document.createElement("tr");
+    tr.style.borderBottom = "1px solid var(--panel-border)";
+    tr.style.transition = "background-color 0.2s";
+
+    const tdComp = document.createElement("td");
+    tdComp.style.padding = "10px 12px";
+    tdComp.innerHTML = `
+      <strong>${m.competencia}</strong>
+      <span style="display: block; font-size: 8px; color: var(--text-secondary); margin-top: 2px;">Venc. ${m.vencimento}</span>
+    `;
+
+    const tdValor = document.createElement("td");
+    tdValor.style.padding = "10px 12px";
+    tdValor.style.textAlign = "right";
+    tdValor.style.fontFamily = "monospace";
+    tdValor.style.fontWeight = "bold";
+    tdValor.innerText = m.valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+    const tdStatus = document.createElement("td");
+    tdStatus.style.padding = "10px 12px";
+    tdStatus.style.textAlign = "center";
+    
+    let statusColor = "";
+    let statusBg = "";
+
+    if (m.status === "pago") {
+      statusColor = "#10b981";
+      statusBg = "rgba(16, 185, 129, 0.1)";
+    } else if (m.status === "atrasado") {
+      statusColor = "#ef4444";
+      statusBg = "rgba(239, 68, 68, 0.1)";
+    } else {
+      statusColor = "#f59e0b";
+      statusBg = "rgba(245, 158, 11, 0.1)";
+    }
+
+    tdStatus.innerHTML = `
+      <span style="display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 8px; font-weight: 800; text-transform: uppercase; color: ${statusColor}; background: ${statusBg}; border: 1px solid ${statusColor}22;">
+        ${m.status === "pago" ? "Pago" : m.status === "atrasado" ? "Atrasado" : "Pendente"}
+      </span>
+    `;
+
+    const tdAcoes = document.createElement("td");
+    tdAcoes.style.padding = "10px 12px";
+    tdAcoes.style.textAlign = "center";
+
+    const actionsDiv = document.createElement("div");
+    actionsDiv.style.display = "flex";
+    actionsDiv.style.alignItems = "center";
+    actionsDiv.style.justifyContent = "center";
+    actionsDiv.style.gap = "6px";
+
+    const btnBoleto = document.createElement("button");
+    btnBoleto.type = "button";
+    btnBoleto.innerText = "💵 Boleto";
+    btnBoleto.style.background = "var(--input-bg)";
+    btnBoleto.style.border = "1px solid var(--panel-border)";
+    btnBoleto.style.color = "var(--text-primary)";
+    btnBoleto.style.padding = "4px 8px";
+    btnBoleto.style.borderRadius = "4px";
+    btnBoleto.style.fontSize = "8px";
+    btnBoleto.style.fontWeight = "bold";
+    btnBoleto.style.textTransform = "uppercase";
+    btnBoleto.style.cursor = "pointer";
+    btnBoleto.addEventListener("click", () => {
+      openBoletoModal(m, client);
+    });
+
+    const btnPix = document.createElement("button");
+    btnPix.type = "button";
+    btnPix.innerText = "⚡ PIX";
+    btnPix.style.background = "rgba(197, 168, 92, 0.15)";
+    btnPix.style.border = "1px solid var(--gold)";
+    btnPix.style.color = "var(--gold)";
+    btnPix.style.padding = "4px 8px";
+    btnPix.style.borderRadius = "4px";
+    btnPix.style.fontSize = "8px";
+    btnPix.style.fontWeight = "bold";
+    btnPix.style.textTransform = "uppercase";
+    btnPix.style.cursor = "pointer";
+    btnPix.addEventListener("click", () => {
+      openPixModal(m);
+    });
+
+    actionsDiv.appendChild(btnBoleto);
+    actionsDiv.appendChild(btnPix);
+    tdAcoes.appendChild(actionsDiv);
+
+    tr.appendChild(tdComp);
+    tr.appendChild(tdValor);
+    tr.appendChild(tdStatus);
+    tr.appendChild(tdAcoes);
+    contratosBillingTableBody.appendChild(tr);
+  });
+}
+
+function openBoletoModal(mensalidade, client) {
+  activeMensalidadeSelecionada = mensalidade;
+  if (!modalContratosBoleto) return;
+
+  document.body.classList.add("printing-boleto");
+
+  const dateParts = mensalidade.vencimento.split("/").reverse().join("-");
+  const baseTime = new Date(dateParts).getTime().toString().slice(-4);
+  const valorCentavos = mensalidade.valor.toFixed(2).replace(".", "");
+  const linhaDigitavel = `34191.79001 01245.690008 12345.678901 9 ${baseTime}0000${valorCentavos}`;
+
+  document.getElementById("boleto-linha-digitavel").textContent = linhaDigitavel;
+  document.getElementById("boleto-preview-vencimento").textContent = mensalidade.vencimento;
+  document.getElementById("boleto-preview-data-doc").textContent = new Date().toLocaleDateString("pt-BR");
+  document.getElementById("boleto-preview-num-doc").textContent = `M-${mensalidade.competencia.replace(/ /g, "").replace("de", "")}`;
+  document.getElementById("boleto-preview-valor-doc").textContent = mensalidade.valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  document.getElementById("boleto-preview-valor-cobrado").textContent = mensalidade.valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+  document.getElementById("boleto-preview-pagador-nome").textContent = client.nome;
+  document.getElementById("boleto-preview-pagador-documento").textContent = `CPF/CNPJ: ${client.cpf_cnpj || "Não cadastrado"} — CEP: 01311-100`;
+  document.getElementById("boleto-preview-pagador-endereco").textContent = `Endereço: ${client.endereco_completo || "Cadastrado no prontuário do cliente"}`;
+
+  const barcodeContainer = document.getElementById("boleto-barcode-lines");
+  renderBoletoBarcode(barcodeContainer);
+
+  modalContratosBoleto.style.display = "flex";
+}
+
+function openPixModal(mensalidade) {
+  activeMensalidadeSelecionada = mensalidade;
+  if (!modalContratosPix) return;
+
+  const code = `00020101021126580014br.gov.pix.0136nainaja@hotmail.com5204000053039865407${mensalidade.valor.toFixed(2)}5802BR5925JANAINA TARABAUCA ADVOGADOS6009SAO PAULO62070503***6304E8A3`;
+  
+  if (pixCopiaColaInput) pixCopiaColaInput.value = code;
+  if (pixQrCodeImg) {
+    pixQrCodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(code)}`;
+  }
+
+  modalContratosPix.style.display = "flex";
+}
+
 function triggerContratoClientSelected() {
   const cId = contratosClientSelect.value;
   contratosSelectedClienteId = cId;
@@ -6523,7 +6797,23 @@ function triggerContratoClientSelected() {
     
     btnContratosEsbocar.removeAttribute("disabled");
     btnContratosAtivarPlano.removeAttribute("disabled");
+    if (btnContratosAtualizarValores) btnContratosAtualizarValores.removeAttribute("disabled");
     
+    // Auto-preenche parâmetros do plano se o cliente já possui valores configurados
+    if (client.valor_mensalidade) {
+      contratosPlanoValor.value = parseFloat(client.valor_mensalidade).toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+    } else {
+      contratosPlanoValor.value = contratosActivePlano === "mensal" ? "1.500,00" : "15.000,00";
+    }
+    if (client.dia_vencimento) {
+      contratosPlanoRenovacao.value = client.dia_vencimento;
+    } else {
+      contratosPlanoRenovacao.value = "5";
+    }
+
+    // Carrega histórico de cobranças recorrentes
+    loadContratosMensalidades(cId);
+
     // Limpa o rascunho anterior, botões de PDF e canvas de assinatura
     if (contratosMinutaTextarea) contratosMinutaTextarea.value = "";
     if (btnContratosPrintPreview) btnContratosPrintPreview.style.display = "none";
@@ -6546,7 +6836,14 @@ function resetContratosPreview() {
   contratosClientPreview.style.display = "none";
   btnContratosEsbocar.setAttribute("disabled", "true");
   btnContratosAtivarPlano.setAttribute("disabled", "true");
+  if (btnContratosAtualizarValores) btnContratosAtualizarValores.setAttribute("disabled", "true");
   
+  if (contratosBillingNoClient) contratosBillingNoClient.style.display = "block";
+  if (contratosBillingEmpty) contratosBillingEmpty.style.display = "none";
+  if (contratosBillingLoading) contratosBillingLoading.style.display = "none";
+  if (contratosBillingTableContainer) contratosBillingTableContainer.style.display = "none";
+  if (btnContratosRecarregarMensalidades) btnContratosRecarregarMensalidades.style.display = "none";
+
   if (btnContratosPrintPreview) btnContratosPrintPreview.style.display = "none";
   if (btnContratosPrintSigned) btnContratosPrintSigned.style.display = "none";
   contratosSignatureDataUrl = null;
@@ -6750,12 +7047,67 @@ async function executeAtivarAssinatura() {
     
     if (typeof loadDashboardData === "function") loadDashboardData();
     if (typeof loadFinanceiroData === "function") loadFinanceiroData();
+    loadContratosMensalidades(contratosSelectedClienteId);
   } catch (err) {
     console.error("Erro ao ativar plano de recorrência:", err);
     alert("Erro ao salvar assinatura recorrente: " + err.message);
   } finally {
     btnContratosAtivarPlano.removeAttribute("disabled");
     btnContratosAtivarPlano.textContent = originalBtnText;
+  }
+}
+
+async function executeAtualizarValores() {
+  if (!contratosSelectedClienteId) {
+    alert("Selecione um cliente antes de atualizar os valores.");
+    return;
+  }
+  const client = contratosClientesList.find(c => c.id === contratosSelectedClienteId);
+  if (!client) return;
+
+  const valorStr = contratosPlanoValor.value.replace(/\./g, "").replace(",", ".");
+  const valorFinal = parseFloat(valorStr);
+  const diaFinal = parseInt(contratosPlanoRenovacao.value);
+
+  if (isNaN(valorFinal) || valorFinal <= 0) {
+    alert("O valor da recorrência deve ser um número positivo.");
+    return;
+  }
+  if (isNaN(diaFinal) || diaFinal < 1 || diaFinal > 31) {
+    alert("O dia do vencimento deve ser entre 1 e 31.");
+    return;
+  }
+
+  try {
+    if (btnContratosAtualizarValores) {
+      btnContratosAtualizarValores.setAttribute("disabled", "true");
+      btnContratosAtualizarValores.textContent = "Salvando...";
+    }
+
+    const { error } = await supabase
+      .from("clientes")
+      .update({
+        valor_mensalidade: valorFinal,
+        dia_vencimento: diaFinal
+      })
+      .eq("id", contratosSelectedClienteId);
+
+    if (error) throw error;
+
+    // Atualiza localmente no cache de clientes
+    client.valor_mensalidade = valorFinal;
+    client.dia_vencimento = diaFinal;
+
+    await loadContratosMensalidades(contratosSelectedClienteId);
+    alert("✅ Parâmetros do plano atualizados com sucesso!");
+  } catch (err) {
+    console.error("Erro ao atualizar parâmetros:", err);
+    alert("Erro ao salvar parâmetros: " + err.message);
+  } finally {
+    if (btnContratosAtualizarValores) {
+      btnContratosAtualizarValores.removeAttribute("disabled");
+      btnContratosAtualizarValores.textContent = "💾 Atualizar Valores";
+    }
   }
 }
 
@@ -7023,6 +7375,57 @@ function initContratosModule() {
       }
       
       window.print();
+    });
+  }
+
+  // EVENTOS DE COBRANÇA RECORRENTE E MODAIS
+  if (btnContratosAtualizarValores) {
+    btnContratosAtualizarValores.addEventListener("click", executeAtualizarValores);
+  }
+
+  if (btnContratosRecarregarMensalidades) {
+    btnContratosRecarregarMensalidades.addEventListener("click", () => {
+      loadContratosMensalidades(contratosSelectedClienteId);
+    });
+  }
+
+  // Modais de Boleto
+  if (btnCloseModalBoleto) {
+    btnCloseModalBoleto.addEventListener("click", () => {
+      document.body.classList.remove("printing-boleto");
+      if (modalContratosBoleto) modalContratosBoleto.style.display = "none";
+    });
+  }
+  if (btnCloseBoleto) {
+    btnCloseBoleto.addEventListener("click", () => {
+      document.body.classList.remove("printing-boleto");
+      if (modalContratosBoleto) modalContratosBoleto.style.display = "none";
+    });
+  }
+  if (btnPrintBoleto) {
+    btnPrintBoleto.addEventListener("click", () => {
+      window.print();
+    });
+  }
+
+  // Modais de Pix
+  if (btnCloseModalPix) {
+    btnCloseModalPix.addEventListener("click", () => {
+      if (modalContratosPix) modalContratosPix.style.display = "none";
+    });
+  }
+  if (btnClosePix) {
+    btnClosePix.addEventListener("click", () => {
+      if (modalContratosPix) modalContratosPix.style.display = "none";
+    });
+  }
+  if (btnPixCopiar && pixCopiaColaInput) {
+    btnPixCopiar.addEventListener("click", () => {
+      navigator.clipboard.writeText(pixCopiaColaInput.value).then(() => {
+        alert("📋 Código PIX copiado com sucesso!");
+      }).catch(err => {
+        console.error("Erro ao copiar PIX:", err);
+      });
     });
   }
 }
