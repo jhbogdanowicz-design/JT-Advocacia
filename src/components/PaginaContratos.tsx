@@ -19,7 +19,7 @@ export const PaginaContratos: React.FC = () => {
   const [clienteSelecionadoId, setClienteSelecionadoId] = useState<string>("");
   const [loadingClientes, setLoadingClientes] = useState<boolean>(true);
   const [loadingMinuta, setLoadingMinuta] = useState<boolean>(false);
-  const [motorIA, setMotorIA] = useState<"gemini" | "openai" | "jusia">("gemini");
+  const [motorIA, setMotorIA] = useState<"gemini" | "openai" | "jus_ia">("jus_ia");
   const [tipoPlano, setTipoPlano] = useState<"mensal" | "anual">("mensal");
 
   // Estados do Formulário de Assinatura
@@ -75,6 +75,12 @@ export const PaginaContratos: React.FC = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
+        // Fallback 1: Buscar do user_metadata da sessão
+        if (user.user_metadata?.assinatura_digital_url) {
+          setLawyerSignatureImgUrl(user.user_metadata.assinatura_digital_url);
+        }
+
+        // Fallback 2: Buscar da tabela public.advogados no banco relacional
         const { data, error } = await supabase
           .from("advogados")
           .select("assinatura_digital_url")
@@ -778,11 +784,11 @@ Dra. Janaina Tarabauca (Contratada)`;
                 >
                   ChatGPT
                 </button>
-                <button
+                 <button
                   type="button"
-                  onClick={() => setMotorIA("jusia")}
+                  onClick={() => setMotorIA("jus_ia")}
                   className={`px-3 py-1.5 rounded text-[10px] font-bold transition-all ${
-                    motorIA === "jusia"
+                    motorIA === "jus_ia"
                       ? "bg-[#0f1e36] text-white dark:bg-[#d4af37] dark:text-slate-950 shadow-sm"
                       : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
                   }`}
@@ -910,39 +916,39 @@ Dra. Janaina Tarabauca (Contratada)`;
                     {minutaTexto}
                   </pre>
 
-                  {/* BLOCO DE ASSINATURAS E TIMESTAMP - EXCLUSIVO PARA IMPRESSÃO */}
-                  <div className="hidden print:block mt-12" style={{ pageBreakInside: "avoid" }}>
-                    <div className="grid grid-cols-2 gap-10">
+                  {/* BLOCO DE ASSINATURAS E TIMESTAMP - VISÍVEL NO PREVIEW E NA IMPRESSÃO */}
+                  <div className="mt-8 border-t border-slate-200 dark:border-slate-800 pt-8" style={{ pageBreakInside: "avoid" }}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:grid-cols-2 print:gap-10">
                       
                       {/* Coluna Esquerda (CONTRATADA) */}
-                      <div className="flex flex-col items-center gap-2 text-center">
-                        <div className="border-b border-black w-full h-20 flex items-center justify-center">
+                      <div className="flex flex-col items-center gap-2 text-center p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 print:bg-white print:p-0 print:border-none">
+                        <span className="text-[9px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest">CONTRATADA</span>
+                        <div className="border-b border-slate-300 dark:border-slate-700 print:border-black w-full h-24 flex items-center justify-center bg-white dark:bg-slate-950 p-2 rounded-lg print:bg-white print:p-0">
                           {lawyerSignatureImgUrl ? (
-                            <img src={lawyerSignatureImgUrl} alt="Assinatura Dra. Janaina" className="max-h-[60px] max-w-[200px]" />
+                            <img src={lawyerSignatureImgUrl} alt="Assinatura Dra. Janaina" className="max-h-[80px] max-w-[220px] object-contain" />
                           ) : (
-                            <span className="text-[10px] text-slate-400 italic">(Assinatura Cadastrada)</span>
+                            <span className="text-xs text-slate-400 dark:text-slate-500 italic select-none">Aguardando assinatura cadastrada...</span>
                           )}
                         </div>
-                        <span className="text-[11px] font-bold text-black uppercase mt-1">DRA. JANAINA TARABAUCA</span>
-                        <span className="text-[9px] text-slate-500 font-bold">CONTRATADA</span>
-                        <span className="text-[8px] text-[#10b981] font-bold mt-0.5">ASSINADO DIGITALMENTE</span>
+                        <span className="text-xs font-bold text-slate-800 dark:text-slate-100 print:text-black uppercase mt-1">DRA. JANAINA TARABAUCA</span>
+                        <span className="text-[9px] text-[#10b981] font-black tracking-wider uppercase mt-0.5 flex items-center gap-1">● ASSINADO DIGITALMENTE</span>
                       </div>
 
                       {/* Coluna Direita (CONTRATANTE) */}
-                      <div className="flex flex-col items-center gap-2 text-center">
-                        {modoImpressao === "assinado" && signatureImgUrl ? (
-                          <div className="border-b border-black w-full h-20 flex items-center justify-center">
-                            <img src={signatureImgUrl} alt="Assinatura Contratante" className="max-h-[60px] max-w-[200px]" />
-                          </div>
-                        ) : (
-                          <div className="border-b border-black w-full h-20"></div>
-                        )}
-                        <span className="text-[11px] font-bold text-black uppercase mt-1">
+                      <div className="flex flex-col items-center gap-2 text-center p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 print:bg-white print:p-0 print:border-none">
+                        <span className="text-[9px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest">CONTRATANTE</span>
+                        <div className="border-b border-slate-300 dark:border-slate-700 print:border-black w-full h-24 flex items-center justify-center bg-white dark:bg-slate-950 p-2 rounded-lg print:bg-white print:p-0">
+                          {signatureImgUrl ? (
+                            <img src={signatureImgUrl} alt="Assinatura Contratante" className="max-h-[80px] max-w-[220px] object-contain" />
+                          ) : (
+                            <span className="text-xs text-slate-400 dark:text-slate-500 italic select-none">Aguardando assinatura do cliente...</span>
+                          )}
+                        </div>
+                        <span className="text-xs font-bold text-slate-800 dark:text-slate-100 print:text-black uppercase mt-1">
                           {clienteAtivo?.nome || "CONTRATANTE"}
                         </span>
-                        <span className="text-[9px] text-slate-500 font-bold">CONTRATANTE / CLIENTE</span>
-                        {modoImpressao === "assinado" && (
-                          <span className="text-[8px] text-[#10b981] font-bold mt-0.5 leading-tight">
+                        {signatureImgUrl && (
+                          <span className="text-[8px] text-[#10b981] font-bold mt-0.5 leading-tight print:text-[#10b981]">
                             ASSINADO ELETRONICAMENTE EM {new Date().toLocaleDateString("pt-BR")} às {new Date().toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' })} IP: 186.220.12.92 (HASH SHA256)
                           </span>
                         )}
