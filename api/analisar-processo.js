@@ -91,17 +91,32 @@ export default async function handler(req, res) {
       motor = "jusia";
     }
 
-    const promptText = `
-      Você é um assistente de IA sênior especialista em direito brasileiro, focado em auditoria técnica e aceleração de rotinas jurídicas.
-      Analise o texto extraído do processo/peça fornecido abaixo e preencha rigorosamente a estrutura JSON solicitada.
+    let promptText = "";
+    if (motor === "jusia") {
+      promptText = `
+        Você é o JUS IA, o principal e mais renomado motor de inteligência artificial jurídica do Brasil, especializado em Direito Médico de alto nível.
+        Analise o texto fornecido abaixo, que contém as instruções específicas e os fatos concatenados. Cumpra exatamente o comando instruído no Conteúdo do Documento.
 
-      Conteúdo do Documento:
-      ${textoDocumento}
+        Conteúdo do Documento:
+        ${textoDocumento}
 
-      Regras cruciais:
-      - Responda APENAS o objeto JSON correspondente, sem markdown ou explicações externas.
-      - Na minuta inicial, monte um rascunho de petição formal em português com parágrafos bem estruturados e elegantes.
-    `;
+        Regras cruciais:
+        - Responda APENAS o objeto JSON correspondente, sem markdown ou explicações externas.
+        - No campo "minuta_inicial_rascunho", monte a peça ou petição inicial completa, com qualificações e espaços para preenchimento, exatamente seguindo a estrutura padrão de contencioso de saúde solicitada no Conteúdo do Documento.
+      `;
+    } else {
+      promptText = `
+        Você é um assistente de IA sênior especialista em direito brasileiro, focado em auditoria técnica e aceleração de rotinas jurídicas.
+        Analise o texto extraído do processo/peça fornecido abaixo e preencha rigorosamente a estrutura JSON solicitada.
+
+        Conteúdo do Documento:
+        ${textoDocumento}
+
+        Regras cruciais:
+        - Responda APENAS o objeto JSON correspondente, sem markdown ou explicações externas.
+        - Na minuta inicial, monte um rascunho de petição formal em português com parágrafos bem estruturados e elegantes.
+      `;
+    }
 
     let jsonResponse;
 

@@ -293,6 +293,30 @@ export const PaginaProcessos: React.FC = () => {
     }
   }, [processoSelecionado]);
 
+  // ── Upload de arquivo no modal de edição
+  const handleEditProcessoFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const uploadedFile = e.target.files?.[0];
+    if (!uploadedFile) return;
+
+    const fileName = uploadedFile.name.toLowerCase();
+    try {
+      if (fileName.endsWith(".txt")) {
+        const text = await uploadedFile.text();
+        setDescricao(prev => prev ? `${prev}\n\n[CONTEÚDO DO ARQUIVO ANEXADO - ${uploadedFile.name}]:\n${text}` : text);
+        alert("✅ Arquivo de texto importado com sucesso!");
+      } else if (fileName.endsWith(".pdf")) {
+        const text = await extractTextFromPdf(uploadedFile);
+        setDescricao(prev => prev ? `${prev}\n\n[CONTEÚDO DO ARQUIVO ANEXADO - ${uploadedFile.name}]:\n${text}` : text);
+        alert("✅ Arquivo PDF importado e processado com sucesso!");
+      } else {
+        alert("⚠️ Por favor, envie apenas arquivos em formato PDF ou TXT.");
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert("Erro ao processar arquivo: " + err.message);
+    }
+  };
+
   // ── Salvar edição de processo no Supabase
   const handleSalvarEdicao = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -377,16 +401,19 @@ export const PaginaProcessos: React.FC = () => {
       }
     })();
 
-    let prefixo = "";
+    let prompt = "";
     if (motorIAProcesso === "jusia") {
-      prefixo = `Você é o JUS IA, motor de inteligência artificial jurídica especializado em ${area} de alto nível. `;
-    } else if (motorIAProcesso === "chatgpt") {
-      prefixo = `Atue como GPT-4o especializado em ${area} brasileiro. `;
+      const fatosProntuario = processoParaIA.clientes?.observacoes || "Nenhum fato clínico relatado no prontuário do cliente.";
+      const teorProcesso = processoParaIA.observacoes_internas || "Nenhum fato ou teor do processo cadastrado.";
+      prompt = `Atue como um especialista sênior em Direito Médico. Analise os fatos clínicos do prontuário: ${fatosProntuario} em conjunto com o Teor do Processo/Fatos do Caso: ${teorProcesso}. Com base na natureza deste processo, gere IMEDIATAMENTE uma peça jurídica inicial na estrutura padrão do contencioso de saúde: 1) Dos Fatos, 2) Dos Fundamentos Jurídicos Técnicos (citando responsabilidade civil médica/resoluções CFM aplicáveis) e 3) Dos Pedidos. Retorne o documento pronto para revisão.`;
     } else {
-      prefixo = `Atue como Google Gemini Pro especializado em ${area} brasileiro. `;
-    }
-
-    const prompt = `${prefixo}Com base nos dados do processo e observações a seguir, elabore uma minuta jurídica profissional contendo: 1) Dos Fatos; 2) Do Direito (fundamentos e legislação aplicável); 3) Dos Pedidos. Use linguagem técnica, formal e robusta.
+      let prefixo = "";
+      if (motorIAProcesso === "chatgpt") {
+        prefixo = `Atue como GPT-4o especializado em ${area} brasileiro. `;
+      } else {
+        prefixo = `Atue como Google Gemini Pro especializado em ${area} brasileiro. `;
+      }
+      prompt = `${prefixo}Com base nos dados do processo e observações a seguir, elabore uma minuta jurídica profissional contendo: 1) Dos Fatos; 2) Do Direito (fundamentos e legislação aplicável); 3) Dos Pedidos. Use linguagem técnica, formal e robusta.
 
 Processo: ${processoParaIA.titulo} (${processoParaIA.numero_processo})
 Tribunal: ${processoParaIA.tribunal || "N/A"} | Vara: ${processoParaIA.vara || "N/A"}
@@ -399,13 +426,16 @@ Observações e Fatos do Processo:
 Tipo de Peça a ser elaborada: "${tipoLabel}"
 
 Responda redigindo a peça ou tese completa, com qualificações e espaços para preenchimento posterior.`;
+    }
 
     try {
       const response = await fetch("/api/esbocar-peca", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          fatosNarrados: fatos,
+          fatosNarrados: motorIAProcesso === "jusia" 
+            ? `${processoParaIA.clientes?.observacoes || ""}\n\n${processoParaIA.observacoes_internas || ""}`.trim()
+            : fatos,
           tipoPeca: tipoLabel,
           motor: motorIAProcesso,
           areaInteresse: area,
@@ -671,7 +701,15 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
         text = await extractTextFromPdf(file);
       } else {
         const proc = processosCompletos.find(p => p.id === selectedProcessoId);
-        text = proc?.observacoes_internas || proc?.clientes?.observacoes || "";
+        const fatosProntuario = proc?.clientes?.observacoes || "";
+        const teorProcesso = proc?.observacoes_internas || "";
+        
+        if (selectedEngine === "jusia" && selectedProcessoId) {
+          text = `Atue como um especialista sênior em Direito Médico. Analise os fatos clínicos do prontuário: ${fatosProntuario} em conjunto com o Teor do Processo/Fatos do Caso: ${teorProcesso}. Com base na natureza deste processo, gere IMEDIATAMENTE uma peça jurídica inicial na estrutura padrão do contencioso de saúde: 1) Dos Fatos, 2) Dos Fundamentos Jurídicos Técnicos (citando responsabilidade civil médica/resoluções CFM aplicáveis) e 3) Dos Pedidos. Retorne o documento pronto para revisão.`;
+        } else {
+          text = teorProcesso || fatosProntuario || "";
+        }
+        
         if (!text) {
           throw new Error("Este processo não possui fatos ou observações cadastrados para análise.");
         }
@@ -834,7 +872,12 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
                   <textarea rows={5} value={descricao} onChange={e => setDescricao(e.target.value)}
                     placeholder="Descreva os fatos relevantes, histórico do processo, estratégia jurídica, etc. Estes dados serão usados como base para a geração de peças por IA."
                     className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm text-[#0f1e36] dark:text-white focus:outline-none focus:border-[#d4af37] transition-colors resize-y" />
-                  <p className="text-[10px] text-[#d4af37] mt-1">💡 Preencha este campo para habilitar a geração de teses e minutas por IA diretamente neste processo.</p>
+                  <p className="text-[10px] text-[#d4af37] mt-1 mb-3">💡 Preencha este campo para habilitar a geração de teses e minutas por IA diretamente neste processo.</p>
+
+                  <div className="mt-3 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+                    <label className="block text-xs font-bold text-[#0f1e36] dark:text-slate-300 uppercase mb-1">Anexar Documentos do Caso (PDF ou TXT)</label>
+                    <input type="file" accept=".pdf,.txt" onChange={handleEditProcessoFileUpload} className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-[#0f1e36] hover:file:bg-slate-200" />
+                  </div>
                 </div>
               </div>
               <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">

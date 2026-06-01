@@ -5297,6 +5297,57 @@ if (formEditarProcesso) {
   });
 }
 
+// Upload de Documentos no Modal de Edição de Processo
+const editProcUpload = document.getElementById("edit-proc-upload");
+if (editProcUpload) {
+  editProcUpload.addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const fileName = file.name.toLowerCase();
+    try {
+      if (fileName.endsWith(".txt")) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const text = event.target.result;
+          const currentText = editProcFatos.value || "";
+          editProcFatos.value = currentText ? `${currentText}\n\n[CONTEÚDO DO ARQUIVO ANEXADO - ${file.name}]:\n${text}` : text;
+          alert("✅ Arquivo de texto importado com sucesso!");
+        };
+        reader.readAsText(file);
+      } else if (fileName.endsWith(".pdf")) {
+        const pdfjs = window.pdfjsLib || null;
+        if (!pdfjs) {
+          alert("⚠️ Biblioteca de leitura de PDF não disponível.");
+          return;
+        }
+        const arrayBuffer = await file.arrayBuffer();
+        const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
+        const pdf = await loadingTask.promise;
+        const maxPages = pdf.numPages;
+        let fullText = "";
+
+        for (let i = 1; i <= maxPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items.map((item) => item.str).join(" ");
+          fullText += pageText + "\n";
+        }
+
+        const text = fullText.trim();
+        const currentText = editProcFatos.value || "";
+        editProcFatos.value = currentText ? `${currentText}\n\n[CONTEÚDO DO ARQUIVO ANEXADO - ${file.name}]:\n${text}` : text;
+        alert("✅ Arquivo PDF importado e processado com sucesso!");
+      } else {
+        alert("⚠️ Por favor, envie apenas arquivos em formato PDF ou TXT.");
+      }
+    } catch (err) {
+      console.error("Erro ao processar arquivo no modal de edição:", err);
+      alert("Erro ao processar arquivo: " + err.message);
+    }
+  });
+}
+
 // Gatilho Inteligente Jus IA combinando Fatos do Cliente + Fatos do Processo
 const btnGerarPecaJusia = document.getElementById("btn-gerar-peca-jusia");
 if (btnGerarPecaJusia) {
@@ -5327,16 +5378,11 @@ if (btnGerarPecaJusia) {
       const clienteObservacoes = cliente ? cliente.observacoes : "";
       const clienteNome = cliente ? cliente.nome : "Cliente não vinculado";
 
-      // 2. Combinar fatos do processo com fatos narrados do cliente
-      const textPayload = `DADOS DO PROCESSO JUDICIAL:
-Tribunal: ${tribunal || "Não especificado"}
-Vara: ${vara || "Não especificada"}
-Área: ${area || "Não especificada"}
-Fatos e Andamentos do Processo:
-${fatosProcesso || "Nenhum andamento ou fato registrado especificamente."}
+      // 2. Combinar fatos do processo com fatos narrados do cliente usando o prompt estruturado de Direito Médico da Jus IA
+      const fatosProntuario = clienteObservacoes || "Nenhum fato clínico relatado no prontuário.";
+      const teorProcesso = fatosProcesso || "Nenhum fato ou teor do processo cadastrado.";
 
-HISTÓRICO / FATOS NARRADOS DO CLIENTE (${clienteNome}):
-${clienteObservacoes || "Nenhum histórico ou fato narrado registrado para este cliente."}`;
+      const textPayload = `Atue como um especialista sênior em Direito Médico. Analise os fatos clínicos do prontuário: ${fatosProntuario} em conjunto com o Teor do Processo/Fatos do Caso: ${teorProcesso}. Com base na natureza deste processo, gere IMEDIATAMENTE uma peça jurídica inicial na estrutura padrão do contencioso de saúde: 1) Dos Fatos, 2) Dos Fundamentos Jurídicos Técnicos (citando responsabilidade civil médica/resoluções CFM aplicáveis) e 3) Dos Pedidos. Retorne o documento pronto para revisão.`;
 
       // 3. Injetar na entrada de dados do analisador IA
       if (textInput) textInput.value = textPayload;

@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { fatosNarrados, tipoPeca, motor, areaInteresse } = req.body;
+  const { fatosNarrados, tipoPeca, motor, areaInteresse, promptCustom } = req.body;
 
   if (!fatosNarrados || !tipoPeca) {
     res.status(400).json({ error: "Parâmetros 'fatosNarrados' e 'tipoPeca' são obrigatórios." });
@@ -73,7 +73,7 @@ export default async function handler(req, res) {
       systemPromptPrefix = `Atue como o motor Google Gemini Pro especializado em ${areaDireito} brasileiro. Elabore um parecer completo com linguagem fluida e abrangência doutrinária. `;
     }
 
-    const prompt = `${systemPromptPrefix}Com base nos Fatos Narrados e Observações Gerais do cliente anexados a seguir, elabore uma minuta jurídica profissional contendo: 1) Dos Fatos (resumo cronológico técnico); 2) Do Direito (fundamentação baseada em doutrina e legislação aplicável); 3) Dos Pedidos e do Pedido de Liminar (se aplicável ao tipo de peça selecionado). Use uma linguagem extremamente técnica, formal e robusta.
+    const prompt = promptCustom || `${systemPromptPrefix}Com base nos Fatos Narrados e Observações Gerais do cliente anexados a seguir, elabore uma minuta jurídica profissional contendo: 1) Dos Fatos (resumo cronológico técnico); 2) Do Direito (fundamentação baseada em doutrina e legislação aplicável); 3) Dos Pedidos e do Pedido de Liminar (se aplicável ao tipo de peça selecionado). Use uma linguagem extremamente técnica, formal e robusta.
 
 Fatos do cliente: 
 "${fatosNarrados}"
