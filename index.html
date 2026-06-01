@@ -465,11 +465,20 @@
 
     /* ── FRASE DO DIA ─────────────────────────────────────────────────────── */
     .quote-section {
-      padding: 0 24px 0;
-      max-width: 1200px;
-      margin: -28px auto 0;
+      background: #f8f7f4;
+      border-top: 1px solid rgba(212,175,55,0.15);
+      border-bottom: 1px solid rgba(212,175,55,0.15);
+      padding: 40px 40px;
+      margin: 0;
       position: relative;
-      z-index: 10;
+      z-index: 1;
+    }
+    [data-theme="dark"] .quote-section {
+      background: #0a1221;
+    }
+    .quote-inner {
+      max-width: 1280px;
+      margin: 0 auto;
     }
     .quote-card {
       display: flex;
@@ -477,16 +486,18 @@
       gap: 20px;
       background: #fff;
       border-left: 5px solid #d4af37;
-      border-radius: 0 14px 14px 0;
-      padding: 24px 28px;
-      box-shadow: 0 8px 40px rgba(15,30,54,0.10), 0 1px 4px rgba(212,175,55,0.08);
+      border-radius: 12px;
+      padding: 28px 32px;
+      box-shadow: 0 2px 20px rgba(15,30,54,0.07), 0 1px 4px rgba(212,175,55,0.06);
       opacity: 0;
       transform: translateY(12px);
       animation: quoteFadeIn 0.7s ease 0.3s forwards;
+      max-width: 860px;
+      margin: 0 auto;
     }
     [data-theme="dark"] .quote-card {
       background: #0f172a;
-      box-shadow: 0 8px 40px rgba(0,0,0,0.35), 0 1px 4px rgba(212,175,55,0.10);
+      box-shadow: 0 2px 20px rgba(0,0,0,0.25), 0 1px 4px rgba(212,175,55,0.08);
     }
     @keyframes quoteFadeIn {
       to { opacity: 1; transform: translateY(0); }
@@ -554,7 +565,7 @@
       border-color: #d4af37;
     }
     @media (max-width: 640px) {
-      .quote-section { margin-top: 0; padding: 16px 16px 0; }
+      .quote-section { padding: 28px 16px; }
       .quote-card { padding: 18px 16px; gap: 14px; }
       .quote-text { font-size: 14px; }
     }
@@ -607,17 +618,16 @@
         <div class="hero-content">
           <span class="hero-eyebrow">
             <span style="width:6px;height:6px;background:#d4af37;border-radius:50%;display:inline-block;"></span>
-            Direito Médico &amp; da Saúde
+            Advocacia Estratégica de Alta Performance
           </span>
 
           <h1 class="hero-headline">
-            Defesa Técnica Rigorosa no<br>
-            <em>Direito Médico</em> e da Saúde
+            Soluções Jurídicas de <em>Alto Impacto</em><br>para Pessoas e Empresas
           </h1>
 
           <p class="hero-subheadline">
-            Proteção jurídica estratégica para profissionais de saúde e instituições médicas.
-            Infraestrutura tecnológica avançada dedicada ao contencioso de alta complexidade.
+            Gestão jurídica estratégica com transparência em tempo real.
+            Defesa técnica qualificada nas áreas cível, trabalhista, empresarial, da saúde e muito mais.
           </p>
 
           <div class="hero-actions">
@@ -641,13 +651,13 @@
         <!-- Coluna da imagem -->
         <div class="hero-visual">
           <div class="hero-img-frame">
-            <img src="modern_law_office.png" alt="Escritório premium de advocacia médica JT" loading="eager" fetchpriority="high">
+            <img src="modern_law_office.png" alt="Escritório premium de advocacia" loading="eager" fetchpriority="high">
             <div class="hero-img-overlay"></div>
             <div class="hero-img-badge">
               <span class="hero-img-badge-icon">⚖️</span>
               <div class="hero-img-badge-text">
                 <span class="hero-img-badge-title">Dra. Janaina Tarabauca</span>
-                <span class="hero-img-badge-sub">Especialista em Direito Médico</span>
+                <span class="hero-img-badge-sub">Advogados Associados</span>
               </div>
             </div>
           </div>
@@ -673,6 +683,7 @@
           title="Próxima frase"
           aria-label="Ver outra frase"
         >↻</button>
+        </div>
       </div>
     </div>
 
@@ -691,7 +702,7 @@
           <span class="pillar-num">02</span>
           <span class="pillar-icon">🤖</span>
           <h3 class="pillar-title">Inteligência Jurídica Especializada</h3>
-          <p class="pillar-desc">Uso nativo da Jus IA para análise preditiva de teses, jurisprudência e risco processual — tecnologia exclusiva integrada à prática médico-legal.</p>
+          <p class="pillar-desc">Uso nativo da Jus IA para análise preditiva de teses, jurisprudência e risco processual — tecnologia exclusiva a serviço de cada área de atuação.</p>
         </div>
 
         <div class="pillar-card">
