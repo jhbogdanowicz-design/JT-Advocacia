@@ -617,6 +617,25 @@ Dra. Janaina Tarabauca (Contratada)`;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#070a13] text-slate-800 dark:text-slate-100 p-6 space-y-6 print:bg-white print:p-0 print:text-black">
+
+      {/* ── BARRA DE EXPORTAÇÃO GLOBAL — SEMPRE VISÍVEL, FORA DE QUALQUER CONDICIONAL ── */}
+      <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white dark:bg-slate-900 p-4 mb-2 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm print:hidden relative z-50">
+        <div>
+          <h2 className="text-xs font-bold text-[#0f1e36] dark:text-slate-300 uppercase tracking-wider">📜 Minutas e Planos de Contratos</h2>
+          <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Gerencie assinaturas recorrentes e emita minutas contratuais pré-formatadas.</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            console.log("Acionando window.print() em Contratos");
+            window.print();
+          }}
+          className="w-full sm:w-auto bg-[#0f1e36] hover:bg-slate-800 active:scale-95 text-white font-extrabold text-xs uppercase tracking-widest px-6 py-3.5 rounded-lg shadow-md flex items-center justify-center gap-2 transition-all border-b-4 border-[#d4af37] cursor-pointer"
+        >
+          📄 EXPORTAR CONTRATO PARA PDF
+        </button>
+      </div>
+
       {/* 1. HEADER & QUICK ACTIONS */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-[#0c1625] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm print:hidden">
         <div className="space-y-1">
@@ -710,7 +729,7 @@ Dra. Janaina Tarabauca (Contratada)`;
                 </div>
                 <div>
                   <span className="text-slate-400 font-light block text-[10px]">Fatos Narrados no Prontuário</span>
-                  <p className="text-slate-600 dark:text-slate-300 font-light leading-relaxed text-[11px] bg-white dark:bg-[#070a13] p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 mt-1 max-h-48 overflow-y-auto whitespace-pre-wrap">
+                  <p className="text-slate-600 dark:text-slate-300 font-light leading-relaxed text-[11px] bg-white dark:bg-[#070a13] p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 mt-1 max-h-48 overflow-y-auto print:max-h-none print:overflow-visible whitespace-pre-wrap">
                     {clienteAtivo.observacoes || "Nenhum relato de fatos registrado no prontuário."}
                   </p>
                 </div>

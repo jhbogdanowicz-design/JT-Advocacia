@@ -817,6 +817,24 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
   return (
     <div className="min-h-screen p-6 space-y-6 bg-gray-50 dark:bg-[#070a13] text-[#0f1e36] dark:text-slate-100 print:bg-white print:p-0 print:text-black">
 
+      {/* ── BARRA DE IMPRESSÃO GLOBAL — SEMPRE VISÍVEL, FORA DE QUALQUER CONDICIONAL ── */}
+      <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white dark:bg-slate-900 p-4 mb-2 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm print:hidden relative z-50">
+        <div>
+          <h2 className="text-xs font-bold text-[#0f1e36] dark:text-slate-300 uppercase tracking-wider">📁 Gestão e Teses de Processos</h2>
+          <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Selecione um processo abaixo para rodar a Jus IA e exportar o documento.</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            console.log("Acionando window.print() em Processos");
+            window.print();
+          }}
+          className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 active:scale-95 text-[#0f1e36] font-extrabold text-xs uppercase tracking-widest px-6 py-3.5 rounded-lg shadow-md flex items-center justify-center gap-2 transition-all border-b-4 border-amber-700 cursor-pointer"
+        >
+          🖨️ IMPRIMIR / GERAR PDF DA PEÇA
+        </button>
+      </div>
+
       {/* ── MODAL DE EDIÇÃO DE PROCESSO ─────────────────────────────────────── */}
       {modalEditarAberto && processoSelecionado && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -1850,7 +1868,7 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
             </div>
 
             {/* Result body */}
-            <div className="flex-1 p-5 overflow-y-auto print:p-0 print:overflow-visible print:bg-white print:text-black">
+            <div className="flex-1 p-5 overflow-y-auto print:p-0 print:overflow-visible print:h-auto print:bg-white print:text-black">
               {analyzing ? (
                 <div className="h-full flex flex-col items-center justify-center gap-4 text-center py-20">
                   <div className="relative">
