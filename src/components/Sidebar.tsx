@@ -149,18 +149,38 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <rect x="3" y="16" width="7" height="5" rx="1" />
         </svg>
       )
+    },
+    {
+      id: "documentacao",
+      label: "Manual do Ecossistema",
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+          <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z" />
+        </svg>
+      )
     }
   ];
 
   return (
-    <aside className="w-64 bg-[#0f172a] text-slate-100 flex flex-col h-screen border-r border-slate-800 shrink-0 print:hidden">
+    <aside className="w-64 bg-[#0b1625] text-slate-100 flex flex-col h-screen border-r border-[#d4af37]/20 shrink-0 print:hidden font-sans">
       {/* LOGO — IDENTIDADE PREMIUM */}
-      <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-800">
+      <div className="flex items-center gap-3 px-5 py-4 border-b border-[#d4af37]/15">
         <div className="bg-white rounded-lg border border-[#d4af37]/50 flex items-center justify-center shadow-md shrink-0 overflow-hidden" style={{width: 44, height: 44}}>
           <img
             src="/logo-jt.png"
             alt="Logo Janaina Tarabauca Advogados"
-            className="w-full h-full object-contain"
+            className="w-full h-full object-contain p-0.5"
             onError={(e) => {
               e.currentTarget.style.display = "none";
               const fallback = e.currentTarget.nextElementSibling as HTMLElement;
@@ -192,13 +212,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               key={item.id}
               onClick={() => onNavigate(item.id)}
-              className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-xs font-semibold tracking-wide transition-all ${
+              className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer ${
                 isActive
-                  ? "bg-[#d4af37] text-[#070a13] shadow-md shadow-[#d4af37]/10"
-                  : "text-slate-400 hover:bg-slate-900/50 hover:text-slate-200"
+                  ? "bg-[#d4af37] text-[#0f1e36] shadow-md shadow-[#d4af37]/20 font-bold"
+                  : "text-slate-400 hover:bg-slate-900/30 hover:text-slate-200"
               }`}
             >
-              <span className={`shrink-0 ${isActive ? "text-[#070a13]" : "text-[#d4af37]"}`}>
+              <span className={`shrink-0 ${isActive ? "text-[#0f1e36]" : "text-[#d4af37]"}`}>
                 {item.icon}
               </span>
               <span>{item.label}</span>
@@ -208,8 +228,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </nav>
 
       {/* FOOTER USER / LOGOUT */}
-      <div className="p-4 border-t border-slate-800 space-y-3">
-        <div className="flex items-center gap-3 px-2 py-1.5 rounded-xl hover:bg-slate-900/30 transition-colors">
+      <div className="p-4 border-t border-[#d4af37]/15 space-y-3">
+        <div className="flex items-center gap-3 px-2 py-1.5 rounded-xl hover:bg-slate-900/20 transition-colors">
           <div className="w-9 h-9 rounded-full bg-[#d4af37]/10 border border-[#d4af37]/30 flex items-center justify-center font-bold text-xs text-[#d4af37]">
             {user.avatar || user.name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
           </div>

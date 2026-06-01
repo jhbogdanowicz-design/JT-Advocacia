@@ -29,7 +29,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const activeMotor = motor || "jusia";
+  const activeMotor = motor || "jus_ia";
   const apiKey = process.env.GOOGLE_API_KEY;
 
   if (!apiKey) {
@@ -65,7 +65,7 @@ export default async function handler(req, res) {
     }
 
     let systemPromptPrefix = "";
-    if (activeMotor === "jusia") {
+    if (activeMotor === "jusia" || activeMotor === "jus_ia") {
       systemPromptPrefix = `Você é o JUS IA, o principal e mais renomado motor de inteligência artificial jurídica do Brasil, especializado em ${areaDireito} de alto nível. Seu linguajar é formal, erudito e extremamente embasado nas leis vigentes. `;
     } else if (activeMotor === "openai") {
       systemPromptPrefix = `Atue como o motor OpenAI GPT-4o especializado em ${areaDireito} brasileiro. Seu texto deve ser direto, moderno, preciso e tecnicamente impecável. `;

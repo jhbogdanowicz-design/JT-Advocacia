@@ -1194,6 +1194,13 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           <span>Agenda</span>
         </a>
+        <a href="#" class="nav-item" data-view="documentacao">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/>
+          </svg>
+          <span>Manual do Ecossistema</span>
+        </a>
       </nav>
 
       <!-- Rodapé do menu com Perfil e Logout -->
@@ -2772,6 +2779,278 @@
             </div>
           </div>
         </div>
+      </section>
+
+      <!-- =========================================================================
+           DOCUMENTAÇÃO E MANUAL DO ECOSSISTEMA
+           ========================================================================= -->
+      <section id="view-documentacao" class="content-view" style="padding: 24px; max-width: 1080px; margin: 0 auto; color: var(--text-primary);">
+        
+        <!-- Cabeçalho da Seção (Fixo/Sticky na tela, invisível na impressão) -->
+        <div class="print-hidden" style="position: sticky; top: 0; z-index: 40; background: var(--panel-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--panel-border); padding: 16px 0; margin-bottom: 32px; display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <img src="logo-jt.png" alt="JT Logo" style="height: 38px; width: 38px; object-fit: contain; border-radius: 8px;" onerror="this.src='logo.jpg'">
+            <div>
+              <h2 style="font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; margin: 0; letter-spacing: 0.5px; color: var(--text-primary);">JANAINA TARABAUCA</h2>
+              <p style="font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--gold); font-weight: 700; margin: 2px 0 0 0;">Direito Médico &amp; Saúde — Memorial do Ecossistema</p>
+            </div>
+          </div>
+          <button type="button" onclick="window.print()" class="btn-primary" style="width: auto; margin-top: 0; padding: 8px 16px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; border-bottom: 2px solid var(--gold); border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+            🖨️ Exportar Manual (PDF)
+          </button>
+        </div>
+
+        <!-- Banner Timbrado Exclusivo de Impressão (Oculto na tela, visível na impressão) -->
+        <div class="print-only" style="display: none; border-bottom: 2px solid var(--gold); padding-bottom: 16px; margin-bottom: 32px;">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <img src="logo.jpg" alt="JT" style="height: 48px; width: 48px; object-fit: contain;">
+            <div>
+              <h1 style="font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; margin: 0; color: #000;">Janaina Tarabauca Advogados</h1>
+              <p style="font-size: 10px; text-transform: uppercase; color: var(--gold); font-weight: 700; margin: 4px 0 0 0;">Direito Médico e da Saúde</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Introdução Editorial -->
+        <div style="text-align: center; margin-bottom: 40px;">
+          <h1 style="font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; margin-bottom: 12px; color: var(--text-primary);">Manual Técnico &amp; Documentação Operacional</h1>
+          <p style="font-size: 13px; color: var(--text-secondary); font-weight: 300; max-width: 680px; margin: 0 auto; line-height: 1.6;">
+            Consolidação das diretrizes de engenharia, especificações do banco de dados relacional e guia interativo das ferramentas de inteligência artificial de nível Triple-A para o escritório Janaina Tarabauca Advogados.
+          </p>
+
+          <!-- Filtros Rápidos (Invisível na impressão) -->
+          <div class="print-hidden" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 24px;">
+            <button type="button" class="doc-filter-btn active" data-sec="todos" style="padding: 6px 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; border-radius: 20px; border: 1px solid var(--panel-border); background: var(--panel-bg); color: var(--text-primary); cursor: pointer;">👁️ Ver Tudo</button>
+            <button type="button" class="doc-filter-btn" data-sec="escopo" style="padding: 6px 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; border-radius: 20px; border: 1px solid var(--panel-border); background: var(--panel-bg); color: var(--text-secondary); cursor: pointer;">🎯 Escopo</button>
+            <button type="button" class="doc-filter-btn" data-sec="arquitetura" style="padding: 6px 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; border-radius: 20px; border: 1px solid var(--panel-border); background: var(--panel-bg); color: var(--text-secondary); cursor: pointer;">🛠️ Arquitetura</button>
+            <button type="button" class="doc-filter-btn" data-sec="manual" style="padding: 6px 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; border-radius: 20px; border: 1px solid var(--panel-border); background: var(--panel-bg); color: var(--text-secondary); cursor: pointer;">📖 Manual</button>
+          </div>
+        </div>
+
+        <!-- Seções Principais -->
+        <div style="display: flex; flex-direction: column; gap: 48px;">
+          
+          <!-- SEÇÃO 1: ESCOPO DO PROJETO -->
+          <div id="doc-sec-escopo" class="doc-section" style="display: block; border-top: 1px solid var(--panel-border); padding-top: 32px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 24px;">
+              <span style="font-size: 20px;">🎯</span>
+              <h3 style="font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; text-transform: uppercase; color: var(--text-primary); margin: 0;">1. Escopo do Projeto &amp; Visão do Negócio</h3>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+              <div style="background: var(--panel-bg); border: 1px solid var(--gold); border-radius: 12px; padding: 20px; box-shadow: var(--shadow);">
+                <span style="font-size: 9px; font-weight: 700; text-transform: uppercase; color: var(--gold); letter-spacing: 1px; display: block; margin-bottom: 8px;">Objetivo Estratégico</span>
+                <h4 style="font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">Gestão Digital de Alta Complexidade em Direito Médico e da Saúde</h4>
+                <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.6; font-weight: 300; margin: 0;">
+                  O ecossistema institucional foi estruturado sob medida para automatizar e centralizar as demandas consultivas e contenciosas. O sistema integra inteligência artificial avançada para geração de peças e teses, eliminando tempos mortos e otimizando a conformidade jurídica com máxima segurança.
+                </p>
+              </div>
+
+              <div style="background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 20px; box-shadow: var(--shadow);">
+                <span style="font-size: 9px; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 1px; display: block; margin-bottom: 8px;">Público-Alvo e Usuários</span>
+                <h4 style="font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">Corpo Jurídico e Clientes Corporativos de Saúde</h4>
+                <ul style="font-size: 12px; color: var(--text-secondary); line-height: 1.6; font-weight: 300; padding-left: 20px; margin: 0;">
+                  <li style="margin-bottom: 8px;"><strong>Sócios e Advogados:</strong> Gestão de processos judiciais, redação de defesas éticas perante o CRM, e modelagem de contratos preventivos.</li>
+                  <li><strong>Clientes Corporativos:</strong> Acesso seguro a relatórios processuais, validação de minutas contratuais e gerenciamento de mensalidades recorrentes de assessoria.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- SEÇÃO 2: ARQUITETURA TECNOLÓGICA -->
+          <div id="doc-sec-arquitetura" class="doc-section" style="display: block; border-top: 1px solid var(--panel-border); padding-top: 32px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 24px;">
+              <span style="font-size: 20px;">🛠️</span>
+              <h3 style="font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; text-transform: uppercase; color: var(--text-primary); margin: 0;">2. Arquitetura Tecnológica &amp; Segurança</h3>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
+              <div style="background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; justify-content: space-between; gap: 16px;">
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 8px; margin-bottom: 12px;">
+                    <span style="font-size: 9px; font-weight: 700; text-transform: uppercase; color: var(--text-secondary);">Camada de Client</span>
+                    <span style="font-size: 9px; background: var(--panel-border); padding: 2px 6px; border-radius: 4px; font-weight: 700; color: var(--text-primary);">SPA</span>
+                  </div>
+                  <h4 style="font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">React.js &amp; TypeScript / Vanilla JS</h4>
+                  <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.6; font-weight: 300; margin: 0;">
+                    Desenvolvido sobre uma arquitetura reativa utilizando componentes modulares com TypeScript. A tipagem estrita de interfaces (ex. `Cliente`, `ProcessoCompleto`) previne quebras em produção e acelera a manutenção. A base Vanilla de alto rendimento compartilha a mesma estrutura DOM para performance extrema.
+                  </p>
+                </div>
+              </div>
+
+              <div style="background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; justify-content: space-between; gap: 16px;">
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 8px; margin-bottom: 12px;">
+                    <span style="font-size: 9px; font-weight: 700; text-transform: uppercase; color: var(--text-secondary);">Banco de Dados</span>
+                    <span style="font-size: 9px; background: var(--gold-light); padding: 2px 6px; border-radius: 4px; font-weight: 700; color: var(--gold);">Supabase</span>
+                  </div>
+                  <h4 style="font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">PostgreSQL Relacional</h4>
+                  <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.6; font-weight: 300; margin: 0;">
+                    Infraestrutura baseada no Supabase. O banco de dados PostgreSQL lida com relações de prontuários (`public.clientes`), processos jurídicos (`public.processos`), transações patrimoniais (`public.financeiro`) e chaves criptografadas de faturamento, sob estrita conformidade com a LGPD.
+                  </p>
+                </div>
+              </div>
+
+              <div style="background: var(--panel-bg); border: 1px solid var(--gold); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; justify-content: space-between; gap: 16px;">
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 8px; margin-bottom: 12px;">
+                    <span style="font-size: 9px; font-weight: 700; text-transform: uppercase; color: var(--gold);">Motor Cognitivo</span>
+                    <span style="font-size: 9px; background: rgba(16,185,129,0.1); padding: 2px 6px; border-radius: 4px; font-weight: 700; color: var(--success-color);">Jus IA</span>
+                  </div>
+                  <h4 style="font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">Integração "Jus IA" Nativa</h4>
+                  <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.6; font-weight: 300; margin: 0;">
+                    O sistema incorpora a **Jus IA** como motor padrão pré-selecionado. A geração textual médico-legal consome prompts estruturados que integram o histórico clínico (prontuário do cliente) com as movimentações dos autos, estruturando peças prontas com fundamentos baseados em erro médico ou auditorias de glosa.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SEÇÃO 3: MANUAL DE OPERAÇÃO DO USUÁRIO -->
+          <div id="doc-sec-manual" class="doc-section" style="display: block; border-top: 1px solid var(--panel-border); padding-top: 32px; padding-bottom: 32px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 24px;">
+              <span style="font-size: 20px;">📖</span>
+              <h3 style="font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; text-transform: uppercase; color: var(--text-primary); margin: 0;">3. Manual de Operação do Usuário (Interativo)</h3>
+            </div>
+
+            <!-- Sub-abas de Navegação de Módulos (Invisível na impressão) -->
+            <div class="print-hidden" style="display: flex; gap: 16px; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 24px;">
+              <button type="button" class="doc-tab-btn active" data-mod="processos" style="background: none; border: none; border-bottom: 2px solid var(--gold); color: var(--gold); padding: 8px 4px; font-size: 12px; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: all 0.2s;">📂 Módulo Processos</button>
+              <button type="button" class="doc-tab-btn" data-mod="contratos" style="background: none; border: none; border-bottom: 2px solid transparent; color: var(--text-secondary); padding: 8px 4px; font-size: 12px; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: all 0.2s;">📜 Módulo Contratos</button>
+              <button type="button" class="doc-tab-btn" data-mod="perfil" style="background: none; border: none; border-bottom: 2px solid transparent; color: var(--text-secondary); padding: 8px 4px; font-size: 12px; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: all 0.2s;">👤 Perfil e Assinatura</button>
+            </div>
+
+            <!-- PAINÉIS DO MANUAL -->
+            
+            <!-- MÓDULO PROCESSOS -->
+            <div id="doc-mod-processos" class="doc-module-panel" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; align-items: start;">
+              <div style="display: flex; flex-direction: column; gap: 16px;">
+                <span style="font-size: 9px; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 1px; display: block;">Fluxo Operacional</span>
+                <h4 style="font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--text-primary);">Módulo de Processos, Glosas e Teses Médicas</h4>
+                <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.6; font-weight: 300; margin: 0;">
+                  O sistema de processos conta com uma navegação otimizada para Direito Médico. Ao clicar em qualquer Número de Processo na listagem geral, a interface carrega automaticamente todos os fatos médicos estruturados na segunda camada, alimentando reativamente a central da **Jus IA**.
+                </p>
+                <div style="background: var(--panel-bg); border-left: 3px solid var(--gold); border-radius: 0 8px 8px 0; padding: 16px; box-shadow: var(--shadow);">
+                  <span style="font-size: 9px; font-weight: 700; text-transform: uppercase; color: var(--gold); letter-spacing: 1px; display: block; margin-bottom: 6px;">💡 Dica de Utilização</span>
+                  <p style="font-size: 11px; color: var(--text-secondary); line-height: 1.5; font-weight: 300; margin: 0;">
+                    Ao acionar a Jus IA na segunda camada, você pode anexar documentos médicos (arquivos `.txt` e `.pdf`). A inteligência lerá e consolidará o conteúdo, sugerindo uma peça processual robusta com estrutura tripartite: **Fatos**, **Fundamentos Jurídicos** e **Pedidos**.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Screenshot Simulador: Processos -->
+              <div style="background: var(--input-bg); border: 1px solid var(--gold); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); position: relative;">
+                <span style="position: absolute; top: 12px; right: 12px; font-size: 8px; font-weight: 700; text-transform: uppercase; color: var(--gold); border: 1px solid rgba(212,175,55,0.3); padding: 2px 6px; border-radius: 4px; background: rgba(212,175,55,0.05);">Screenshot: Processos</span>
+                <div style="border: 1px solid var(--panel-border); padding: 12px; border-radius: 8px; background: var(--panel-bg); margin-top: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+                  <div>
+                    <span style="font-weight: 700; font-size: 11px; color: var(--text-primary);">Processo nº 1004523-89.2026.8.26.0100</span>
+                    <p style="font-size: 9px; color: var(--text-secondary); margin: 2px 0 0 0;">Dr. Eduardo Santos vs. Unimed Grande São Paulo</p>
+                  </div>
+                  <span style="font-size: 8px; font-weight: 700; color: var(--gold); background: var(--gold-light); border: 1px solid rgba(197, 168, 92, 0.2); padding: 3px 8px; border-radius: 20px; text-transform: uppercase;">CRM Defesa</span>
+                </div>
+                
+                <div style="margin: 16px 0; display: flex; flex-direction: column; gap: 8px;">
+                  <div style="height: 6px; width: 40%; background: var(--panel-border); border-radius: 4px;"></div>
+                  <div style="border: 1px dashed var(--panel-border); padding: 16px; border-radius: 8px; text-align: center; color: var(--text-secondary); font-size: 10px; background: var(--panel-bg); cursor: pointer;">
+                    📎 Arraste prontuários adicionais ou defesas do CRM (.pdf, .txt)
+                  </div>
+                </div>
+
+                <div style="background: #0f1e36; color: #fff; padding: 10px 14px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold);">
+                  <span style="font-size: 9px; font-weight: 700; letter-spacing: 0.5px;">🤖 Motor: JUS IA (Padrão)</span>
+                  <span style="font-size: 9px; font-weight: 700; color: var(--success-color); display: flex; align-items: center; gap: 4px;">
+                    <span style="width: 6px; height: 6px; background: var(--success-color); border-radius: 50%; display: inline-block;"></span>
+                    Pronto para Redigir
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- MÓDULO CONTRATOS -->
+            <div id="doc-mod-contratos" class="doc-module-panel" style="display: none; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; align-items: start;">
+              <div style="display: flex; flex-direction: column; gap: 16px;">
+                <span style="font-size: 9px; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 1px; display: block;">Fluxo Operacional</span>
+                <h4 style="font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--text-primary);">Módulo de Contratos de Honorários e Faturamento</h4>
+                <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.6; font-weight: 300; margin: 0;">
+                  O módulo de contratos garante governança total sobre a assessoria médica mensal de clínicas e médicos individuais. O dropdown de prontuários possui **segurança contra vazamentos**, limpando automaticamente esboços ou assinaturas residuais ao alternar o cliente selecionado.
+                </p>
+                <div style="background: var(--panel-bg); border-left: 3px solid var(--gold); border-radius: 0 8px 8px 0; padding: 16px; box-shadow: var(--shadow);">
+                  <span style="font-size: 9px; font-weight: 700; text-transform: uppercase; color: var(--gold); letter-spacing: 1px; display: block; margin-bottom: 6px;">💡 Faturamento e PIX Integrado</span>
+                  <p style="font-size: 11px; color: var(--text-secondary); line-height: 1.5; font-weight: 300; margin: 0;">
+                    Todas as parcelas geradas contam com códigos PIX reativos e copia-e-cola com verificação instantânea. Ao salvar edições contratuais ou liquidar transações, o sistema dispensa alertas invasivos do navegador e exibe badges modernos e flutuantes em verde-esmeralda.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Screenshot Simulador: Contratos -->
+              <div style="background: var(--input-bg); border: 1px solid var(--gold); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); position: relative;">
+                <span style="position: absolute; top: 12px; right: 12px; font-size: 8px; font-weight: 700; text-transform: uppercase; color: var(--gold); border: 1px solid rgba(212,175,55,0.3); padding: 2px 6px; border-radius: 4px; background: rgba(212,175,55,0.05);">Screenshot: Contratos</span>
+                <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 4px;">
+                  <label style="font-size: 8px; font-weight: 700; text-transform: uppercase; color: var(--text-secondary);">Selecionar Prontuário</label>
+                  <div style="border: 1px solid var(--panel-border); padding: 10px 12px; border-radius: 8px; background: var(--panel-bg); display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(--text-primary);">
+                    <span>👤 Dra. Laura Azevedo (Médica Dermatologista)</span>
+                    <span style="font-size: 8px; font-weight: 700; color: var(--success-color); background: rgba(16,185,129,0.1); padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">Ativo</span>
+                  </div>
+                </div>
+
+                <div style="margin: 16px 0; background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; font-size: 9px; font-weight: 700; border-bottom: 1px solid var(--panel-border); padding-bottom: 6px;">
+                    <span style="color: var(--text-primary);">VALOR DO CONTRATO</span>
+                    <span style="color: var(--success-color); font-family: monospace;">R$ 12.500,00</span>
+                  </div>
+                  <p style="font-size: 9px; color: var(--text-secondary); line-height: 1.4; font-weight: 300; margin: 0;">
+                    Pelos serviços contenciosos prestados, o CONTRATANTE pagará à CONTRATADA o valor mensal fixado...
+                  </p>
+                </div>
+
+                <div style="display: flex; gap: 8px;">
+                  <div style="flex: 1; background: var(--panel-border); color: var(--text-primary); padding: 8px 0; border-radius: 6px; text-align: center; font-weight: 700; font-size: 9px; text-transform: uppercase;">Prévia do PDF</div>
+                  <div style="flex: 1; background: var(--gold); color: #070a13; padding: 8px 0; border-radius: 6px; text-align: center; font-weight: 700; font-size: 9px; text-transform: uppercase;">Ativar e Cobrar</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- MÓDULO PERFIL / ASSINATURA -->
+            <div id="doc-mod-perfil" class="doc-module-panel" style="display: none; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; align-items: start;">
+              <div style="display: flex; flex-direction: column; gap: 16px;">
+                <span style="font-size: 9px; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 1px; display: block;">Fluxo Operacional</span>
+                <h4 style="font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--text-primary);">Perfil Profissional e Assinatura Eletrônica OAB</h4>
+                <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.6; font-weight: 300; margin: 0;">
+                  O controle de perfil assegura a identificação civil e a credencial da OAB/UF do advogado logado. As petições geradas e enviadas por e-mail ou geradas em PDF contam com a assinatura digital do advogado. A captura das coordenadas de desenho emprega manipulação direta via canvas, garantindo **lag zero** e resposta táctil premium.
+                </p>
+                <div style="background: var(--panel-bg); border-left: 3px solid var(--gold); border-radius: 0 8px 8px 0; padding: 16px; box-shadow: var(--shadow);">
+                  <span style="font-size: 9px; font-weight: 700; text-transform: uppercase; color: var(--gold); letter-spacing: 1px; display: block; margin-bottom: 6px;">💡 Importação Facilitada</span>
+                  <p style="font-size: 11px; color: var(--text-secondary); line-height: 1.5; font-weight: 300; margin: 0;">
+                    Caso prefira, você pode pular a assinatura manuscrita direta no canvas e importar um arquivo de imagem local contendo sua assinatura digital oficial. O sistema converterá automaticamente o arquivo para Base64 e o incorporará ao banco de dados com segurança.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Screenshot Simulador: Perfil/Canvas -->
+              <div style="background: var(--input-bg); border: 1px solid var(--gold); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); position: relative;">
+                <span style="position: absolute; top: 12px; right: 12px; font-size: 8px; font-weight: 700; text-transform: uppercase; color: var(--gold); border: 1px solid rgba(212,175,55,0.3); padding: 2px 6px; border-radius: 4px; background: rgba(212,175,55,0.05);">Screenshot: Assinatura</span>
+                <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 6px;">
+                  <span style="font-size: 8px; font-weight: 700; text-transform: uppercase; color: var(--text-secondary);">Quadro de Captura OAB</span>
+                  <div style="width: 100%; height: 96px; background: var(--panel-bg); border-radius: 8px; border: 1px dashed var(--gold); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: crosshair; color: var(--text-secondary); position: relative; overflow: hidden;">
+                    <span style="font-size: 14px;">✍️</span>
+                    <span style="font-size: 8px; font-weight: 400;">Assine aqui dentro</span>
+                    <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+                      <path d="M 40,55 Q 90,20 120,65 T 220,45" fill="none" stroke="var(--gold)" stroke-width="2.5" stroke-linecap="round"></path>
+                    </svg>
+                  </div>
+                </div>
+
+                <div style="display: flex; gap: 8px; margin-top: 16px;">
+                  <button type="button" class="btn-primary" style="flex: 1; background: var(--panel-border); border: none; color: var(--text-primary); padding: 6px 0; border-radius: 6px; font-weight: 700; font-size: 9px; cursor: default; margin-top: 0;">Limpar Canvas</button>
+                  <button type="button" class="btn-primary" style="flex: 1; background: var(--gold); border: none; color: #070a13; padding: 6px 0; border-radius: 6px; font-weight: 700; font-size: 9px; cursor: default; margin-top: 0;">Importar PNG</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
       </section>
 
     </main>

@@ -7488,15 +7488,75 @@ function initContratosModule() {
   }
 }
 
+// =========================================================================
+// 📖 MÓDULO DE DOCUMENTAÇÃO E MANUAL DO ECOSSISTEMA
+// =========================================================================
+function initDocumentacaoModule() {
+  const filterBtns = document.querySelectorAll(".doc-filter-btn");
+  const tabBtns = document.querySelectorAll(".doc-tab-btn");
+  const docSections = document.querySelectorAll(".doc-section");
+  const docModulePanels = document.querySelectorAll(".doc-module-panel");
+
+  // Filtros de Seção Superior
+  filterBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      // Atualiza estado ativo nos botões
+      filterBtns.forEach(b => {
+        b.classList.remove("active");
+        b.style.color = "var(--text-secondary)";
+      });
+      btn.classList.add("active");
+      btn.style.color = "var(--text-primary)";
+
+      // Filtra as seções
+      const sec = btn.getAttribute("data-sec");
+      docSections.forEach(section => {
+        if (sec === "todos" || section.id === `doc-sec-${sec}`) {
+          section.style.display = "block";
+        } else {
+          section.style.display = "none";
+        }
+      });
+    });
+  });
+
+  // Sub-abas do Manual Operacional
+  tabBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      // Atualiza estado ativo nos botões
+      tabBtns.forEach(b => {
+        b.classList.remove("active");
+        b.style.borderBottomColor = "transparent";
+        b.style.color = "var(--text-secondary)";
+      });
+      btn.classList.add("active");
+      btn.style.borderBottomColor = "var(--gold)";
+      btn.style.color = "var(--gold)";
+
+      // Alterna os painéis
+      const mod = btn.getAttribute("data-mod");
+      docModulePanels.forEach(panel => {
+        if (panel.id === `doc-mod-${mod}`) {
+          panel.style.display = "grid";
+        } else {
+          panel.style.display = "none";
+        }
+      });
+    });
+  });
+}
+
 // Chamar a inicialização ao carregar a página
 document.addEventListener("DOMContentLoaded", () => {
   initFinanceiroFilters();
   initContratosModule();
   initLawyerSignatureCanvas();
+  initDocumentacaoModule();
 });
 // Caso o DOMContentLoaded já tenha disparado, rodamos imediatamente
 if (document.readyState === "complete" || document.readyState === "interactive") {
   initFinanceiroFilters();
   initContratosModule();
   initLawyerSignatureCanvas();
+  initDocumentacaoModule();
 }

@@ -87,12 +87,12 @@ export default async function handler(req, res) {
     let motor = "gemini";
     if (url.includes("analisar-chatgpt")) {
       motor = "chatgpt";
-    } else if (url.includes("analisar-jusia")) {
-      motor = "jusia";
+    } else if (url.includes("analisar-jusia") || url.includes("analisar-jus_ia")) {
+      motor = "jus_ia";
     }
 
     let promptText = "";
-    if (motor === "jusia") {
+    if (motor === "jus_ia" || motor === "jusia") {
       promptText = `
         Você é o JUS IA, o principal e mais renomado motor de inteligência artificial jurídica do Brasil, especializado em Direito Médico de alto nível.
         Analise o texto fornecido abaixo, que contém as instruções específicas e os fatos concatenados. Cumpra exatamente o comando instruído no Conteúdo do Documento.

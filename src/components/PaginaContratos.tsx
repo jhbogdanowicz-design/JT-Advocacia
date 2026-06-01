@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { supabase } from "../lib/supabase";
+import { PremiumIALoader } from "./PremiumIALoader";
 
 interface Cliente {
   id: string;
@@ -22,12 +23,44 @@ export const PaginaContratos: React.FC = () => {
   const [motorIA, setMotorIA] = useState<"gemini" | "openai" | "jus_ia">("jus_ia");
   const [tipoPlano, setTipoPlano] = useState<"mensal" | "anual">("mensal");
 
+  // Estado do Toast de Sucesso Emerald
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  const showToast = (message: string, type: "success" | "error" = "success") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 2000);
+  };
+
+  // Helpers de Mascaramento de Moeda (R$)
+  const formatBRL = (value: number | string) => {
+    const num = typeof value === "number" ? value : parseFloat(String(value));
+    if (isNaN(num)) return "";
+    return num.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  };
+
+  const cleanBRLToNumber = (value: string): number => {
+    const clean = value.replace(/[^\d]/g, "");
+    if (!clean) return 0;
+    const num = parseInt(clean, 10) / 100;
+    return isNaN(num) ? 0 : num;
+  };
+
+  const handleCurrencyInputChange = (val: string, setter: (v: string) => void) => {
+    let clean = val.replace(/\D/g, "");
+    if (!clean) {
+      setter("");
+      return;
+    }
+    const num = parseInt(clean, 10) / 100;
+    setter(formatBRL(num));
+  };
+
   // Estados do Formulário de Assinatura
   const [dataInicio, setDataInicio] = useState<string>(
     new Date().toISOString().split("T")[0]
   );
   const [diaRenovacao, setDiaRenovacao] = useState<number>(5);
-  const [valorRecorrencia, setValorRecorrencia] = useState<string>("1500.00");
+  const [valorRecorrencia, setValorRecorrencia] = useState<string>("R$ 1.500,00");
   const [ativandoAssinatura, setAtivandoAssinatura] = useState<boolean>(false);
   const [cancelandoAssinatura, setCancelandoAssinatura] = useState<boolean>(false);
 
@@ -36,7 +69,7 @@ export const PaginaContratos: React.FC = () => {
 
   // Estados do Canvas de Assinatura
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [isDrawing, setIsDrawing] = useState<boolean>(false);
+  const isDrawingRef = useRef<boolean>(false);
   const [signatureExists, setSignatureExists] = useState<boolean>(false);
   const [isSigned, setIsSigned] = useState<boolean>(false);
   const [modoImpressao, setModoImpressao] = useState<"previa" | "assinado">("previa");
@@ -183,10 +216,10 @@ export const PaginaContratos: React.FC = () => {
 
     try {
       setAtualizandoValores(true);
-      const valor = parseFloat(valorRecorrencia);
+      const valor = cleanBRLToNumber(valorRecorrencia);
       const dia = parseInt(diaRenovacao.toString());
 
-      if (isNaN(valor) || valor <= 0) {
+      if (valor <= 0) {
         alert("O valor da recorrência deve ser maior que zero.");
         return;
       }
@@ -215,7 +248,7 @@ export const PaginaContratos: React.FC = () => {
       
       await carregarMensalidades(clienteSelecionadoId);
       
-      alert("✅ Valores do plano atualizados com sucesso!");
+      showToast("Salvo com sucesso!");
     } catch (err: any) {
       console.error("Erro ao atualizar valores do plano:", err.message);
       alert("Erro ao salvar valores: " + err.message);
@@ -229,9 +262,9 @@ export const PaginaContratos: React.FC = () => {
       carregarMensalidades(clienteSelecionadoId);
       if (clienteAtivo) {
         if (clienteAtivo.valor_mensalidade) {
-          setValorRecorrencia(clienteAtivo.valor_mensalidade.toString());
+          setValorRecorrencia(formatBRL(clienteAtivo.valor_mensalidade));
         } else {
-          setValorRecorrencia(tipoPlano === "mensal" ? "1500.00" : "15000.00");
+          setValorRecorrencia(tipoPlano === "mensal" ? formatBRL(1500) : formatBRL(15000));
         }
         if (clienteAtivo.dia_vencimento) {
           setDiaRenovacao(clienteAtivo.dia_vencimento);
@@ -262,9 +295,9 @@ export const PaginaContratos: React.FC = () => {
     if (!valorSalvoNoBanco) {
       // Só aplica o default quando o cliente não tem valor salvo
       if (tipoPlano === "mensal") {
-        setValorRecorrencia("1500.00");
+        setValorRecorrencia(formatBRL(1500));
       } else {
-        setValorRecorrencia("15000.00");
+        setValorRecorrencia(formatBRL(15000));
       }
     }
   }, [tipoPlano, clienteAtivo]);
@@ -296,7 +329,7 @@ export const PaginaContratos: React.FC = () => {
     setTipoPlano("mensal");
     setDataInicio(new Date().toISOString().split("T")[0]);
     setDiaRenovacao(5);
-    setValorRecorrencia("1500.00");
+    setValorRecorrencia(formatBRL(1500));
     setSignatureImgUrl(null);
     handleClearSignature();
   };
@@ -521,7 +554,7 @@ Dra. Janaina Tarabauca (Contratada)`;
   const handleCopiarMinuta = () => {
     if (!minutaTexto) return;
     navigator.clipboard.writeText(minutaTexto);
-    alert("📋 Minuta copiada para a área de transferência!");
+    showToast("Copiado para a área de transferência!");
   };
 
   // Handlers do Canvas de Assinatura
@@ -550,12 +583,12 @@ Dra. Janaina Tarabauca (Contratada)`;
 
     ctx.beginPath();
     ctx.moveTo(x, y);
-    setIsDrawing(true);
+    isDrawingRef.current = true;
     setSignatureExists(true);
   };
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    if (!isDrawing) return;
+    if (!isDrawingRef.current) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -579,7 +612,22 @@ Dra. Janaina Tarabauca (Contratada)`;
   };
 
   const stopDrawing = () => {
-    setIsDrawing(false);
+    isDrawingRef.current = false;
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        setSignatureImgUrl(base64);
+        setIsSigned(true);
+        setSignatureExists(true);
+        showToast("Assinatura importada com sucesso!");
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleClearSignature = () => {
@@ -605,7 +653,7 @@ Dra. Janaina Tarabauca (Contratada)`;
       setSignatureImgUrl(imgUrl);
     }
     setIsSigned(true);
-    alert("✅ Assinatura vinculada ao contrato com sucesso!");
+    showToast("Assinatura salva com sucesso!");
   };
 
   const handleImprimir = (modo: "previa" | "assinado") => {
@@ -617,6 +665,12 @@ Dra. Janaina Tarabauca (Contratada)`;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#070a13] text-slate-800 dark:text-slate-100 p-6 space-y-6 print:bg-white print:p-0 print:text-black">
+      {toast && (
+        <div className="fixed top-6 right-6 z-[9999] flex items-center gap-2.5 px-4 py-3 rounded-xl border border-emerald-500/30 bg-emerald-50/95 dark:bg-[#0f172a]/95 text-emerald-800 dark:text-emerald-300 shadow-2xl backdrop-blur-md animate-slideDown font-sans text-xs font-bold tracking-wide print:hidden">
+          <span className="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-500/25 text-emerald-600 dark:text-emerald-400 text-xs">✓</span>
+          <span>{toast.message}</span>
+        </div>
+      )}
 
       {/* ── BARRA DE EXPORTAÇÃO GLOBAL — SEMPRE VISÍVEL, FORA DE QUALQUER CONDICIONAL ── */}
       <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white dark:bg-slate-900 p-4 mb-2 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm print:hidden relative z-50">
@@ -835,12 +889,7 @@ Dra. Janaina Tarabauca (Contratada)`;
               </div>
 
               {loadingMinuta ? (
-                <div className="w-full bg-slate-50 dark:bg-[#070a13] border border-slate-200 dark:border-slate-800 rounded-xl p-16 flex flex-col items-center justify-center gap-3 print:hidden">
-                  <div className="w-8 h-8 border-4 border-slate-300 dark:border-slate-800 border-t-[#d4af37] rounded-full animate-spin"></div>
-                  <p className="text-xs text-slate-400 font-light">
-                    O motor {motorIA.toUpperCase()} está cruzando os relatos de prontuário do cliente...
-                  </p>
-                </div>
+                <PremiumIALoader />
               ) : minutaTexto ? (
                 <>
                   {/* CABEÇALHO TIMBRADO JURÍDICO - EXCLUSIVO PARA IMPRESSÃO */}
@@ -879,7 +928,7 @@ Dra. Janaina Tarabauca (Contratada)`;
                   />
 
                   {/* Texto do Contrato formatado de forma limpa exclusivamente para a folha A4 no Print */}
-                  <pre className="hidden print:block whitespace-pre-wrap font-mono text-xs text-black bg-white leading-relaxed p-0 border-none outline-none">
+                  <pre className="hidden print:block whitespace-pre-wrap font-mono text-xs text-black bg-white leading-relaxed p-0 border-none outline-none print:h-auto print:overflow-visible">
                     {minutaTexto}
                   </pre>
 
@@ -1047,7 +1096,7 @@ Dra. Janaina Tarabauca (Contratada)`;
                   <input
                     type="text"
                     value={valorRecorrencia}
-                    onChange={(e) => setValorRecorrencia(e.target.value)}
+                    onChange={(e) => handleCurrencyInputChange(e.target.value, setValorRecorrencia)}
                     required
                     className="w-full bg-slate-50 dark:bg-[#070a13] border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-xs text-[#0f1e36] dark:text-slate-200 focus:outline-none focus:border-[#d4af37] font-mono font-bold"
                   />
@@ -1222,11 +1271,11 @@ Dra. Janaina Tarabauca (Contratada)`;
                 )}
               </div>
 
-              <div className="flex items-center">
+              <div className="flex items-center flex-wrap gap-2">
                 <button
                   type="button"
                   onClick={handleClearSignature}
-                  className="bg-slate-200 text-slate-700 hover:bg-slate-300 px-4 py-2 rounded text-xs font-bold uppercase mr-2 cursor-pointer transition-colors"
+                  className="bg-slate-200 text-slate-700 hover:bg-slate-300 px-4 py-2 rounded text-xs font-bold uppercase cursor-pointer transition-colors"
                 >
                   Limpar
                 </button>
@@ -1238,6 +1287,10 @@ Dra. Janaina Tarabauca (Contratada)`;
                 >
                   Confirmar Assinatura
                 </button>
+                <label className="bg-[#D4AF37] hover:bg-[#F3E5AB] text-[#070A13] px-4 py-2 rounded text-xs font-bold uppercase cursor-pointer border-b border-[#D4AF37] transition-all">
+                  📥 Importar Assinatura (PNG/JPG)
+                  <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
+                </label>
               </div>
             </div>
           )}
@@ -1504,7 +1557,7 @@ Dra. Janaina Tarabauca (Contratada)`;
                     onClick={() => {
                       const code = `00020101021126580014br.gov.pix.0136nainaja@hotmail.com5204000053039865407${mensalidadeSelecionada.valor.toFixed(2)}5802BR5925JANAINA TARABAUCA ADVOGADOS6009SAO PAULO62070503***6304E8A3`;
                       navigator.clipboard.writeText(code);
-                      alert("📋 Código PIX copiado com sucesso!");
+                      showToast("Copiado para a área de transferência!");
                     }}
                     className="bg-[#0f1e36] text-white hover:bg-slate-800 px-3 py-1.5 rounded text-[10px] font-bold uppercase transition-colors cursor-pointer"
                   >

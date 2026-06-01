@@ -2735,6 +2735,26 @@ input:checked + .slider:before {
   .print-only {
     display: block !important;
   }
+  .print-hidden, .print\:hidden {
+    display: none !important;
+  }
+
+  /* Mostrar a view de documentação se ativa */
+  #view-documentacao.active {
+    display: block !important;
+    background: #fff !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Garantia absoluta de expansão e visibilidade de conteúdos em mídia impressa (Segurança de Impressão) */
+  pre, textarea, div, p, select, table, section, article {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    overflow-y: visible !important;
+  }
   
   body {
     background: #fff !important;

@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { supabase } from "../lib/supabase";
+import { PremiumIALoader } from "./PremiumIALoader";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
-type AIEngine = "gemini" | "chatgpt" | "jusia";
+type AIEngine = "gemini" | "chatgpt" | "jus_ia";
 
 interface AnaliseCache {
   id: string;
@@ -83,7 +84,7 @@ const ENGINE_META: Record<AIEngine, { label: string; emoji: string; color: strin
     color: "text-emerald-600 dark:text-emerald-400",
     desc: "Modelo GPT-4o da OpenAI. Alta precisão jurídica e interpretação contextual."
   },
-  jusia: {
+  jus_ia: {
     label: "Jus IA",
     emoji: "⚖️",
     color: "text-amber-600 dark:text-amber-400",
@@ -134,22 +135,54 @@ export const PaginaProcessos: React.FC = () => {
   // ── Gerador de IA por processo (na aba gerenciar)
   const [processoParaIA, setProcessoParaIA] = useState<ProcessoCompleto | null>(null);
   const [tipoPecaProcesso, setTipoPecaProcesso] = useState("inicial_erro");
-  const [motorIAProcesso, setMotorIAProcesso] = useState<AIEngine>("jusia");
+  const [motorIAProcesso, setMotorIAProcesso] = useState<AIEngine>("jus_ia");
   const [loadingIAProcesso, setLoadingIAProcesso] = useState(false);
   const [textoIAProcesso, setTextoIAProcesso] = useState("");
   const [erroIAProcesso, setErroIAProcesso] = useState<string | null>(null);
 
   // ── Engine selection (analisador PDF)
-  const [selectedEngine, setSelectedEngine] = useState<AIEngine>("gemini");
+  const [selectedEngine, setSelectedEngine] = useState<AIEngine>("jus_ia");
 
-  // ── Generative Workspace States (gerador por cliente, aba separada)
+  // Estado do Toast de Sucesso Emerald
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  const showToast = (message: string, type: "success" | "error" = "success") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 2000);
+  };
+
+  // Helpers de Mascaramento de Moeda (R$)
+  const formatBRL = (value: number | string) => {
+    const num = typeof value === "number" ? value : parseFloat(String(value));
+    if (isNaN(num)) return "";
+    return num.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  };
+
+  const cleanBRLToNumber = (value: string): number => {
+    const clean = value.replace(/[^\d]/g, "");
+    if (!clean) return 0;
+    const num = parseInt(clean, 10) / 100;
+    return isNaN(num) ? 0 : num;
+  };
+
+  const handleCurrencyInputChange = (val: string, setter: (v: string) => void) => {
+    let clean = val.replace(/\D/g, "");
+    if (!clean) {
+      setter("");
+      return;
+    }
+    const num = parseInt(clean, 10) / 100;
+    setter(formatBRL(num));
+  };
+
+  // ── Generative Workspace States (gerador por client, aba separada)
   const [abaAtiva, setAbaAtiva] = useState<"analisador" | "gerador">("analisador");
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [loadingClientes, setLoadingClientes] = useState<boolean>(false);
   const [clienteSelecionadoId, setClienteSelecionadoId] = useState<string>("");
   const [processoSelecionadoGeradorId, setProcessoSelecionadoGeradorId] = useState<string>("");
   const [tipoPeca, setTipoPeca] = useState<string>("inicial_erro");
-  const [motorIA, setMotorIA] = useState<AIEngine>("jusia");
+  const [motorIA, setMotorIA] = useState<AIEngine>("jus_ia");
   const [loadingPeca, setLoadingPeca] = useState<boolean>(false);
   const [pecaTexto, setPecaTexto] = useState<string>("");
   const [visualizarPromptPeca, setVisualizarPromptPeca] = useState<boolean>(false);
@@ -285,7 +318,7 @@ export const PaginaProcessos: React.FC = () => {
       setClienteSelecionadoId(proc.cliente_id);
     }
     setProcessoSelecionadoGeradorId(proc.id);
-    setMotorIA("jusia");
+    setMotorIA("jus_ia");
     setPecaTexto("");
     setPecaError(null);
 
@@ -306,7 +339,7 @@ export const PaginaProcessos: React.FC = () => {
       setStatus(processoSelecionado.status || "");
       setTribunal(processoSelecionado.tribunal || "");
       setVara(processoSelecionado.vara || "");
-      setValorCausa(processoSelecionado.valor_causa ? String(processoSelecionado.valor_causa) : "");
+      setValorCausa(processoSelecionado.valor_causa ? formatBRL(processoSelecionado.valor_causa) : "");
       setDescricao(processoSelecionado.observacoes_internas || "");
       setClienteId(processoSelecionado.cliente_id || "");
     }
@@ -351,7 +384,7 @@ export const PaginaProcessos: React.FC = () => {
           status: status.trim(),
           tribunal: tribunal.trim(),
           vara: vara.trim(),
-          valor_causa: valorCausa ? parseFloat(valorCausa.replace(",", ".")) : null,
+          valor_causa: valorCausa ? cleanBRLToNumber(valorCausa) : null,
           observacoes_internas: descricao.trim(),
           cliente_id: clienteId || null
         })
@@ -366,7 +399,7 @@ export const PaginaProcessos: React.FC = () => {
             ? { ...p, titulo: titulo.trim(), numero_processo: numeroProcesso.trim(),
                 area_direito: areaDireito.trim(), status: status.trim(),
                 tribunal: tribunal.trim(), vara: vara.trim(),
-                valor_causa: valorCausa ? parseFloat(valorCausa.replace(",", ".")) : null,
+                valor_causa: valorCausa ? cleanBRLToNumber(valorCausa) : null,
                 observacoes_internas: descricao.trim(),
                 cliente_id: clienteId || undefined }
             : p
@@ -381,7 +414,7 @@ export const PaginaProcessos: React.FC = () => {
       );
       setModalEditarAberto(false);
       setProcessoSelecionado(null);
-      alert("✅ Processo atualizado com sucesso!");
+      showToast("Salvo com sucesso!");
     } catch (err: any) {
       alert("Erro ao salvar: " + err.message);
     } finally {
@@ -421,7 +454,7 @@ export const PaginaProcessos: React.FC = () => {
     })();
 
     let prompt = "";
-    if (motorIAProcesso === "jusia") {
+    if (motorIAProcesso === "jus_ia") {
       const fatosProntuario = processoParaIA.clientes?.observacoes || "Nenhum fato clínico relatado no prontuário do cliente.";
       const teorProcesso = processoParaIA.observacoes_internas || "Nenhum fato ou teor do processo cadastrado.";
       prompt = `Atue como um especialista sênior em Direito Médico. Analise os fatos clínicos do prontuário: ${fatosProntuario} em conjunto com o Teor do Processo/Fatos do Caso: ${teorProcesso}. Com base na natureza deste processo, gere IMEDIATAMENTE uma peça jurídica inicial na estrutura padrão do contencioso de saúde: 1) Dos Fatos, 2) Dos Fundamentos Jurídicos Técnicos (citando responsabilidade civil médica/resoluções CFM aplicáveis) e 3) Dos Pedidos. Retorne o documento pronto para revisão.`;
@@ -433,26 +466,26 @@ export const PaginaProcessos: React.FC = () => {
         prefixo = `Atue como Google Gemini Pro especializado em ${area} brasileiro. `;
       }
       prompt = `${prefixo}Com base nos dados do processo e observações a seguir, elabore uma minuta jurídica profissional contendo: 1) Dos Fatos; 2) Do Direito (fundamentos e legislação aplicável); 3) Dos Pedidos. Use linguagem técnica, formal e robusta.
-
+ 
 Processo: ${processoParaIA.titulo} (${processoParaIA.numero_processo})
 Tribunal: ${processoParaIA.tribunal || "N/A"} | Vara: ${processoParaIA.vara || "N/A"}
 Área: ${area}
 Cliente: ${processoParaIA.clientes?.nome || "N/A"}
-
+ 
 Observações e Fatos do Processo:
 "${fatos}"
-
+ 
 Tipo de Peça a ser elaborada: "${tipoLabel}"
-
+ 
 Responda redigindo a peça ou tese completa, com qualificações e espaços para preenchimento posterior.`;
     }
-
+ 
     try {
       const response = await fetch("/api/esbocar-peca", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          fatosNarrados: motorIAProcesso === "jusia" 
+          fatosNarrados: motorIAProcesso === "jus_ia" 
             ? `${processoParaIA.clientes?.observacoes || ""}\n\n${processoParaIA.observacoes_internas || ""}`.trim()
             : fatos,
           tipoPeca: tipoLabel,
@@ -603,7 +636,7 @@ OAB/SP 123.456`);
   }
 
   let systemPromptPrefix = "";
-  if (motorIA === "jusia") {
+  if (motorIA === "jus_ia") {
     systemPromptPrefix = `Você é o JUS IA, o principal e mais renomado motor de inteligência artificial jurídica do Brasil, especializado em ${areaDireito} de alto nível. Seu linguajar é formal, erudito e extremamente embasado nas leis vigentes. `;
   } else if (motorIA === "chatgpt") {
     systemPromptPrefix = `Atue como o motor OpenAI GPT-4o especializado em ${areaDireito} brasileiro. Seu texto deve ser direto, moderno, preciso e tecnicamente impecável. `;
@@ -612,7 +645,7 @@ OAB/SP 123.456`);
   }
 
   const promptMinuta = (() => {
-    if (motorIA === "jusia") {
+    if (motorIA === "jus_ia") {
       const fatosProntuario = clienteSelecionado?.observacoes || "Nenhum fato clínico relatado no prontuário do cliente.";
       const teorProcesso = processoSelecionadoGerador?.observacoes_internas || "Nenhum fato ou teor do processo cadastrado.";
       return `Atue como um especialista sênior em Direito Médico. Analise os fatos clínicos do prontuário: ${fatosProntuario} em conjunto com o Teor do Processo/Fatos do Caso: ${teorProcesso}. Com base na natureza deste processo, gere IMEDIATAMENTE uma peça jurídica inicial na estrutura padrão do contencioso de saúde: 1) Dos Fatos, 2) Dos Fundamentos Jurídicos Técnicos (citando responsabilidade civil médica/resoluções CFM aplicáveis) e 3) Dos Pedidos. Retorne o documento pronto para revisão.`;
@@ -644,7 +677,7 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          fatosNarrados: motorIA === "jusia" 
+          fatosNarrados: motorIA === "jus_ia" 
             ? `${clienteSelecionado.observacoes || ""}\n\n${processoSelecionadoGerador?.observacoes_internas || ""}`.trim()
             : clienteSelecionado.observacoes,
           tipoPeca: getTipoPecaLabel(tipoPeca),
@@ -735,7 +768,7 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
         const fatosProntuario = proc?.clientes?.observacoes || "";
         const teorProcesso = proc?.observacoes_internas || "";
         
-        if (selectedEngine === "jusia" && selectedProcessoId) {
+        if (selectedEngine === "jus_ia" && selectedProcessoId) {
           text = `Atue como um especialista sênior em Direito Médico. Analise os fatos clínicos do prontuário: ${fatosProntuario} em conjunto com o Teor do Processo/Fatos do Caso: ${teorProcesso}. Com base na natureza deste processo, gere IMEDIATAMENTE uma peça jurídica inicial na estrutura padrão do contencioso de saúde: 1) Dos Fatos, 2) Dos Fundamentos Jurídicos Técnicos (citando responsabilidade civil médica/resoluções CFM aplicáveis) e 3) Dos Pedidos. Retorne o documento pronto para revisão.`;
         } else {
           text = teorProcesso || fatosProntuario || "";
@@ -772,8 +805,8 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
 
       const route = selectedEngine === "chatgpt"
         ? "/api/analisar-chatgpt"
-        : selectedEngine === "jusia"
-        ? "/api/analisar-jusia"
+        : selectedEngine === "jus_ia"
+        ? "/api/analisar-jus_ia"
         : "/api/analisar-processo";
 
       const response = await fetch(route, {
@@ -816,6 +849,12 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
 
   return (
     <div className="min-h-screen p-6 space-y-6 bg-gray-50 dark:bg-[#070a13] text-[#0f1e36] dark:text-slate-100 print:bg-white print:p-0 print:text-black">
+      {toast && (
+        <div className="fixed top-6 right-6 z-[9999] flex items-center gap-2.5 px-4 py-3 rounded-xl border border-emerald-500/30 bg-emerald-50/95 dark:bg-[#0f172a]/95 text-emerald-800 dark:text-emerald-300 shadow-2xl backdrop-blur-md animate-slideDown font-sans text-xs font-bold tracking-wide print:hidden">
+          <span className="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-500/25 text-emerald-600 dark:text-emerald-400 text-xs">✓</span>
+          <span>{toast.message}</span>
+        </div>
+      )}
 
       {/* ── BARRA DE IMPRESSÃO GLOBAL — SEMPRE VISÍVEL, FORA DE QUALQUER CONDICIONAL ── */}
       <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white dark:bg-slate-900 p-4 mb-2 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm print:hidden relative z-50">
@@ -900,8 +939,8 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Valor da Causa (R$)</label>
-                  <input type="text" value={valorCausa} onChange={e => setValorCausa(e.target.value)}
-                    placeholder="Ex: 50000.00"
+                  <input type="text" value={valorCausa} onChange={e => handleCurrencyInputChange(e.target.value, setValorCausa)}
+                    placeholder="Ex: R$ 50.000,00"
                     className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm text-[#0f1e36] dark:text-white font-mono focus:outline-none focus:border-[#d4af37] transition-colors" />
                 </div>
                 <div>
@@ -974,14 +1013,14 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
                 <div>
                   <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Motor de IA</label>
                   <div className="flex gap-2">
-                    {(["jusia", "chatgpt", "gemini"] as AIEngine[]).map(eng => (
+                    {(["jus_ia", "chatgpt", "gemini"] as AIEngine[]).map(eng => (
                       <button key={eng} type="button" onClick={() => setMotorIAProcesso(eng)}
                         className={`flex-1 py-2 rounded-lg text-xs font-bold border transition-all ${
                           motorIAProcesso === eng
                             ? "bg-[#d4af37]/10 text-[#d4af37] border-[#d4af37]/50"
                             : "bg-slate-900 text-slate-400 border-slate-700 hover:text-slate-200"
                         }`}>
-                        {eng === "jusia" ? "⚖️ Jus IA" : eng === "chatgpt" ? "⬡ GPT-4o" : "✦ Gemini"}
+                        {eng === "jus_ia" ? "⚖️ Jus IA" : eng === "chatgpt" ? "⬡ GPT-4o" : "✦ Gemini"}
                       </button>
                     ))}
                   </div>
@@ -1017,13 +1056,20 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
                 <div className="bg-red-500/10 border border-red-500/25 rounded-lg p-3 text-xs text-red-400">{erroIAProcesso}</div>
               )}
 
+              {/* Premium Golden IA Loader */}
+              {loadingIAProcesso && (
+                <div className="mt-4">
+                  <PremiumIALoader />
+                </div>
+              )}
+
               {/* Textarea resultado */}
               {textoIAProcesso && (
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] font-bold text-[#d4af37] uppercase tracking-widest">📄 Minuta / Tese Gerada</span>
                     <div className="flex gap-2">
-                      <button type="button" onClick={() => { navigator.clipboard.writeText(textoIAProcesso); alert("Copiado!"); }}
+                      <button type="button" onClick={() => { navigator.clipboard.writeText(textoIAProcesso); showToast("Copiado para a área de transferência!"); }}
                         className="text-[10px] font-bold text-slate-400 hover:text-slate-200 bg-slate-800 px-3 py-1 rounded border border-slate-700 transition-colors">📋 Copiar</button>
                       <button type="button" onClick={() => window.print()}
                         className="text-[10px] font-bold text-slate-400 hover:text-slate-200 bg-slate-800 px-3 py-1 rounded border border-slate-700 transition-colors">🖨️ Imprimir</button>
@@ -1115,7 +1161,8 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
 
                 return (
                   <div key={proc.id}
-                    className="group relative bg-slate-50 dark:bg-[#0c1625] border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-3 hover:border-[#d4af37]/40 hover:shadow-md transition-all duration-200">
+                    onClick={() => handleCarregarProcessoNoGerador(proc)}
+                    className="group relative bg-slate-50 dark:bg-[#0c1625] border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-3 hover:border-[#d4af37]/60 hover:shadow-md transition-all duration-200 cursor-pointer">
 
                     {/* Faixa superior */}
                     <div className="flex justify-between items-start gap-2">
@@ -1125,8 +1172,8 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
                         </h3>
                         <button
                           type="button"
-                          onClick={() => handleCarregarProcessoNoGerador(proc)}
-                          className="text-[10px] font-mono text-blue-600 dark:text-blue-400 hover:underline mt-0.5 truncate block text-left"
+                          onClick={(e) => { e.stopPropagation(); handleCarregarProcessoNoGerador(proc); }}
+                          className="text-[10px] font-mono text-blue-600 dark:text-blue-400 hover:underline mt-0.5 truncate block text-left cursor-pointer"
                         >
                           {proc.numero_processo || "Nº não informado"}
                         </button>
@@ -1179,14 +1226,14 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
 
                     {/* Botões de ação */}
                     <div className="flex gap-2 pt-1">
-                      <button type="button" onClick={() => abrirEdicao(proc)}
-                        className="flex-1 flex items-center justify-center gap-1 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-[#0f1e36] dark:text-slate-200 text-[10px] font-bold px-3 py-2 rounded-lg transition-all">
+                      <button type="button" onClick={(e) => { e.stopPropagation(); abrirEdicao(proc); }}
+                        className="flex-1 flex items-center justify-center gap-1 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-[#0f1e36] dark:text-slate-200 text-[10px] font-bold px-3 py-2 rounded-lg transition-all cursor-pointer">
                         ✏️ Editar
                       </button>
-                      <button type="button" onClick={() => { setProcessoParaIA(proc); setTextoIAProcesso(""); setErroIAProcesso(null); }}
+                      <button type="button" onClick={(e) => { e.stopPropagation(); if (temFatos) { setProcessoParaIA(proc); setTextoIAProcesso(""); setErroIAProcesso(null); } }}
                         className={`flex-1 flex items-center justify-center gap-1 text-[10px] font-bold px-3 py-2 rounded-lg transition-all ${
                           temFatos
-                            ? "bg-[#0f1e36] hover:bg-[#1a2d4a] text-[#d4af37] border border-[#d4af37]/30 hover:border-[#d4af37]/60 shadow-sm"
+                            ? "bg-[#0f1e36] hover:bg-[#1a2d4a] text-[#d4af37] border border-[#d4af37]/30 hover:border-[#d4af37]/60 shadow-sm cursor-pointer"
                             : "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700 cursor-not-allowed"
                         }`}>
                         🤖 Gerar IA
@@ -1216,7 +1263,7 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
           <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900/60 p-1 rounded-lg border border-slate-200 dark:border-slate-800">
             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2">Motor de IA:</span>
             {[
-              { id: "jusia", label: "Jus IA", emoji: "⚖️" },
+              { id: "jus_ia", label: "Jus IA", emoji: "⚖️" },
               { id: "chatgpt", label: "ChatGPT", emoji: "⬡" },
               { id: "gemini", label: "Gemini", emoji: "✦" }
             ].map(eng => (
@@ -1342,24 +1389,7 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
           </div>
         )}
 
-        {/* Prompt Inspecione Preview */}
-        {clienteSelecionadoId && clienteSelecionado?.observacoes && (
-          <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-xl p-3 mb-4 print:hidden">
-            <button
-              type="button"
-              onClick={() => setVisualizarPromptPeca(!visualizarPromptPeca)}
-              className="w-full flex justify-between items-center text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest hover:text-[#d4af37] transition-colors cursor-pointer"
-            >
-              <span>🔍 Inspecionar Prompt Médico-Legal Envelopado</span>
-              <span>{visualizarPromptPeca ? "▲ Ocultar" : "▼ Expandir"}</span>
-            </button>
-            {visualizarPromptPeca && (
-              <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 text-[10px] font-mono text-slate-300 leading-relaxed mt-2 max-h-32 overflow-y-auto whitespace-pre-wrap select-all">
-                {promptMinuta}
-              </div>
-            )}
-          </div>
-        )}
+
 
         {/* Botão de Ação */}
         <div className="flex justify-end mb-4 print:hidden">
@@ -1403,7 +1433,7 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
                 type="button"
                 onClick={() => {
                   navigator.clipboard.writeText(pecaTexto);
-                  alert("Copiado para a área de transferência com sucesso!");
+                  showToast("Copiado para a área de transferência!");
                 }}
                 className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#0f1e36] dark:text-slate-200 text-xs font-bold uppercase px-3 py-1.5 rounded border border-slate-300 dark:border-slate-700 cursor-pointer"
               >
@@ -1435,14 +1465,20 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
             </div>
           </div>
 
-          <textarea 
-            className="w-full h-96 p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-sm font-mono focus:outline-none text-[#0f1e36] dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 print:hidden"
-            placeholder="O esboço da petição ou tese jurídica estruturada por IA aparecerá aqui..."
-            value={pecaTexto}
-            onChange={(e) => setPecaTexto(e.target.value)}
-          />
+          {loadingPeca ? (
+            <div className="mb-4">
+              <PremiumIALoader />
+            </div>
+          ) : (
+            <textarea 
+              className="w-full h-96 p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-sm font-mono focus:outline-none text-[#0f1e36] dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 print:hidden"
+              placeholder="O esboço da petição ou tese jurídica estruturada por IA aparecerá aqui..."
+              value={pecaTexto}
+              onChange={(e) => setPecaTexto(e.target.value)}
+            />
+          )}
 
-          <pre className="hidden print:block whitespace-pre-wrap font-mono text-[11px] text-black bg-white leading-relaxed p-0 border-none outline-none">
+          <pre className="hidden print:block whitespace-pre-wrap font-mono text-[11px] text-black bg-white leading-relaxed p-0 border-none outline-none print:h-auto print:overflow-visible">
             {pecaTexto}
           </pre>
         </div>
@@ -1961,7 +1997,7 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
                           s => `${s.label}\n${resultData[s.key] || ""}`
                         ).join("\n\n");
                         navigator.clipboard.writeText(text);
-                        alert("Relatório copiado!");
+                        showToast("Copiado para a área de transferência!");
                       }}
                       className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
                     >
