@@ -806,7 +806,7 @@ Dra. Janaina Tarabauca (Contratada)`;
         <div className="lg:col-span-2 space-y-6 print:w-full">
           
           {/* 2. INTERACTIVE AI GENERATOR PANEL */}
-          <div className="bg-white dark:bg-[#0c1625] rounded-2xl border border-slate-200 dark:border-slate-800 p-5 space-y-5 shadow-sm print:border-none print:shadow-none print:p-0 print:bg-white print:text-black">
+          <div className="bg-white dark:bg-[#0c1625] rounded-2xl border border-slate-200 dark:border-slate-800 p-5 space-y-5 shadow-sm print:border-none print:shadow-none print:p-0 print:bg-white print:text-black print:overflow-visible">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3.5 border-b border-slate-100 dark:border-slate-800 print:hidden">
               <h3 className="font-bold text-sm text-[#0f1e36] dark:text-slate-100 flex items-center gap-2 uppercase tracking-wide">
                 <span>🤖</span> Gerador de Cláusulas Contratuais
@@ -929,21 +929,22 @@ Dra. Janaina Tarabauca (Contratada)`;
                     </span>
                   </div>
 
-                  <textarea
-                    rows={18}
-                    value={minutaTexto}
-                    onChange={(e) => setMinutaTexto(e.target.value)}
-                    className="w-full bg-white dark:bg-[#070a13] border border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500/70 p-4 rounded-xl text-xs font-mono leading-relaxed focus:outline-none focus:border-[#d4af37] outline-none print:hidden print:h-auto print:overflow-visible print:border-none"
-                    placeholder="O documento gerado aparecerá aqui..."
-                  />
+                  <div className="w-full p-6 bg-white dark:bg-slate-900 border rounded shadow-sm h-[500px] overflow-y-auto print:h-auto print:max-h-none print:overflow-visible print:border-none print:shadow-none print:p-0">
+                    <textarea
+                      value={minutaTexto}
+                      onChange={(e) => setMinutaTexto(e.target.value)}
+                      className="w-full h-full bg-transparent border-none outline-none resize-none focus:ring-0 text-xs font-mono leading-relaxed text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500/70 print:hidden"
+                      placeholder="O documento gerado aparecerá aqui..."
+                    />
 
-                  {/* Texto do Contrato formatado de forma limpa exclusivamente para a folha A4 no Print */}
-                  <pre className="hidden print:block whitespace-pre-wrap font-mono text-xs text-black bg-white leading-relaxed p-0 border-none outline-none print:h-auto print:overflow-visible">
-                    {minutaTexto}
-                  </pre>
+                    {/* Texto do Contrato formatado de forma limpa exclusivamente para a folha A4 no Print */}
+                    <pre className="hidden print:block whitespace-pre-wrap font-mono text-xs text-black bg-white leading-relaxed p-0 border-none outline-none print:h-auto print:overflow-visible">
+                      {minutaTexto}
+                    </pre>
+                  </div>
 
                   {/* BLOCO DE ASSINATURAS E TIMESTAMP - VISÍVEL NO PREVIEW E NA IMPRESSÃO */}
-                  <div className="mt-8 border-t border-slate-200 dark:border-slate-800 pt-8" style={{ pageBreakInside: "avoid" }}>
+                  <div className="mt-8 border-t border-slate-200 dark:border-slate-800 pt-8 print:break-inside-avoid" style={{ pageBreakInside: "avoid" }}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:grid-cols-2 print:gap-10">
                       
                       {/* Coluna Esquerda (CONTRATADA) */}

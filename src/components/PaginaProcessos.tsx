@@ -1258,7 +1258,7 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
       </div>
 
       {/* ── 📑 NOVO PAINEL: Gerador de Peças e Teses Judiciais (por cliente) ──────── */}
-      <div id="gerador-pecas-container" className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm print:border-none print:shadow-none print:p-0 print:bg-white print:text-black">
+      <div id="gerador-pecas-container" className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm print:border-none print:shadow-none print:p-0 print:bg-white print:text-black print:overflow-visible">
         <div className="border-b border-slate-100 dark:border-slate-800 pb-3 mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 print:hidden">
           <div>
             <h2 className="font-bold text-sm text-[#0f1e36] dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
@@ -1475,22 +1475,24 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
             </div>
           </div>
 
-          {loadingPeca ? (
-            <div className="mb-4">
-              <PremiumIALoader />
-            </div>
-          ) : (
-            <textarea 
-              className="w-full h-96 p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-sm font-mono focus:outline-none text-[#0f1e36] dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 print:hidden print:h-auto print:overflow-visible print:border-none"
-              placeholder="O esboço da petição ou tese jurídica estruturada por IA aparecerá aqui..."
-              value={pecaTexto}
-              onChange={(e) => setPecaTexto(e.target.value)}
-            />
-          )}
+          <div className="w-full p-6 bg-white dark:bg-slate-900 border rounded shadow-sm h-[500px] overflow-y-auto print:h-auto print:max-h-none print:overflow-visible print:border-none print:shadow-none print:p-0">
+            {loadingPeca ? (
+              <div className="mb-4">
+                <PremiumIALoader />
+              </div>
+            ) : (
+              <textarea 
+                className="w-full h-full bg-transparent border-none outline-none resize-none focus:ring-0 text-sm font-mono text-[#0f1e36] dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 print:hidden"
+                placeholder="O esboço da petição ou tese jurídica estruturada por IA aparecerá aqui..."
+                value={pecaTexto}
+                onChange={(e) => setPecaTexto(e.target.value)}
+              />
+            )}
 
-          <pre className="hidden print:block whitespace-pre-wrap font-mono text-[11px] text-black bg-white leading-relaxed p-0 border-none outline-none print:h-auto print:overflow-visible">
-            {pecaTexto}
-          </pre>
+            <pre className="hidden print:block whitespace-pre-wrap font-mono text-[11px] text-black bg-white leading-relaxed p-0 border-none outline-none print:h-auto print:overflow-visible">
+              {pecaTexto}
+            </pre>
+          </div>
         </div>
 
         {/* ── FORCED VISIBLE ACTION BAR - DECOUPLED FROM HIERARCHY BUG ─────── */}
