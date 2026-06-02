@@ -191,11 +191,11 @@ export const PaginaLogin: React.FC<PaginaLoginProps> = ({ onAuthSuccess }) => {
               JT
             </span>
           </div>
-          <h2 className="font-playfair font-bold text-xl tracking-wide text-[#0f1e36]">
+          <h2 className="font-playfair font-extrabold text-2xl tracking-wide text-[#0f1e36]">
             Janaina Tarabauca
           </h2>
-          <p className="text-[10px] font-extrabold tracking-widest text-[#d4af37] uppercase mt-0.5">
-            Advogados Associados
+          <p className="text-[11px] font-extrabold tracking-widest text-[#d4af37] uppercase mt-1">
+            Advocacia
           </p>
         </div>
 

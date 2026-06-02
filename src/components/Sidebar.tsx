@@ -181,7 +181,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             Janaina Tarabauca
           </span>
           <span className="text-[9px] font-bold tracking-wider text-[#d4af37] uppercase mt-0.5">
-            Advogados Associados
+            Advocacia
           </span>
         </div>
       </div>
