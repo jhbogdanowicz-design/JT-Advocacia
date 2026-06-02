@@ -245,15 +245,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
         )}
 
-        {/* Divisória e link discreto do Manual no Rodapé */}
-        <div className="pt-2 mt-2 border-t border-[#d4af37]/15 print:hidden">
-          <button 
-            type="button"
-            onClick={() => setManualAberto(true)} 
-            className="w-full text-left text-[11px] text-slate-400 hover:text-[#d4af37] transition-all py-1.5 px-3 uppercase tracking-wider font-bold flex items-center gap-2 cursor-pointer"
-          >
-            <span>❓ Manual do Usuário (PDF)</span>
-          </button>
+        {/* SEÇÃO DE RECURSOS E SUPORTE - FIXADA NO RODAPÉ DA SIDEBAR */}
+        <div className="mt-auto pt-4 border-t border-slate-200 dark:border-slate-800 print:hidden w-full">
+          <p className="px-3 mb-2 text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+            Recursos de Apoio
+          </p>
+          
+          <div className="flex flex-col gap-1 px-1">
+            {/* BOTÃO REAL PARA A CENTRAL DE CONHECIMENTO */}
+            <a 
+              href="/biblioteca" 
+              className="flex items-center gap-2 py-2 px-3 text-[11px] font-extrabold text-slate-600 hover:text-[#d4af37] dark:text-slate-300 dark:hover:text-[#d4af37] hover:bg-slate-50 dark:hover:bg-slate-900 rounded transition-all uppercase tracking-wider"
+            >
+              <span>📜 Central de Conhecimento</span>
+            </a>
+
+            {/* BOTÃO REAL PARA O MANUAL DO USUÁRIO */}
+            <a 
+              href="/manual" 
+              className="flex items-center gap-2 py-2 px-3 text-[11px] font-bold text-slate-400 hover:text-[#d4af37] dark:text-slate-500 dark:hover:text-[#d4af37] hover:bg-slate-50 dark:hover:bg-slate-900 rounded transition-all uppercase tracking-wider"
+            >
+              <span>❓ Manual do Usuário</span>
+            </a>
+          </div>
         </div>
       </div>
 
