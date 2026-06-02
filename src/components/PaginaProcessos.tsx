@@ -856,19 +856,29 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
         </div>
       )}
 
-      {/* ── BARRA DE IMPRESSÃO GLOBAL — SEMPRE VISÍVEL, FORA DE QUALQUER CONDICIONAL ── */}
-      <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white dark:bg-slate-900 p-4 mb-2 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm print:hidden relative z-50">
-        <div>
-          <h2 className="text-xs font-bold text-[#0f1e36] dark:text-slate-300 uppercase tracking-wider">📁 Gestão e Teses de Processos</h2>
-          <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Selecione um processo abaixo para rodar a Jus IA e exportar o documento.</p>
+      {/* CABEÇALHO E CENTRAL DE IMPRESSÃO - PROCESSOS */}
+      <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white dark:bg-slate-900 p-6 mb-6 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm print:hidden relative z-50 gap-4">
+        <div className="flex items-center gap-3">
+          <div className="bg-[#0f1e36] p-2 rounded border border-[#d4af37]">
+            <img src="/logo-jt.png" alt="Janaina Tarabauca Advocacia" className="h-6 w-6 object-contain" onError={(e) => e.currentTarget.style.display = 'none'} />
+          </div>
+          <div>
+            <h1 className="text-sm font-extrabold text-[#0f1e36] dark:text-white uppercase tracking-wider">
+              Janaina Tarabauca Advocacia
+            </h1>
+            <p className="text-[11px] text-slate-500 font-medium">
+              Painel de Processos & Geração de Teses com Jus IA
+            </p>
+          </div>
         </div>
+
         <button
           type="button"
           onClick={() => {
-            console.log("Acionando window.print() em Processos");
+            console.log("Executando impressão do processo...");
             window.print();
           }}
-          className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 active:scale-95 text-[#0f1e36] font-extrabold text-xs uppercase tracking-widest px-6 py-3.5 rounded-lg shadow-md flex items-center justify-center gap-2 transition-all border-b-4 border-amber-700 cursor-pointer"
+          className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 active:scale-95 text-[#0f1e36] font-extrabold text-xs uppercase tracking-widest px-6 py-3.5 rounded shadow-md flex items-center justify-center gap-2 transition-all border-b-4 border-amber-700 cursor-pointer"
         >
           🖨️ IMPRIMIR / GERAR PDF DA PEÇA
         </button>
@@ -1076,7 +1086,7 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
                     </div>
                   </div>
                   <textarea rows={14} value={textoIAProcesso} onChange={e => setTextoIAProcesso(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg p-4 text-sm font-mono text-slate-200 focus:outline-none focus:border-[#d4af37] resize-y" />
+                    className="w-full bg-slate-900 border border-slate-800 rounded-lg p-4 text-sm font-mono text-slate-200 focus:outline-none focus:border-[#d4af37] resize-y print:h-auto print:overflow-visible print:border-none" />
                 </div>
               )}
             </div>
@@ -1471,7 +1481,7 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
             </div>
           ) : (
             <textarea 
-              className="w-full h-96 p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-sm font-mono focus:outline-none text-[#0f1e36] dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 print:hidden"
+              className="w-full h-96 p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-sm font-mono focus:outline-none text-[#0f1e36] dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 print:hidden print:h-auto print:overflow-visible print:border-none"
               placeholder="O esboço da petição ou tese jurídica estruturada por IA aparecerá aqui..."
               value={pecaTexto}
               onChange={(e) => setPecaTexto(e.target.value)}

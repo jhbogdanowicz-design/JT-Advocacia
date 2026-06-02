@@ -672,19 +672,29 @@ Dra. Janaina Tarabauca (Contratada)`;
         </div>
       )}
 
-      {/* ── BARRA DE EXPORTAÇÃO GLOBAL — SEMPRE VISÍVEL, FORA DE QUALQUER CONDICIONAL ── */}
-      <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white dark:bg-slate-900 p-4 mb-2 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm print:hidden relative z-50">
-        <div>
-          <h2 className="text-xs font-bold text-[#0f1e36] dark:text-slate-300 uppercase tracking-wider">📜 Minutas e Planos de Contratos</h2>
-          <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Gerencie assinaturas recorrentes e emita minutas contratuais pré-formatadas.</p>
+      {/* CABEÇALHO E CENTRAL DE IMPRESSÃO - CONTRATOS */}
+      <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white dark:bg-slate-900 p-6 mb-6 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm print:hidden relative z-50 gap-4">
+        <div className="flex items-center gap-3">
+          <div className="bg-[#0f1e36] p-2 rounded border border-[#d4af37]">
+            <img src="/logo-jt.png" alt="Janaina Tarabauca Advocacia" className="h-6 w-6 object-contain" onError={(e) => e.currentTarget.style.display = 'none'} />
+          </div>
+          <div>
+            <h1 className="text-sm font-extrabold text-[#0f1e36] dark:text-white uppercase tracking-wider">
+              Janaina Tarabauca Advocacia
+            </h1>
+            <p className="text-[11px] text-slate-500 font-medium">
+              Gestão de Minutas & Contratos de Prestação de Serviços
+            </p>
+          </div>
         </div>
+
         <button
           type="button"
           onClick={() => {
-            console.log("Acionando window.print() em Contratos");
+            console.log("Executando impressão do contrato...");
             window.print();
           }}
-          className="w-full sm:w-auto bg-[#0f1e36] hover:bg-slate-800 active:scale-95 text-white font-extrabold text-xs uppercase tracking-widest px-6 py-3.5 rounded-lg shadow-md flex items-center justify-center gap-2 transition-all border-b-4 border-[#d4af37] cursor-pointer"
+          className="w-full sm:w-auto bg-[#0f1e36] hover:bg-slate-800 active:scale-95 text-white font-extrabold text-xs uppercase tracking-widest px-6 py-3.5 rounded shadow-md flex items-center justify-center gap-2 transition-all border-b-4 border-[#d4af37] cursor-pointer"
         >
           📄 EXPORTAR CONTRATO PARA PDF
         </button>
@@ -923,7 +933,7 @@ Dra. Janaina Tarabauca (Contratada)`;
                     rows={18}
                     value={minutaTexto}
                     onChange={(e) => setMinutaTexto(e.target.value)}
-                    className="w-full bg-white dark:bg-[#070a13] border border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500/70 p-4 rounded-xl text-xs font-mono leading-relaxed focus:outline-none focus:border-[#d4af37] outline-none print:hidden"
+                    className="w-full bg-white dark:bg-[#070a13] border border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500/70 p-4 rounded-xl text-xs font-mono leading-relaxed focus:outline-none focus:border-[#d4af37] outline-none print:hidden print:h-auto print:overflow-visible print:border-none"
                     placeholder="O documento gerado aparecerá aqui..."
                   />
 
