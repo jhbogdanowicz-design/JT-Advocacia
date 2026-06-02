@@ -1210,12 +1210,23 @@
           <span>Sair</span>
         </button>
         
-        <!-- Divisória e link discreto do Manual no Rodapé -->
+        <!-- SEÇÃO DE RECURSOS E SUPORTE - FIXADA NO RODAPÉ DA SIDEBAR -->
         <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--panel-border); width: 100%;" class="print-hidden">
-          <a href="#" class="nav-item" data-view="documentacao" style="min-height: 0; padding: 6px 12px; display: flex; align-items: center; gap: 8px; border-radius: 8px; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.background='var(--panel-border)'" onmouseout="this.style.background='transparent'">
-            <span style="font-size: 14px; color: var(--text-secondary);">❓</span>
-            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px;">Manual do Usuário</span>
-          </a>
+          <p style="padding: 0 12px; margin-bottom: 6px; font-size: 9px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; opacity: 0.65;">Recursos de Apoio</p>
+          
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <!-- BOTÃO REAL PARA A CENTRAL DE CONHECIMENTO -->
+            <a href="#" class="nav-item" data-view="biblioteca" style="min-height: 0; padding: 6px 12px; display: flex; align-items: center; gap: 8px; border-radius: 8px; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.background='var(--panel-border)'" onmouseout="this.style.background='transparent'">
+              <span style="font-size: 14px; color: var(--text-secondary);">📜</span>
+              <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px;">Central de Conhecimento</span>
+            </a>
+
+            <!-- BOTÃO REAL PARA O MANUAL DO USUÁRIO -->
+            <a href="#" class="nav-item" data-view="documentacao" style="min-height: 0; padding: 6px 12px; display: flex; align-items: center; gap: 8px; border-radius: 8px; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.background='var(--panel-border)'" onmouseout="this.style.background='transparent'">
+              <span style="font-size: 14px; color: var(--text-secondary);">❓</span>
+              <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px;">Manual do Usuário</span>
+            </a>
+          </div>
         </div>
       </div>
     </aside>
@@ -3050,6 +3061,218 @@
 
           </div>
 
+        </div>
+
+      </section>
+
+      <!-- =========================================================================
+           CENTRAL DE CONHECIMENTO & BIBLIOTECA JURÍDICA (PÁGINA BIBLIOTECA)
+           ========================================================================= -->
+      <section id="view-biblioteca" class="content-view" style="padding: 24px; max-width: 1080px; margin: 0 auto; color: var(--text-primary); display: none;">
+        
+        <!-- Cabeçalho da Seção (Fixo/Sticky na tela, invisível na impressão) -->
+        <div class="print-hidden" style="position: sticky; top: 0; z-index: 40; background: var(--panel-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--panel-border); padding: 16px 0; margin-bottom: 32px; display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <img src="logo-jt.png" alt="JT Logo" style="height: 38px; width: 38px; object-fit: contain; border-radius: 8px;" onerror="this.src='logo.jpg'">
+            <div>
+              <h2 style="font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; margin: 0; letter-spacing: 0.5px; color: var(--text-primary);">JANAINA TARABAUCA</h2>
+              <p style="font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--gold); font-weight: 700; margin: 2px 0 0 0;">Central de Conhecimento &amp; Biblioteca Jurídica</p>
+            </div>
+          </div>
+          <button type="button" id="btn-print-biblioteca" class="btn-primary" style="width: auto; margin-top: 0; padding: 8px 16px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; border-bottom: 2px solid var(--gold); border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+            🖨️ Imprimir Biblioteca (PDF)
+          </button>
+        </div>
+
+        <!-- Timbrado de Impressão Exclusivo (PDF) -->
+        <div class="print-only" style="display: none; align-items: center; gap: 16px; border-bottom: 2px solid var(--gold); padding-bottom: 16px; margin-bottom: 32px;">
+          <img src="logo-jt.png" alt="JT Logo" style="height: 48px; width: 48px; object-fit: contain;" onerror="this.src='logo.jpg'">
+          <div>
+            <h2 style="font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; margin: 0; letter-spacing: 0.5px; color: #0A192F;">Janaina Tarabauca Advocacia</h2>
+            <p style="font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--gold); font-weight: 700; margin: 4px 0 0 0;">Direito Médico e da Saúde - Biblioteca Jurídica</p>
+          </div>
+        </div>
+
+        <!-- Introdução -->
+        <div style="text-align: center; margin-bottom: 32px;" class="print-left">
+          <h2 style="font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 850; color: var(--text-primary); margin: 0 0 8px 0;">Central de Acervo Técnico</h2>
+          <p style="font-size: 13px; font-weight: 300; line-height: 1.6; color: var(--text-secondary); max-width: 640px; margin: 0 auto;" class="print-no-margin">
+            Consulte os marcos regulatórios de Direito Médico, baixe minutas de suporte blindadas prontas para uso operativo e certifique as diretrizes de compliance de publicidade do conselho profissional.
+          </p>
+        </div>
+
+        <!-- Barra de Busca e Filtros (Oculta na impressão) -->
+        <div class="print-hidden" style="background: rgba(255,255,255,0.02); border: 1px solid var(--panel-border); border-radius: 16px; padding: 20px; margin-bottom: 32px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; gap: 16px;">
+          <div style="display: flex; flex-direction: column; width: 100%; gap: 16px; align-items: center; justify-content: space-between;" class="flex-row-md">
+            <!-- Busca -->
+            <div style="position: relative; width: 100%; max-width: 400px; display: flex; align-items: center;">
+              <span style="position: absolute; left: 14px; color: var(--text-secondary); font-size: 14px; top: 12px;">🔍</span>
+              <input type="text" id="lib-search-input" placeholder="Pesquisar por resoluções, modelos ou diretrizes..." style="width: 100%; height: 42px; border-radius: 10px; border: 1px solid var(--panel-border); background: var(--input-bg); color: var(--text-primary); padding: 0 16px 0 36px; font-size: 12px; font-weight: 300;" />
+            </div>
+
+            <!-- Filtros de Categorias -->
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+              <button type="button" class="lib-filter-btn active" data-category="todos" style="padding: 6px 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border-radius: 8px; border: 1px solid var(--panel-border); background: var(--panel-border); color: var(--gold); cursor: pointer; transition: all 0.2s;">👁️ Ver Tudo</button>
+              <button type="button" class="lib-filter-btn" data-category="legislacao" style="padding: 6px 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border-radius: 8px; border: 1px solid var(--panel-border); background: transparent; color: var(--text-secondary); cursor: pointer; transition: all 0.2s;">📜 Legislação</button>
+              <button type="button" class="lib-filter-btn" data-category="modelos" style="padding: 6px 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border-radius: 8px; border: 1px solid var(--panel-border); background: transparent; color: var(--text-secondary); cursor: pointer; transition: all 0.2s;">💼 Modelos</button>
+              <button type="button" class="lib-filter-btn" data-category="governança" style="padding: 6px 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border-radius: 8px; border: 1px solid var(--panel-border); background: transparent; color: var(--text-secondary); cursor: pointer; transition: all 0.2s;">🔒 POPs &amp; Compliance</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grade de Cards (3 Colunas) -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+          
+          <!-- COLUNA 1: LEGISLAÇÃO E RESOLUÇÕES CRÍTICAS -->
+          <div style="border: 1px solid var(--panel-border); border-radius: 16px; background: rgba(255,255,255,0.01); padding: 24px; display: flex; flex-direction: column; gap: 20px;">
+            <div style="display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px;">
+              <span style="font-size: 20px;">📜</span>
+              <div>
+                <h3 style="font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; margin: 0; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px;">Legislação &amp; Resoluções</h3>
+                <p style="font-size: 9px; font-weight: 700; text-transform: uppercase; color: var(--gold); letter-spacing: 1px; margin: 2px 0 0 0;">Direito Médico Fundamental</p>
+              </div>
+            </div>
+
+            <!-- Itens de Legislação -->
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+              
+              <!-- Item 1: CEM -->
+              <div class="lib-card" data-category="legislacao" style="background: rgba(255,255,255,0.015); border: 1px solid transparent; border-radius: 12px; padding: 16px; transition: all 0.2s;" onmouseover="this.style.borderColor='rgba(212,175,55,0.25)'" onmouseout="this.style.borderColor='transparent'">
+                <h4 style="font-size: 12px; font-weight: 700; color: var(--text-primary); margin: 0 0 8px 0; display: flex; justify-content: space-between; align-items: center;">
+                  Código de Ética Médica (CFM)
+                  <a href="https://portal.cfm.org.br/images/PDF/cem2019.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--gold); text-decoration: none; font-size: 10px; font-weight: 800;">Ir ↗</a>
+                </h4>
+                <p style="font-size: 11px; font-weight: 300; line-height: 1.5; color: var(--text-secondary); margin: 0;">
+                  Resolução CFM nº 2.217/2018 - O pilar fundamental que rege os deveres e direitos da prática médica no Brasil. Essencial para fundamentação de defesas em processos ético-profissionais.
+                </p>
+              </div>
+
+              <!-- Item 2: Lei do Ato Médico -->
+              <div class="lib-card" data-category="legislacao" style="background: rgba(255,255,255,0.015); border: 1px solid transparent; border-radius: 12px; padding: 16px; transition: all 0.2s;" onmouseover="this.style.borderColor='rgba(212,175,55,0.25)'" onmouseout="this.style.borderColor='transparent'">
+                <h4 style="font-size: 12px; font-weight: 700; color: var(--text-primary); margin: 0 0 8px 0; display: flex; justify-content: space-between; align-items: center;">
+                  Lei do Ato Médico
+                  <a href="https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2013/lei/l12842.htm" target="_blank" rel="noopener noreferrer" style="color: var(--gold); text-decoration: none; font-size: 10px; font-weight: 800;">Ir ↗</a>
+                </h4>
+                <p style="font-size: 11px; font-weight: 300; line-height: 1.5; color: var(--text-secondary); margin: 0;">
+                  Lei nº 12.842/2013 - Dispõe sobre a regulamentação do exercício da Medicina. Crucial para teses sobre invasão de competências exclusivas e imperícia de outros profissionais.
+                </p>
+              </div>
+
+              <!-- Item 3: Resolução de Telemedicina -->
+              <div class="lib-card" data-category="legislacao" style="background: rgba(255,255,255,0.015); border: 1px solid transparent; border-radius: 12px; padding: 16px; transition: all 0.2s;" onmouseover="this.style.borderColor='rgba(212,175,55,0.25)'" onmouseout="this.style.borderColor='transparent'">
+                <h4 style="font-size: 12px; font-weight: 700; color: var(--text-primary); margin: 0 0 8px 0; display: flex; justify-content: space-between; align-items: center;">
+                  Resolução de Telemedicina
+                  <a href="https://sistemas.cfm.org.br/normas/visualizar/resolucao/CFM/2022/2314" target="_blank" rel="noopener noreferrer" style="color: var(--gold); text-decoration: none; font-size: 10px; font-weight: 800;">Ir ↗</a>
+                </h4>
+                <p style="font-size: 11px; font-weight: 300; line-height: 1.5; color: var(--text-secondary); margin: 0;">
+                  Resolução CFM nº 2.314/2022 - Regulamenta e normatiza a telemedicina no Brasil. Indispensável para auditorias de conformidade de plataformas de saúde digital.
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- COLUNA 2: MODELOS E TEMPLATES DE SUPORTE -->
+          <div style="border: 1px solid var(--gold); border-radius: 16px; background: rgba(255,255,255,0.01); padding: 24px; display: flex; flex-direction: column; gap: 20px;">
+            <div style="display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px;">
+              <span style="font-size: 20px;">💼</span>
+              <div>
+                <h3 style="font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; margin: 0; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px;">Modelos &amp; Templates</h3>
+                <p style="font-size: 9px; font-weight: 700; text-transform: uppercase; color: var(--gold); letter-spacing: 1px; margin: 2px 0 0 0;">Material Blindado</p>
+              </div>
+            </div>
+
+            <!-- Itens de Modelos -->
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+              
+              <!-- Item 1: TCLE -->
+              <div class="lib-card" data-category="modelos" style="background: rgba(255,255,255,0.015); border: 1px solid transparent; border-radius: 12px; padding: 16px; position: relative; transition: all 0.2s; min-height: 140px;" onmouseover="this.style.borderColor='rgba(212,175,55,0.25)'" onmouseout="this.style.borderColor='transparent'">
+                <h4 style="font-size: 12px; font-weight: 700; color: var(--text-primary); margin: 0 0 8px 0;">
+                  Modelo de TCLE Blindado
+                </h4>
+                <p style="font-size: 11px; font-weight: 300; line-height: 1.5; color: var(--text-secondary); margin: 0 0 38px 0;">
+                  Termo de Consentimento Livre e Esclarecido rigorosamente desenhado com foco em cirurgias de alta complexidade e procedimentos estéticos, com cláusulas de mitigação de responsabilidade.
+                </p>
+                <div style="position: absolute; bottom: 12px; left: 16px; right: 16px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px;">
+                  <span style="font-size: 9px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; font-family: monospace;">TXT / DOCX</span>
+                  <button type="button" class="btn-download-lib" data-id="tcle-procedimento" data-title="Modelo de TCLE Blindado" style="font-size: 9px; font-weight: 700; text-transform: uppercase; background: var(--panel-bg); color: var(--gold); border: 1px solid rgba(212,175,55,0.3); padding: 4px 8px; border-radius: 4px; cursor: pointer; transition: all 0.2s;">⬇️ Download</button>
+                </div>
+              </div>
+
+              <!-- Item 2: Procuração CRM -->
+              <div class="lib-card" data-category="modelos" style="background: rgba(255,255,255,0.015); border: 1px solid transparent; border-radius: 12px; padding: 16px; position: relative; transition: all 0.2s; min-height: 140px;" onmouseover="this.style.borderColor='rgba(212,175,55,0.25)'" onmouseout="this.style.borderColor='transparent'">
+                <h4 style="font-size: 12px; font-weight: 700; color: var(--text-primary); margin: 0 0 8px 0;">
+                  Procuração Ad Judicia &amp; Extrajudicia
+                </h4>
+                <p style="font-size: 11px; font-weight: 300; line-height: 1.5; color: var(--text-secondary); margin: 0 0 38px 0;">
+                  Template de procuração específico com poderes especiais para representação e patrocínio perante Conselhos Regionais de Medicina (CRM) e esferas judiciais cíveis.
+                </p>
+                <div style="position: absolute; bottom: 12px; left: 16px; right: 16px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px;">
+                  <span style="font-size: 9px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; font-family: monospace;">TXT / DOCX</span>
+                  <button type="button" class="btn-download-lib" data-id="procuracao-crm" data-title="Procuração Ad Judicia & Extrajudicia" style="font-size: 9px; font-weight: 700; text-transform: uppercase; background: var(--panel-bg); color: var(--gold); border: 1px solid rgba(212,175,55,0.3); padding: 4px 8px; border-radius: 4px; cursor: pointer; transition: all 0.2s;">⬇️ Download</button>
+                </div>
+              </div>
+
+              <!-- Item 3: Contrato Base -->
+              <div class="lib-card" data-category="modelos" style="background: rgba(255,255,255,0.015); border: 1px solid transparent; border-radius: 12px; padding: 16px; position: relative; transition: all 0.2s; min-height: 140px;" onmouseover="this.style.borderColor='rgba(212,175,55,0.25)'" onmouseout="this.style.borderColor='transparent'">
+                <h4 style="font-size: 12px; font-weight: 700; color: var(--text-primary); margin: 0 0 8px 0;">
+                  Contrato Base de Prestação de Serviços
+                </h4>
+                <p style="font-size: 11px; font-weight: 300; line-height: 1.5; color: var(--text-secondary); margin: 0 0 38px 0;">
+                  Contrato padrão de assessoria jurídica preventiva corporativa para clínicas médicas e consultórios com cláusulas robustas de sigilo, LGPD e compliance financeiro.
+                </p>
+                <div style="position: absolute; bottom: 12px; left: 16px; right: 16px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px;">
+                  <span style="font-size: 9px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; font-family: monospace;">TXT / DOCX</span>
+                  <button type="button" class="btn-download-lib" data-id="contrato-base" data-title="Contrato Base de Prestação de Serviços" style="font-size: 9px; font-weight: 700; text-transform: uppercase; background: var(--panel-bg); color: var(--gold); border: 1px solid rgba(212,175,55,0.3); padding: 4px 8px; border-radius: 4px; cursor: pointer; transition: all 0.2s;">⬇️ Download</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- COLUNA 3: POPS, GOVERNANÇA E COMPLIANCE -->
+          <div style="border: 1px solid var(--panel-border); border-radius: 16px; background: rgba(255,255,255,0.01); padding: 24px; display: flex; flex-direction: column; gap: 20px;">
+            <div style="display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px;">
+              <span style="font-size: 20px;">🔒</span>
+              <div>
+                <h3 style="font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; margin: 0; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px;">Governança &amp; POPs</h3>
+                <p style="font-size: 9px; font-weight: 700; text-transform: uppercase; color: var(--gold); letter-spacing: 1px; margin: 2px 0 0 0;">Compliance e Publicidade</p>
+              </div>
+            </div>
+
+            <!-- Itens de Governança -->
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+              
+              <!-- Item 1: OAB Publicidade -->
+              <div class="lib-card" data-category="governança" style="background: rgba(255,255,255,0.015); border: 1px solid transparent; border-radius: 12px; padding: 16px; transition: all 0.2s;" onmouseover="this.style.borderColor='rgba(212,175,55,0.25)'" onmouseout="this.style.borderColor='transparent'">
+                <h4 style="font-size: 12px; font-weight: 700; color: var(--text-primary); margin: 0 0 8px 0; display: flex; justify-content: space-between; align-items: center;">
+                  Provimento de Publicidade da OAB
+                  <a href="https://www.oab.org.br/visualizador/16281/provimento-n-205-2021" target="_blank" rel="noopener noreferrer" style="color: var(--gold); text-decoration: none; font-size: 10px; font-weight: 800;">Ir ↗</a>
+                </h4>
+                <p style="font-size: 11px; font-weight: 300; line-height: 1.5; color: var(--text-secondary); margin: 0;">
+                  Provimento nº 205/2021 - Dispõe sobre a publicidade e a informação da advocacia. Fundamental para estruturar o marketing jurídico das nossas parcerias corporativas de saúde sem infrações éticas.
+                </p>
+              </div>
+
+              <!-- Item 2: Sigilo de Prontuário -->
+              <div class="lib-card" data-category="governança" style="background: rgba(255,255,255,0.015); border: 1px solid transparent; border-radius: 12px; padding: 16px; transition: all 0.2s;" onmouseover="this.style.borderColor='rgba(212,175,55,0.25)'" onmouseout="this.style.borderColor='transparent'">
+                <h4 style="font-size: 12px; font-weight: 700; color: var(--text-primary); margin: 0 0 8px 0; display: flex; justify-content: space-between; align-items: center;">
+                  Manual de Sigilo de Prontuários
+                  <span style="color: var(--text-secondary); font-size: 10px; font-weight: 350;">POPs Internos</span>
+                </h4>
+                <p style="font-size: 11px; font-weight: 300; line-height: 1.5; color: var(--text-secondary); margin: 0;">
+                  Diretrizes técnicas operacionais de conformidade (POPs) para recepção, custódia e descarte seguro de prontuários e dados sensíveis de pacientes, alinhadas à LGPD e CFM.
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Rodapé da Impressão -->
+        <div class="print-only" style="display: none; text-align: center; font-size: 9px; color: #999; border-top: 1px solid #ddd; padding-top: 16px; margin-top: 48px;">
+          Este documento de consulta faz parte do acervo oficial de Janaina Tarabauca Advocacia. Uso exclusivo e restrito.
         </div>
 
       </section>

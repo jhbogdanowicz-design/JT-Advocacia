@@ -7546,12 +7546,108 @@ function initDocumentacaoModule() {
   });
 }
 
+// =========================================================================
+// INICIALIZAÇÃO DA CENTRAL DE CONHECIMENTO & BIBLIOTECA
+// =========================================================================
+function initBibliotecaModule() {
+  const searchInput = document.getElementById("lib-search-input");
+  const filterBtns = document.querySelectorAll(".lib-filter-btn");
+  const libCards = document.querySelectorAll("#view-biblioteca .lib-card");
+  const downloadBtns = document.querySelectorAll(".btn-download-lib");
+  const printBtn = document.getElementById("btn-print-biblioteca");
+
+  if (!libCards.length) return;
+
+  let activeCat = "todos";
+  let searchVal = "";
+
+  function filterItems() {
+    libCards.forEach(card => {
+      const cat = card.getAttribute("data-category");
+      const text = card.textContent.toLowerCase();
+      const matchesCat = (activeCat === "todos" || cat === activeCat);
+      const matchesSearch = text.includes(searchVal.toLowerCase());
+
+      if (matchesCat && matchesSearch) {
+        card.style.display = "block";
+      } else {
+        card.style.display = "none";
+      }
+    });
+  }
+
+  // Evento de Busca
+  if (searchInput) {
+    searchInput.addEventListener("input", (e) => {
+      searchVal = e.target.value;
+      filterItems();
+    });
+  }
+
+  // Evento de Filtro de Categoria
+  filterBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      filterBtns.forEach(b => {
+        b.classList.remove("active");
+        b.style.background = "transparent";
+        b.style.color = "var(--text-secondary)";
+        b.style.borderColor = "var(--panel-border)";
+      });
+      btn.classList.add("active");
+      btn.style.background = "var(--panel-border)";
+      btn.style.color = "var(--gold)";
+      btn.style.borderColor = "transparent";
+
+      activeCat = btn.getAttribute("data-category");
+      filterItems();
+    });
+  });
+
+  // Simulação de Download
+  downloadBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const docTitle = btn.getAttribute("data-title");
+
+      btn.textContent = "✓ Baixado";
+      btn.style.background = "#10b981";
+      btn.style.color = "#ffffff";
+      btn.style.borderColor = "transparent";
+
+      setTimeout(() => {
+        btn.textContent = "⬇️ Download";
+        btn.style.background = "var(--panel-bg)";
+        btn.style.color = "var(--gold)";
+        btn.style.borderColor = "rgba(212,175,55,0.3)";
+      }, 2500);
+
+      // Gera arquivo de simulação de download
+      const docText = `DOCUMENTO JURÍDICO - JT ADVOGADOS ASSOCIADOS\n\nTEMPLATE: ${docTitle.toUpperCase()}\n\nEste modelo foi gerado em ambiente restrito para uso do escritório Janaina Tarabauca Advogados.`;
+      const blob = new Blob([docText], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${docTitle.toLowerCase().replace(/[^a-z0-9]/g, "_")}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+  });
+
+  // Botão de Impressão
+  if (printBtn) {
+    printBtn.addEventListener("click", () => {
+      window.print();
+    });
+  }
+}
+
 // Chamar a inicialização ao carregar a página
 document.addEventListener("DOMContentLoaded", () => {
   initFinanceiroFilters();
   initContratosModule();
   initLawyerSignatureCanvas();
   initDocumentacaoModule();
+  initBibliotecaModule();
 });
 // Caso o DOMContentLoaded já tenha disparado, rodamos imediatamente
 if (document.readyState === "complete" || document.readyState === "interactive") {
@@ -7559,4 +7655,5 @@ if (document.readyState === "complete" || document.readyState === "interactive")
   initContratosModule();
   initLawyerSignatureCanvas();
   initDocumentacaoModule();
+  initBibliotecaModule();
 }
