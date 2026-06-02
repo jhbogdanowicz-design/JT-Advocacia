@@ -1194,13 +1194,6 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           <span>Agenda</span>
         </a>
-        <a href="#" class="nav-item" data-view="documentacao">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-            <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/>
-          </svg>
-          <span>Manual do Ecossistema</span>
-        </a>
       </nav>
 
       <!-- Rodapé do menu com Perfil e Logout -->
@@ -1216,6 +1209,14 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
           <span>Sair</span>
         </button>
+        
+        <!-- Divisória e link discreto do Manual no Rodapé -->
+        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--panel-border); width: 100%;" class="print-hidden">
+          <a href="#" class="nav-item" data-view="documentacao" style="min-height: 0; padding: 6px 12px; display: flex; align-items: center; gap: 8px; border-radius: 8px; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.background='var(--panel-border)'" onmouseout="this.style.background='transparent'">
+            <span style="font-size: 14px; color: var(--text-secondary);">❓</span>
+            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px;">Manual do Usuário</span>
+          </a>
+        </div>
       </div>
     </aside>
 
@@ -2792,7 +2793,7 @@
             <img src="logo-jt.png" alt="JT Logo" style="height: 38px; width: 38px; object-fit: contain; border-radius: 8px;" onerror="this.src='logo.jpg'">
             <div>
               <h2 style="font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; margin: 0; letter-spacing: 0.5px; color: var(--text-primary);">JANAINA TARABAUCA</h2>
-              <p style="font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--gold); font-weight: 700; margin: 2px 0 0 0;">Direito Médico &amp; Saúde — Memorial do Ecossistema</p>
+              <p style="font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--gold); font-weight: 700; margin: 2px 0 0 0;">Direito Médico &amp; Saúde — Manual do Usuário</p>
             </div>
           </div>
           <button type="button" onclick="window.print()" class="btn-primary" style="width: auto; margin-top: 0; padding: 8px 16px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; border-bottom: 2px solid var(--gold); border-radius: 6px; cursor: pointer; transition: all 0.2s;">
@@ -2805,8 +2806,8 @@
           <div style="display: flex; align-items: center; gap: 16px;">
             <img src="logo.jpg" alt="JT" style="height: 48px; width: 48px; object-fit: contain;">
             <div>
-              <h1 style="font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; margin: 0; color: #000;">Janaina Tarabauca Advogados</h1>
-              <p style="font-size: 10px; text-transform: uppercase; color: var(--gold); font-weight: 700; margin: 4px 0 0 0;">Direito Médico e da Saúde</p>
+              <h1 style="font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; margin: 0; color: #000;">Janaina Tarabauca Advocacia</h1>
+              <p style="font-size: 10px; text-transform: uppercase; color: var(--gold); font-weight: 700; margin: 4px 0 0 0;">Direito Médico e da Saúde — Manual do Usuário</p>
             </div>
           </div>
         </div>
