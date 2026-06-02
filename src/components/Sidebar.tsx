@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import { ModalManual } from "./ModalManual";
 
 interface SidebarProps {
   currentView: string;
@@ -17,6 +18,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   user = { name: "Dra. Janaina Tarabauca", oab: "OAB/SP 123.456" },
   onLogout
 }) => {
+  const [manualAberto, setManualAberto] = useState(false);
   const menuItems = [
     {
       id: "clientes",
@@ -149,26 +151,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <rect x="3" y="16" width="7" height="5" rx="1" />
         </svg>
       )
-    },
-    {
-      id: "documentacao",
-      label: "Manual do Ecossistema",
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-          <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z" />
-        </svg>
-      )
     }
   ];
 
@@ -262,7 +244,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <span>Sair</span>
           </button>
         )}
+
+        {/* Divisória e link discreto do Manual no Rodapé */}
+        <div className="pt-2 mt-2 border-t border-[#d4af37]/15 print:hidden">
+          <button 
+            type="button"
+            onClick={() => setManualAberto(true)} 
+            className="w-full text-left text-[11px] text-slate-400 hover:text-[#d4af37] transition-all py-1.5 px-3 uppercase tracking-wider font-bold flex items-center gap-2 cursor-pointer"
+          >
+            <span>❓ Manual do Usuário (PDF)</span>
+          </button>
+        </div>
       </div>
+
+      {/* Render do Modal */}
+      <ModalManual isOpen={manualAberto} onClose={() => setManualAberto(false)} />
     </aside>
   );
 };
