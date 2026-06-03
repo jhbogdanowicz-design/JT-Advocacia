@@ -62,6 +62,13 @@ const btnEditProfileMobile = document.getElementById("btn-edit-profile-mobile");
 // Caixas de Feedback
 const loginMessage = document.getElementById("login-message");
 const signupMessage = document.getElementById("signup-message");
+const viewForgotPassword = document.getElementById("view-forgot-password");
+const forgotForm = document.getElementById("forgot-form");
+const forgotEmail = document.getElementById("forgot-email");
+const forgotMessage = document.getElementById("forgot-message");
+const btnForgotSubmit = document.getElementById("btn-forgot-submit");
+const linkForgotPassword = document.getElementById("link-forgot-password");
+const linkBackLogin = document.getElementById("link-back-login");
 
 // Elementos de Perfil do Usuário
 const welcomeMessage = document.getElementById("welcome-message");
@@ -416,6 +423,7 @@ let activeDetailProcessObject = null; // Guarda o objeto completo do processo at
 function switchPublicView(viewName) {
   hideMessage(loginMessage);
   hideMessage(signupMessage);
+  if (forgotMessage) hideMessage(forgotMessage);
 
   if (viewName === "landing") {
     landingContainer.style.display = "block";
@@ -427,12 +435,21 @@ function switchPublicView(viewName) {
     appLayout.style.display = "none";
     viewLogin.classList.add("active");
     viewSignup.classList.remove("active");
+    if (viewForgotPassword) viewForgotPassword.classList.remove("active");
   } else if (viewName === "signup") {
     landingContainer.style.display = "none";
     authContainer.style.display = "block";
     appLayout.style.display = "none";
     viewLogin.classList.remove("active");
     viewSignup.classList.add("active");
+    if (viewForgotPassword) viewForgotPassword.classList.remove("active");
+  } else if (viewName === "forgot") {
+    landingContainer.style.display = "none";
+    authContainer.style.display = "block";
+    appLayout.style.display = "none";
+    viewLogin.classList.remove("active");
+    viewSignup.classList.remove("active");
+    if (viewForgotPassword) viewForgotPassword.classList.add("active");
   }
 }
 
@@ -3154,6 +3171,63 @@ if (btnHeroLogin) {
     switchPublicView("landing");
   });
 });
+
+if (linkForgotPassword) {
+  linkForgotPassword.addEventListener("click", (e) => {
+    e.preventDefault();
+    switchPublicView("forgot");
+  });
+}
+
+if (linkBackLogin) {
+  linkBackLogin.addEventListener("click", (e) => {
+    e.preventDefault();
+    switchPublicView("login");
+  });
+}
+
+if (forgotForm) {
+  forgotForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    hideMessage(forgotMessage);
+
+    const email = forgotEmail.value.trim().toLowerCase();
+    if (!email) {
+      showMessage(forgotMessage, "Por favor, preencha o e-mail.", "error");
+      return;
+    }
+
+    const whitelist = ["nainaja@hotmail.com", "jhbogdanowicz@gmail.com"];
+    if (!whitelist.includes(email)) {
+      showMessage(forgotMessage, "Acesso não autorizado para este endereço institucional.", "error");
+      return;
+    }
+
+    try {
+      setLoadingState(btnForgotSubmit, true, "Processando...");
+      
+      const redirectUrl = window.location.hostname === 'localhost' 
+        ? 'http://localhost:3000/atualizar-senha' 
+        : `${window.location.origin}/atualizar-senha`;
+
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: redirectUrl,
+      });
+
+      if (error) {
+        showMessage(forgotMessage, `Erro: ${error.message}`, "error");
+      } else {
+        showMessage(forgotMessage, "Link de redefinição enviado! Verifique sua caixa de entrada.", "success");
+        forgotForm.reset();
+      }
+    } catch (err) {
+      console.error(err);
+      showMessage(forgotMessage, "Erro inesperado. Tente novamente.", "error");
+    } finally {
+      setLoadingState(btnForgotSubmit, false, "Enviar Link de Recuperação");
+    }
+  });
+}
 
 // =========================================================================
 // ⚡ SEÇÃO: FLUXO COMPLETO E LÓGICA DE ESTRATÉGIAS JURÍDICAS IA

@@ -485,6 +485,21 @@
     }
     .auth-premium-link:hover { color: #f0d080; text-decoration: underline; }
 
+    .forgot-password-link {
+      display: block;
+      text-align: right;
+      font-size: 11px;
+      font-weight: 600;
+      color: #94a3b8; /* slate-400 equivalent */
+      transition: all 0.2s ease-in-out;
+      cursor: pointer;
+      text-decoration: none;
+      margin-top: 8px;
+    }
+    .forgot-password-link:hover {
+      color: #d4af37; /* Ouro Nobre */
+    }
+
     /* ── FRASE DO DIA ─────────────────────────────────────────────────────── */
     .quote-card {
       display: flex;
@@ -1382,6 +1397,7 @@
           <div>
             <label class="auth-premium-label" for="login-password">Senha de Acesso</label>
             <input type="password" id="login-password" class="auth-premium-input" placeholder="••••••••" minlength="6" required autocomplete="current-password">
+            <a href="#" class="forgot-password-link" id="link-forgot-password">Esqueci minha senha</a>
           </div>
           <button type="submit" class="auth-premium-btn" id="btn-login-submit">Entrar na Plataforma</button>
         </form>
@@ -1390,6 +1406,38 @@
         <div style="text-align:center;font-size:12px;color:rgba(180,200,220,0.5);display:flex;flex-direction:column;gap:8px;">
           <span>Não tem acesso? <a href="#" class="auth-premium-link" id="link-go-signup">Solicitar credencial</a></span>
           <a href="#" class="auth-premium-link link-go-landing" style="opacity:0.5;font-size:11px;">← Voltar à página inicial</a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TELA 3: RECUPERAR SENHA -->
+    <section id="view-forgot-password" class="view-section">
+      <div class="auth-premium-card">
+
+        <div class="auth-logo-block">
+          <img src="logo-jt.png" alt="Logo JT Advocacia" class="auth-logo-img"
+            onerror="this.src='logo.jpg'">
+          <p class="auth-logo-name" style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: var(--text-primary);">Janaina Tarabauca</p>
+          <p class="auth-logo-sub" style="font-size: 11px; font-weight: 700; color: var(--gold); text-transform: uppercase; tracking-spacing: 1px; margin-top: 4px;">Advocacia</p>
+        </div>
+
+        <h3 class="auth-form-title">Recuperação de Senha</h3>
+        <p class="auth-form-sub">Insira seu e-mail para receber o link de redefinição.</p>
+
+        <div id="forgot-message" class="message-box"></div>
+
+        <form id="forgot-form" style="display:flex;flex-direction:column;gap:16px;">
+          <div>
+            <label class="auth-premium-label" for="forgot-email">E-mail Corporativo</label>
+            <input type="email" id="forgot-email" class="auth-premium-input" placeholder="exemplo@adv.com.br" required autocomplete="email">
+          </div>
+          <button type="submit" class="auth-premium-btn" id="btn-forgot-submit">Enviar Link de Recuperação</button>
+        </form>
+
+        <hr class="auth-divider">
+        <div style="text-align:center;font-size:12px;color:rgba(180,200,220,0.5);display:flex;flex-direction:column;gap:8px;">
+          <a href="#" class="auth-premium-link" id="link-back-login" style="font-weight: 600;">Voltar para o Login</a>
         </div>
 
       </div>
