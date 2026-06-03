@@ -473,45 +473,45 @@ export const PaginaLogin: React.FC<PaginaLoginProps> = ({ onAuthSuccess }) => {
               Canais de Atendimento e Triagem Jurídica
             </h2>
             <p className="text-base text-slate-650 dark:text-slate-400 font-medium max-w-2xl mx-auto leading-relaxed">
-              Selecione o canal ideal para sua necessidade jurídica. Oferecemos plantão digital imediato para urgências ou abertura de consulta formal.
+              Selecione o canal ideal para sua necessidade jurídica. Oferecemos contato direto via WhatsApp Corporativo ou abertura de consulta formal.
             </p>
           </div>
 
           {/* Grid de 2 Colunas */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
             
-            {/* Coluna 1: Plantão Imediato */}
+            {/* Coluna 1: Conexão Direta */}
             <div className="bg-white dark:bg-[#0c1424] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-8 flex flex-col justify-between shadow-sm relative overflow-hidden transition-all hover:shadow-md">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[#d4af37]/5 rounded-full blur-2xl pointer-events-none" />
               
               <div className="space-y-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center text-2xl">
+                  <div className="w-12 h-12 rounded-xl bg-[#0f1e36]/5 dark:bg-[#d4af37]/10 flex items-center justify-center text-2xl text-[#0f1e36] dark:text-[#d4af37]">
                     💬
                   </div>
                   <div>
                     <h3 className="font-playfair text-base md:text-lg font-bold text-[#0f1e36] dark:text-white uppercase tracking-wider">
-                      Plantão Imediato
+                      Conexão Direta
                     </h3>
-                    <p className="text-xs text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-widest mt-0.5">
-                      Resposta Imediata via WhatsApp
+                    <p className="text-xs text-[#d4af37] font-bold uppercase tracking-widest mt-0.5">
+                      WhatsApp Corporativo
                     </p>
                   </div>
                 </div>
 
                 <p className="text-base text-slate-600 dark:text-slate-300 leading-relaxed">
-                  Inicie um atendimento digital imediato com nossa equipe de plantão. Ideal para casos urgentes, dúvidas simples ou orientações rápidas e preliminares.
+                  Entre em contato diretamente via WhatsApp Corporativo. Canal dedicado a orientações preliminares, esclarecimento de fluxos de trabalho e alinhamento de reuniões institucionais com nossa banca.
                 </p>
 
                 <ul className="space-y-3 text-sm text-slate-550 dark:text-slate-400">
                   <li className="flex items-center gap-2.5">
-                    <span className="text-emerald-500 font-bold">✓</span> Atendimento ágil e humanizado
+                    <span className="text-[#d4af37] font-bold">✓</span> Comunicação corporativa direta
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <span className="text-emerald-500 font-bold">✓</span> Encaminhamento ao especialista adequado
+                    <span className="text-[#d4af37] font-bold">✓</span> Direcionamento ao advogado responsável pelo tema
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <span className="text-emerald-500 font-bold">✓</span> Plantão ativo em horário comercial
+                    <span className="text-[#d4af37] font-bold">✓</span> Atendimento em horário comercial estruturado
                   </li>
                 </ul>
               </div>
@@ -521,9 +521,9 @@ export const PaginaLogin: React.FC<PaginaLoginProps> = ({ onAuthSuccess }) => {
                   href="https://wa.me/5511999999999"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300 shadow-md hover:shadow-emerald-500/10 flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
+                  className="w-full py-3.5 bg-[#0f1e36] hover:bg-[#1b335c] dark:bg-transparent text-white dark:text-[#d4af37] border border-[#0f1e36] dark:border-[#d4af37] dark:hover:bg-[#d4af37] dark:hover:text-[#0f1e36] rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300 shadow-md flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
                 >
-                  <span className="text-sm">💬</span> Iniciar Atendimento Digital
+                  <span className="text-sm">💬</span> Acessar WhatsApp Corporativo
                 </a>
               </div>
             </div>
