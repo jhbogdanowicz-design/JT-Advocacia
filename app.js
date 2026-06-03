@@ -545,7 +545,7 @@ function setTheme(theme) {
   }
 }
 
-const savedTheme = localStorage.getItem("jt-theme") || "dark";
+const savedTheme = localStorage.getItem("jt-theme") || "light";
 setTheme(savedTheme);
 
 document.getElementById("theme-toggle-auth").addEventListener("click", () => {
@@ -3142,9 +3142,11 @@ btnGoRestricted.addEventListener("click", () => {
   switchPublicView("login");
 });
 
-btnHeroLogin.addEventListener("click", () => {
-  switchPublicView("login");
-});
+if (btnHeroLogin) {
+  btnHeroLogin.addEventListener("click", () => {
+    switchPublicView("login");
+  });
+}
 
   linksGoLanding.forEach(link => {
   link.addEventListener("click", (e) => {

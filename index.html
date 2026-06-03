@@ -44,7 +44,7 @@
   
   <script>
     (function() {
-      const savedTheme = localStorage.getItem("jt-theme") || "dark";
+      const savedTheme = localStorage.getItem("jt-theme") || "light";
       document.documentElement.setAttribute("data-theme", savedTheme);
       if (savedTheme === "dark") {
         document.documentElement.classList.add("dark");
@@ -968,7 +968,7 @@
   <!-- Proteção Anti-Bot: Cloudflare Turnstile -->
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
-<body data-theme="dark"> <!-- Inicia no modo escuro por padrão jurídico elegante, alternável via botão -->
+<body data-theme="light"> <!-- Inicia no modo claro por padrão, alternável via botão -->
 
   <!-- =========================================================================
        ÁREA PÚBLICA: APRESENTAÇÃO / LANDING PAGE (MOSTRADA QUANDO DESLOGADO POR PADRÃO)
@@ -1026,10 +1026,6 @@
           </p>
 
           <div class="hero-actions">
-            <button class="hero-btn-primary" id="btn-hero-login">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-              Acessar Plataforma
-            </button>
             <a href="#canais-atendimento" class="hero-btn-secondary">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
               Falar com Especialista
