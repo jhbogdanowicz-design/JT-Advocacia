@@ -350,7 +350,16 @@ export const PaginaProcessos: React.FC = () => {
     const uploadedFile = e.target.files?.[0];
     if (!uploadedFile) return;
 
+    const sizeLimit = 10 * 1024 * 1024;
     const fileName = uploadedFile.name.toLowerCase();
+    const isSupported = fileName.endsWith(".pdf") || fileName.endsWith(".txt");
+
+    if (!isSupported || uploadedFile.size > sizeLimit) {
+      alert("Apenas arquivos PDF ou TXT de até 10MB são permitidos para análise da Jus IA.");
+      if (e.target) e.target.value = "";
+      return;
+    }
+
     try {
       if (fileName.endsWith(".txt")) {
         const text = await uploadedFile.text();
@@ -360,8 +369,6 @@ export const PaginaProcessos: React.FC = () => {
         const text = await extractTextFromPdf(uploadedFile);
         setDescricao(prev => prev ? `${prev}\n\n[CONTEÚDO DO ARQUIVO ANEXADO - ${uploadedFile.name}]:\n${text}` : text);
         alert("✅ Arquivo PDF importado e processado com sucesso!");
-      } else {
-        alert("⚠️ Por favor, envie apenas arquivos em formato PDF ou TXT.");
       }
     } catch (err: any) {
       console.error(err);
@@ -730,24 +737,33 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
     e.preventDefault();
     const droppedFile = e.dataTransfer.files[0];
     if (droppedFile) {
-      if (droppedFile.type === "application/pdf" || droppedFile.name.endsWith(".pdf")) {
-        setFile(droppedFile);
-        setFileError(null);
-      } else {
-        setFileError("Por favor, envie apenas arquivos em formato PDF.");
+      const fileName = droppedFile.name.toLowerCase();
+      const isSupported = fileName.endsWith(".pdf") || fileName.endsWith(".txt");
+      const sizeLimit = 10 * 1024 * 1024;
+      if (!isSupported || droppedFile.size > sizeLimit) {
+        alert("Apenas arquivos PDF ou TXT de até 10MB são permitidos para análise da Jus IA.");
+        setFileError("Apenas arquivos PDF ou TXT de até 10MB são permitidos para análise da Jus IA.");
+        return;
       }
+      setFile(droppedFile);
+      setFileError(null);
     }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
-      if (selectedFile.type === "application/pdf" || selectedFile.name.endsWith(".pdf")) {
-        setFile(selectedFile);
-        setFileError(null);
-      } else {
-        setFileError("Por favor, envie apenas arquivos em formato PDF.");
+      const fileName = selectedFile.name.toLowerCase();
+      const isSupported = fileName.endsWith(".pdf") || fileName.endsWith(".txt");
+      const sizeLimit = 10 * 1024 * 1024;
+      if (!isSupported || selectedFile.size > sizeLimit) {
+        alert("Apenas arquivos PDF ou TXT de até 10MB são permitidos para análise da Jus IA.");
+        setFileError("Apenas arquivos PDF ou TXT de até 10MB são permitidos para análise da Jus IA.");
+        if (e.target) e.target.value = "";
+        return;
       }
+      setFile(selectedFile);
+      setFileError(null);
     }
   };
 
@@ -762,7 +778,11 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
     try {
       let text = "";
       if (file) {
-        text = await extractTextFromPdf(file);
+        if (file.name.toLowerCase().endsWith(".txt")) {
+          text = await file.text();
+        } else {
+          text = await extractTextFromPdf(file);
+        }
       } else {
         const proc = processosCompletos.find(p => p.id === selectedProcessoId);
         const fatosProntuario = proc?.clientes?.observacoes || "";
@@ -1747,7 +1767,7 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
           {/* PDF upload */}
           <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-3">
             <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-              Ou Anexar Documento PDF
+              Ou Anexar Documento de Suporte (PDF ou TXT)
             </label>
 
             <div
@@ -1763,7 +1783,7 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".pdf"
+                accept=".pdf,.txt"
                 onChange={handleFileChange}
                 className="hidden"
               />
@@ -1794,9 +1814,9 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
                 <div className="space-y-2">
                   <span className="text-3xl opacity-40">📂</span>
                   <p className="text-xs text-slate-500 dark:text-slate-500">
-                    Arraste ou clique para selecionar um <strong>PDF</strong>
+                    Arraste ou clique para selecionar um <strong>PDF ou TXT</strong>
                   </p>
-                  <p className="text-[10px] text-slate-400 dark:text-slate-600">Máximo 20 MB</p>
+                  <p className="text-[10px] text-slate-400 dark:text-slate-600">Máximo 10 MB</p>
                 </div>
               )}
             </div>

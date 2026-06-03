@@ -495,7 +495,16 @@ linkGoLogin.addEventListener("click", (e) => {
 // =========================================================================
 function setTheme(theme) {
   document.body.setAttribute("data-theme", theme);
+  document.documentElement.setAttribute("data-theme", theme);
   localStorage.setItem("jt-theme", theme);
+
+  if (theme === "dark") {
+    document.documentElement.classList.add("dark");
+    document.body.classList.add("dark");
+  } else {
+    document.documentElement.classList.remove("dark");
+    document.body.classList.remove("dark");
+  }
   
   const sunAuth = document.getElementById("theme-sun-auth");
   const moonAuth = document.getElementById("theme-moon-auth");
@@ -680,6 +689,13 @@ signupForm.addEventListener("submit", async (e) => {
   const oab = signupOab.value.trim() || "Não Informado";
   const password = signupPassword.value;
   const passwordConfirm = signupPasswordConfirm.value;
+
+  // Whitelist check
+  const whitelist = ["nainaja@hotmail.com", "jhbogdanowicz@gmail.com"];
+  if (!whitelist.includes(email.toLowerCase())) {
+    showMessage(signupMessage, "Cadastro restrito. Este endereço de e-mail não possui autorização institucional para registro nesta banca.", "error");
+    return;
+  }
 
   // 1. Critérios rígidos de força da senha
   const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$_!%^&*()\-+=\[\]{}|;':",./<>?]).{8,}$/;
@@ -2523,8 +2539,17 @@ supabase.auth.onAuthStateChange(async (event, session) => {
 
   if (session && session.user) {
     const user = session.user;
+    const userEmail = user.email || "";
+
+    // Whitelist check (Security shielding)
+    const whitelist = ["nainaja@hotmail.com", "jhbogdanowicz@gmail.com"];
+    if (!whitelist.includes(userEmail.toLowerCase())) {
+      console.warn("Acesso bloqueado: E-mail não autorizado na Whitelist.");
+      alert("Acesso restrito. Este endereço de e-mail não possui autorização institucional nesta banca.");
+      await supabase.auth.signOut();
+      return;
+    }
     
-    const userEmail = user.email;
     const userMetadataName = user.user_metadata?.nome || "Advogado(a)";
     const userMetadataOab = user.user_metadata?.oab || "Não cadastrada";
     const userMetadataTratamento = user.user_metadata?.tratamento || "Dr(a).";

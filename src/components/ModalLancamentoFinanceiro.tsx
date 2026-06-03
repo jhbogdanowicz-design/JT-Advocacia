@@ -200,20 +200,20 @@ export const ModalLancamentoFinanceiro: React.FC<ModalLancamentoFinanceiroProps>
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-[#0f172a] rounded-2xl border border-slate-800 shadow-2xl max-w-lg w-full overflow-hidden text-slate-100 relative">
+      <div className="w-full max-w-lg mx-auto my-auto bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* Header */}
-        <div className="bg-[#0b0f19] px-6 py-4 border-b border-[#d4af37]/35 flex justify-between items-center">
+        <div className="bg-slate-50 dark:bg-[#0b0f19] px-6 py-4 border-b border-slate-200 dark:border-[#d4af37]/35 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <span className="text-[#d4af37] text-lg">💰</span>
-            <h3 className="font-playfair font-semibold text-slate-100 text-lg tracking-wide">
+            <h3 className="font-playfair font-semibold text-slate-800 dark:text-slate-100 text-lg tracking-wide">
               Lançamento de Honorários Contratuais
             </h3>
           </div>
           <button 
             onClick={onClose} 
             type="button" 
-            className="text-slate-400 hover:text-white font-bold text-lg p-1 transition-colors focus:outline-none"
+            className="text-slate-400 dark:text-slate-500 hover:text-slate-650 dark:hover:text-white font-bold text-lg p-1 transition-colors focus:outline-none"
           >
             ✕
           </button>
@@ -221,268 +221,272 @@ export const ModalLancamentoFinanceiro: React.FC<ModalLancamentoFinanceiroProps>
 
         {loading ? (
           <div className="p-12 flex flex-col justify-center items-center space-y-3">
-            <div className="w-8 h-8 border-4 border-slate-800 border-t-[#d4af37] rounded-full animate-spin"></div>
-            <p className="text-xs text-slate-400">Consultando cadastros do prontuário...</p>
+            <div className="w-8 h-8 border-4 border-slate-200 dark:border-slate-800 border-t-[#d4af37] rounded-full animate-spin"></div>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Consultando cadastros do prontuário...</p>
           </div>
         ) : (
-          <form onSubmit={handleSalvar} className="p-6 space-y-4">
+          <form onSubmit={handleSalvar} className="flex flex-col flex-1 overflow-hidden">
             
-            {/* Categoria da Verba (Botões Horizontais) */}
-            <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
-                Categoria da Movimentação
-              </label>
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setCategoriaVerba("honorario")}
-                  className={`py-2 px-1 rounded-lg text-center text-xs font-semibold border transition-all ${
-                    categoriaVerba === "honorario"
-                      ? "bg-[#d4af37] text-[#070a13] border-[#d4af37] font-bold shadow"
-                      : "bg-[#070a13] text-slate-400 border-slate-800 hover:text-slate-200"
-                  }`}
-                >
-                  Honorário
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setCategoriaVerba("indenizacao")}
-                  className={`py-2 px-1 rounded-lg text-center text-xs font-semibold border transition-all ${
-                    categoriaVerba === "indenizacao"
-                      ? "bg-[#d4af37] text-[#070a13] border-[#d4af37] font-bold shadow"
-                      : "bg-[#070a13] text-slate-400 border-slate-800 hover:text-slate-200"
-                  }`}
-                >
-                  Condenação
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setCategoriaVerba("custas")}
-                  className={`py-2 px-1 rounded-lg text-center text-xs font-semibold border transition-all ${
-                    categoriaVerba === "custas"
-                      ? "bg-[#d4af37] text-[#070a13] border-[#d4af37] font-bold shadow"
-                      : "bg-[#070a13] text-slate-400 border-slate-800 hover:text-slate-200"
-                  }`}
-                >
-                  Reembolso Custas
-                </button>
-              </div>
-            </div>
-
-            {/* Cliente */}
-            <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
-                Prontuário do Cliente *
-              </label>
-              <select
-                value={clienteSelecionadoId}
-                onChange={(e) => {
-                  setClienteSelecionadoId(e.target.value);
-                  setProcessoSelecionadoId(""); // Reseta processo
-                }}
-                disabled={!!clienteId} // Trava se aberto na ficha de cliente
-                required
-                className="w-full bg-[#070a13] border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#d4af37] disabled:opacity-50 cursor-pointer"
-              >
-                <option value="">Selecione o prontuário do cliente...</option>
-                {clientes.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    👤 {c.nome}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Processo (Filtrado) */}
-            <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
-                Processo Vinculado
-              </label>
-              <select
-                value={processoSelecionadoId}
-                onChange={(e) => setProcessoSelecionadoId(e.target.value)}
-                disabled={!clienteSelecionadoId}
-                className="w-full bg-[#070a13] border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#d4af37] disabled:opacity-40 cursor-pointer"
-              >
-                <option value="">
-                  {clienteSelecionadoId 
-                    ? "Geral (Sem vínculo a processo específico)" 
-                    : "Escolha um cliente acima para carregar processos..."}
-                </option>
-                {processosAtivos.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    📂 {p.titulo} ({p.numero_processo}) [{p.status}]
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Sub-campos: Honorário Contratual */}
-            {categoriaVerba === "honorario" && (
-              <div className="grid grid-cols-2 gap-4 animate-slideDown">
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
-                    Tipo Honorário
-                  </label>
-                  <select
-                    value={tipoHonorario}
-                    onChange={(e) => setTipoHonorario(e.target.value)}
-                    className="w-full bg-[#070a13] border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#d4af37]"
+            {/* Scrollable Body */}
+            <div className="p-6 overflow-y-auto space-y-4 flex-1">
+              
+              {/* Categoria da Verba (Botões Horizontais) */}
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">
+                  Categoria da Movimentação
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setCategoriaVerba("honorario")}
+                    className={`py-2 px-1 rounded-lg text-center text-xs font-semibold border transition-all ${
+                      categoriaVerba === "honorario"
+                        ? "bg-[#0f1e36] text-white border-[#d4af37] dark:bg-slate-800 dark:text-white dark:border-[#d4af37] font-bold shadow"
+                        : "bg-slate-100 text-[#0f1e36] border-slate-200 dark:bg-[#070a13] dark:text-slate-400 dark:border-slate-800 hover:bg-slate-200 dark:hover:text-slate-200"
+                    }`}
                   >
-                    <option value="fixo">📜 Fixo / Contratual</option>
-                    <option value="mensal">💼 Mensal / Assessoria</option>
-                    <option value="êxito">🏆 Taxa de Êxito</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
-                    Valor Cobrado *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="R$ 0,00"
-                    value={valorTotalInput}
-                    onChange={handleValorTotalChange}
-                    className="w-full bg-[#070a13] border border-slate-800 rounded-lg px-4 py-2.5 text-xs text-slate-200 placeholder-slate-500 dark:placeholder-slate-400/50 focus:outline-none focus:border-[#d4af37] font-mono"
-                  />
+                    Honorário
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCategoriaVerba("indenizacao")}
+                    className={`py-2 px-1 rounded-lg text-center text-xs font-semibold border transition-all ${
+                      categoriaVerba === "indenizacao"
+                        ? "bg-[#0f1e36] text-white border-[#d4af37] dark:bg-slate-800 dark:text-white dark:border-[#d4af37] font-bold shadow"
+                        : "bg-slate-100 text-[#0f1e36] border-slate-200 dark:bg-[#070a13] dark:text-slate-400 dark:border-slate-800 hover:bg-slate-200 dark:hover:text-slate-200"
+                    }`}
+                  >
+                    Condenação
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCategoriaVerba("custas")}
+                    className={`py-2 px-1 rounded-lg text-center text-xs font-semibold border transition-all ${
+                      categoriaVerba === "custas"
+                        ? "bg-[#0f1e36] text-white border-[#d4af37] dark:bg-slate-800 dark:text-white dark:border-[#d4af37] font-bold shadow"
+                        : "bg-slate-100 text-[#0f1e36] border-slate-200 dark:bg-[#070a13] dark:text-slate-400 dark:border-slate-800 hover:bg-slate-200 dark:hover:text-slate-200"
+                    }`}
+                  >
+                    Reembolso Custas
+                  </button>
                 </div>
               </div>
-            )}
 
-            {/* Sub-campos: Verba Indenizatória */}
-            {categoriaVerba === "indenizacao" && (
-              <div className="space-y-4 animate-slideDown">
-                <div className="grid grid-cols-2 gap-4">
+              {/* Cliente */}
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">
+                  Prontuário do Cliente *
+                </label>
+                <select
+                  value={clienteSelecionadoId}
+                  onChange={(e) => {
+                    setClienteSelecionadoId(e.target.value);
+                    setProcessoSelecionadoId(""); // Reseta processo
+                  }}
+                  disabled={!!clienteId} // Trava se aberto na ficha de cliente
+                  required
+                  className="w-full bg-slate-100 dark:bg-[#070a13] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2.5 text-xs text-[#0f1e36] dark:text-slate-200 focus:outline-none focus:border-[#d4af37] disabled:opacity-50 cursor-pointer"
+                >
+                  <option value="">Selecione o prontuário do cliente...</option>
+                  {clientes.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      👤 {c.nome}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Processo (Filtrado) */}
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">
+                  Processo Vinculado
+                </label>
+                <select
+                  value={processoSelecionadoId}
+                  onChange={(e) => setProcessoSelecionadoId(e.target.value)}
+                  disabled={!clienteSelecionadoId}
+                  className="w-full bg-slate-100 dark:bg-[#070a13] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2.5 text-xs text-[#0f1e36] dark:text-slate-200 focus:outline-none focus:border-[#d4af37] disabled:opacity-40 cursor-pointer"
+                >
+                  <option value="">
+                    {clienteSelecionadoId 
+                      ? "Geral (Sem vínculo a processo específico)" 
+                      : "Escolha um cliente acima para carregar processos..."}
+                  </option>
+                  {processosAtivos.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      📂 {p.titulo} ({p.numero_processo}) [{p.status}]
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Sub-campos: Honorário Contratual */}
+              {categoriaVerba === "honorario" && (
+                <div className="grid grid-cols-2 gap-4 animate-slideDown">
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
-                      Condenação / Valor Bruto *
+                    <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">
+                      Tipo Honorário
+                    </label>
+                    <select
+                      value={tipoHonorario}
+                      onChange={(e) => setTipoHonorario(e.target.value)}
+                      className="w-full bg-slate-100 dark:bg-[#070a13] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2.5 text-xs text-[#0f1e36] dark:text-slate-200 focus:outline-none focus:border-[#d4af37] cursor-pointer"
+                    >
+                      <option value="fixo">📜 Fixo / Contratual</option>
+                      <option value="mensal">💼 Mensal / Assessoria</option>
+                      <option value="êxito">🏆 Taxa de Êxito</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">
+                      Valor Cobrado *
                     </label>
                     <input
                       type="text"
                       required
                       placeholder="R$ 0,00"
-                      value={valorBrutoInput}
-                      onChange={handleValorBrutoChange}
-                      className="w-full bg-[#070a13] border border-slate-800 rounded-lg px-4 py-2.5 text-xs text-slate-200 placeholder-slate-500 dark:placeholder-slate-400/50 focus:outline-none focus:border-[#d4af37] font-mono"
+                      value={valorTotalInput}
+                      onChange={handleValorTotalChange}
+                      className="w-full bg-slate-100 dark:bg-[#070a13] border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-2.5 text-xs text-[#0f1e36] dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-550 focus:outline-none focus:border-[#d4af37] font-mono"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Sub-campos: Verba Indenizatória */}
+              {categoriaVerba === "indenizacao" && (
+                <div className="space-y-4 animate-slideDown">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">
+                        Condenação / Valor Bruto *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="R$ 0,00"
+                        value={valorBrutoInput}
+                        onChange={handleValorBrutoChange}
+                        className="w-full bg-slate-100 dark:bg-[#070a13] border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-2.5 text-xs text-[#0f1e36] dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-550 focus:outline-none focus:border-[#d4af37] font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">
+                        Taxa Êxito Banca (%)
+                      </label>
+                      <div className="relative flex items-center">
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          required
+                          value={porcentagemBanca}
+                          onChange={(e) => setPorcentagemBanca(parseInt(e.target.value) || 0)}
+                          className="w-full bg-slate-100 dark:bg-[#070a13] border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-2.5 text-xs text-[#0f1e36] dark:text-slate-200 focus:outline-none focus:border-[#d4af37] font-mono pr-8"
+                        />
+                        <span className="absolute right-4 text-xs font-bold text-slate-500 font-mono">%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Box de Retenção */}
+                  <div className="bg-slate-50 dark:bg-[#070a13] border border-[#d4af37]/30 rounded-xl p-4 space-y-2">
+                    <span className="text-[9.5px] font-bold text-[#d4af37] tracking-widest uppercase">
+                      📐 Retenção Patrimonial da Banca
+                    </span>
+                    <div className="grid grid-cols-2 gap-4 text-xs pt-1">
+                      <div>
+                        <span className="text-[10px] text-slate-500 font-light">Cota do Escritório ({porcentagemBanca}%):</span>
+                        <p className="font-mono font-bold text-emerald-650 dark:text-emerald-400 text-sm mt-0.5">
+                          {formatarValorMoeda((calculoRetencao.retencao * 100).toFixed(0))}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-500 font-light">Repasse ao Cliente ({100 - porcentagemBanca}%):</span>
+                        <p className="font-mono font-bold text-blue-650 dark:text-blue-400 text-sm mt-0.5">
+                          {formatarValorMoeda((calculoRetencao.repasseCliente * 100).toFixed(0))}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Sub-campos: Reembolso de Custas */}
+              {categoriaVerba === "custas" && (
+                <div className="grid grid-cols-2 gap-4 animate-slideDown">
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">
+                      Valor das Custas *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="R$ 0,00"
+                      value={valorTotalInput}
+                      onChange={handleValorTotalChange}
+                      className="w-full bg-slate-100 dark:bg-[#070a13] border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-2.5 text-xs text-[#0f1e36] dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-550 focus:outline-none focus:border-[#d4af37] font-mono"
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
-                      Taxa Êxito Banca (%)
+                    <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">
+                      Tipo de Custa
                     </label>
-                    <div className="relative flex items-center">
-                      <input
-                        type="number"
-                        min="0"
-                        max="100"
-                        required
-                        value={porcentagemBanca}
-                        onChange={(e) => setPorcentagemBanca(parseInt(e.target.value) || 0)}
-                        className="w-full bg-[#070a13] border border-slate-800 rounded-lg px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#d4af37] font-mono pr-8"
-                      />
-                      <span className="absolute right-4 text-xs font-bold text-slate-500 font-mono">%</span>
-                    </div>
+                    <select
+                      className="w-full bg-slate-100 dark:bg-[#070a13] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2.5 text-xs text-[#0f1e36] dark:text-slate-200 focus:outline-none focus:border-[#d4af37] cursor-pointer"
+                    >
+                      <option>Custas de Distribuição</option>
+                      <option>Perícia Técnica Judicial</option>
+                      <option>Custas de Diligência / Viagem</option>
+                      <option>Cópia de Autos / Emolumentos</option>
+                    </select>
                   </div>
                 </div>
+              )}
 
-                {/* Box de Retenção */}
-                <div className="bg-[#070a13] border border-[#d4af37]/30 rounded-xl p-4 space-y-2">
-                  <span className="text-[9.5px] font-bold text-[#d4af37] tracking-widest uppercase">
-                    📐 Retenção Patrimonial da Banca
-                  </span>
-                  <div className="grid grid-cols-2 gap-4 text-xs pt-1">
-                    <div>
-                      <span className="text-[10px] text-slate-500 font-light">Cota do Escritório ({porcentagemBanca}%):</span>
-                      <p className="font-mono font-bold text-emerald-400 text-sm mt-0.5">
-                        {formatarValorMoeda((calculoRetencao.retencao * 100).toFixed(0))}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-slate-500 font-light">Repasse ao Cliente ({100 - porcentagemBanca}%):</span>
-                      <p className="font-mono font-bold text-blue-400 text-sm mt-0.5">
-                        {formatarValorMoeda((calculoRetencao.repasseCliente * 100).toFixed(0))}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Sub-campos: Reembolso de Custas */}
-            {categoriaVerba === "custas" && (
-              <div className="grid grid-cols-2 gap-4 animate-slideDown">
+              {/* Vencimento e Status Inicial */}
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
-                    Valor das Custas *
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">
+                    Vencimento *
                   </label>
                   <input
-                    type="text"
+                    type="date"
                     required
-                    placeholder="R$ 0,00"
-                    value={valorTotalInput}
-                    onChange={handleValorTotalChange}
-                    className="w-full bg-[#070a13] border border-slate-800 rounded-lg px-4 py-2.5 text-xs text-slate-200 placeholder-slate-500 dark:placeholder-slate-400/50 focus:outline-none focus:border-[#d4af37] font-mono"
+                    value={dataVencimento}
+                    onChange={(e) => setDataVencimento(e.target.value)}
+                    className="w-full bg-slate-100 dark:bg-[#070a13] border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-2.5 text-xs text-[#0f1e36] dark:text-slate-200 focus:outline-none focus:border-[#d4af37]"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
-                    Tipo de Custa
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">
+                    Status Inicial
                   </label>
                   <select
-                    className="w-full bg-[#070a13] border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#d4af37] cursor-pointer"
+                    value={statusInicial}
+                    onChange={(e) => setStatusInicial(e.target.value)}
+                    className="w-full bg-slate-100 dark:bg-[#070a13] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2.5 text-xs text-[#0f1e36] dark:text-slate-200 focus:outline-none focus:border-[#d4af37] cursor-pointer"
                   >
-                    <option>Custas de Distribuição</option>
-                    <option>Perícia Técnica Judicial</option>
-                    <option>Custas de Diligência / Viagem</option>
-                    <option>Cópia de Autos / Emolumentos</option>
+                    <option value="pendente">🟡 Pendente</option>
+                    <option value="pago">🟢 Pago (Liquidado)</option>
                   </select>
                 </div>
               </div>
-            )}
-
-            {/* Vencimento e Status Inicial */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
-                  Vencimento *
-                </label>
-                <input
-                  type="date"
-                  required
-                  value={dataVencimento}
-                  onChange={(e) => setDataVencimento(e.target.value)}
-                  className="w-full bg-[#070a13] border border-slate-800 rounded-lg px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#d4af37]"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
-                  Status Inicial
-                </label>
-                <select
-                  value={statusInicial}
-                  onChange={(e) => setStatusInicial(e.target.value)}
-                  className="w-full bg-[#070a13] border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#d4af37] cursor-pointer"
-                >
-                  <option value="pendente">🟡 Pendente</option>
-                  <option value="pago">🟢 Pago (Liquidado)</option>
-                </select>
-              </div>
             </div>
 
-            {/* Footer */}
-            <div className="pt-4 border-t border-slate-850 flex justify-end gap-3">
+            {/* Fixed Footer */}
+            <div className="p-4 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-150 dark:border-slate-800 flex justify-end gap-3">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg text-xs font-semibold transition-colors focus:outline-none"
+                className="px-4 py-2.5 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-xs font-semibold transition-colors focus:outline-none"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={saving}
-                className="bg-[#d4af37] text-[#070a13] hover:bg-[#f3e5ab] px-5 py-2.5 rounded-lg text-xs font-extrabold transition-all shadow-lg shadow-[#d4af37]/10 disabled:opacity-40"
+                className="bg-[#d4af37] text-[#070a13] hover:bg-[#f3e5ab] px-5 py-2.5 rounded-lg text-xs font-extrabold transition-all shadow-lg shadow-[#d4af37]/10 disabled:opacity-40 cursor-pointer"
               >
                 {saving ? "Salvando..." : "Confirmar Lançamento"}
               </button>

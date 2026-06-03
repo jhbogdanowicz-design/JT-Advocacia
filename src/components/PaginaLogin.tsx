@@ -28,6 +28,38 @@ export const PaginaLogin: React.FC<PaginaLoginProps> = ({ onAuthSuccess }) => {
   // Citação dinâmica sorteada
   const [activeQuote, setActiveQuote] = useState({ text: "", author: "" });
 
+  // Estados para formulário de captura de clientes
+  const [clientNome, setClientNome] = useState("");
+  const [clientEmail, setClientEmail] = useState("");
+  const [clientPhone, setClientPhone] = useState("");
+  const [clientArea, setClientArea] = useState("Civil");
+  const [clientCase, setClientCase] = useState("");
+  const [captureStatus, setCaptureStatus] = useState<string | null>(null);
+
+  const handleClientCaptureSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setCaptureStatus("Abertura...");
+    
+    const subject = encodeURIComponent(`Consulta Jurídica - ${clientArea} - ${clientNome}`);
+    const body = encodeURIComponent(
+      `Nova solicitação de consulta jurídica recebida via portal:\n\n` +
+      `Nome Completo: ${clientNome}\n` +
+      `E-mail de Contato: ${clientEmail}\n` +
+      `Telefone/WhatsApp: ${clientPhone}\n` +
+      `Área de Interesse: ${clientArea}\n\n` +
+      `Breve Relato do Caso:\n${clientCase}`
+    );
+    
+    window.location.href = `mailto:janainat.prado@adv.oabsp.org.br?subject=${subject}&body=${body}`;
+    setCaptureStatus("Enviado");
+    
+    setClientNome("");
+    setClientEmail("");
+    setClientPhone("");
+    setClientCase("");
+    setTimeout(() => setCaptureStatus(null), 3000);
+  };
+
   useEffect(() => {
     const randomQuote = legalQuotes[Math.floor(Math.random() * legalQuotes.length)];
     setActiveQuote(randomQuote);
@@ -107,6 +139,13 @@ export const PaginaLogin: React.FC<PaginaLoginProps> = ({ onAuthSuccess }) => {
 
     try {
       if (isSignUp) {
+        const whitelist = ["nainaja@hotmail.com", "jhbogdanowicz@gmail.com"];
+        if (!whitelist.includes(emailTrim.toLowerCase())) {
+          setErrorMsg("Cadastro restrito. Este endereço de e-mail não possui autorização institucional para registro nesta banca.");
+          setLoading(false);
+          return;
+        }
+
         // Validação estrita de força da senha
         if (passwordStrength < 4) {
           setErrorMsg("Senha insuficiente! A senha deve ter ao menos 8 caracteres, incluindo pelo menos 1 letra maiúscula, 1 número e 1 caractere especial (ex: @, #, $, _).");
@@ -150,6 +189,13 @@ export const PaginaLogin: React.FC<PaginaLoginProps> = ({ onAuthSuccess }) => {
           setPasswordConfirm("");
         }
       } else {
+        const whitelist = ["nainaja@hotmail.com", "jhbogdanowicz@gmail.com"];
+        if (!whitelist.includes(emailTrim.toLowerCase())) {
+          setErrorMsg("Acesso restrito. Este endereço de e-mail não possui autorização institucional nesta banca.");
+          setLoading(false);
+          return;
+        }
+
         const { data, error } = await supabase.auth.signInWithPassword({
           email: emailTrim,
           password: password,
@@ -180,22 +226,24 @@ export const PaginaLogin: React.FC<PaginaLoginProps> = ({ onAuthSuccess }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#070a13] text-slate-100 flex flex-col md:flex-row font-sans relative overflow-hidden">
+    <div className="min-h-screen bg-[#070a13] text-slate-100 flex flex-col font-sans relative overflow-y-auto">
       
       {/* Background Subtle Glows */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#d4af37]/3 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#0c1625]/20 rounded-full blur-[120px] pointer-events-none" />
 
-      {/* ── PAINEL ESQUERDO: COMPOSIÇÃO HERO EDITORIAL (50% WIDTH) ── */}
-      <div className="w-full md:w-1/2 bg-[#0f1e36] flex flex-col justify-center items-center p-8 md:p-16 border-b md:border-b-0 md:border-r border-[#d4af37]/15 relative overflow-hidden min-h-[320px] md:min-h-0">
+      {/* Hero and Login Panels Wrapper */}
+      <div className="w-full flex flex-col md:flex-row flex-1">
+        {/* ── PAINEL ESQUERDO: COMPOSIÇÃO HERO EDITORIAL (50% WIDTH) ── */}
+        <div className="w-full md:w-1/2 bg-gradient-to-br from-white via-slate-50/50 to-slate-100/30 dark:bg-gradient-to-br dark:from-[#0c1524] dark:via-[#090e18] dark:to-[#070a13] flex flex-col justify-center items-center p-8 md:p-16 border-b md:border-b-0 md:border-r border-[#d4af37]/15 dark:border-[#d4af37]/10 relative overflow-hidden min-h-[320px] md:min-h-0">
         
         {/* Assinatura Corporativa (Top Left no desktop) */}
         <div className="absolute top-8 left-8 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-white border border-[#d4af37]/50 flex items-center justify-center overflow-hidden">
+          <div className="w-8 h-8 rounded-lg bg-white border border-[#d4af37]/50 flex items-center justify-center overflow-hidden shadow-sm">
             <img src="/logo-jt.png" alt="JT" className="w-full h-full object-contain p-0.5" />
           </div>
           <div>
-            <h1 className="font-playfair font-extrabold text-xs tracking-widest text-white uppercase">
+            <h1 className="font-playfair font-extrabold text-xs tracking-widest text-[#0f1e36] dark:text-white uppercase">
               Janaina Tarabauca
             </h1>
             <p className="text-[7.5px] uppercase tracking-widest text-[#d4af37] font-bold">
@@ -205,9 +253,14 @@ export const PaginaLogin: React.FC<PaginaLoginProps> = ({ onAuthSuccess }) => {
         </div>
 
         {/* Quadro Inspirador de Alta Costura Jurídica */}
-        <div className="border border-[#d4af37]/30 rounded-xl p-8 max-w-sm text-center bg-[#0c1625]/40 backdrop-blur-md relative shadow-lg">
-          <span className="text-4xl text-[#d4af37]/30 font-serif absolute -top-4 left-6 bg-[#0f1e36] px-2 leading-none">“</span>
-          <p className="font-playfair italic text-slate-200 text-sm leading-relaxed mb-4">
+        <div className="border border-[#d4af37]/20 rounded-xl p-8 max-w-sm text-center bg-slate-50/40 backdrop-blur-md dark:bg-[#0c1625]/25 dark:backdrop-blur-md relative shadow-lg">
+          <span className="text-4xl text-[#d4af37]/30 font-serif absolute -top-4 left-6 bg-white dark:bg-[#090e18] px-2 leading-none">“</span>
+          
+          <h2 className="font-playfair text-[#0f1e36] dark:text-white text-base font-bold tracking-widest uppercase mb-3">
+            Advocacia Estratégica
+          </h2>
+          
+          <p className="font-playfair italic text-[#0f1e36]/90 dark:text-slate-200 text-sm leading-relaxed mb-4">
             {activeQuote.text}
           </p>
           <span className="text-[9px] uppercase tracking-widest text-[#d4af37] font-bold block mt-2">
@@ -408,6 +461,188 @@ export const PaginaLogin: React.FC<PaginaLoginProps> = ({ onAuthSuccess }) => {
         </div>
       </div>
 
+      </div>
+
+      {/* ── SEÇÃO: CANAIS DE ATENDIMENTO E TRIAGEM JURÍDICA ── */}
+      <div className="w-full bg-[#fafafc] dark:bg-[#090e18] py-16 px-6 md:px-16 border-t border-slate-200 dark:border-[#d4af37]/15 z-10">
+        <div className="max-w-6xl mx-auto space-y-12">
+          
+          {/* Título da Seção */}
+          <div className="text-center space-y-3">
+            <h2 className="font-playfair text-[#0f1e36] dark:text-[#d4af37] text-2xl md:text-3xl font-extrabold uppercase tracking-widest">
+              Canais de Atendimento e Triagem Jurídica
+            </h2>
+            <p className="text-base text-slate-650 dark:text-slate-400 font-medium max-w-2xl mx-auto leading-relaxed">
+              Selecione o canal ideal para sua necessidade jurídica. Oferecemos plantão digital imediato para urgências ou abertura de consulta formal.
+            </p>
+          </div>
+
+          {/* Grid de 2 Colunas */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+            
+            {/* Coluna 1: Plantão Imediato */}
+            <div className="bg-white dark:bg-[#0c1424] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-8 flex flex-col justify-between shadow-sm relative overflow-hidden transition-all hover:shadow-md">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
+              
+              <div className="space-y-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center text-2xl">
+                    💬
+                  </div>
+                  <div>
+                    <h3 className="font-playfair text-base md:text-lg font-bold text-[#0f1e36] dark:text-white uppercase tracking-wider">
+                      Plantão Imediato
+                    </h3>
+                    <p className="text-xs text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-widest mt-0.5">
+                      Resposta Imediata via WhatsApp
+                    </p>
+                  </div>
+                </div>
+
+                <p className="text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+                  Inicie um atendimento digital imediato com nossa equipe de plantão. Ideal para casos urgentes, dúvidas simples ou orientações rápidas e preliminares.
+                </p>
+
+                <ul className="space-y-3 text-sm text-slate-550 dark:text-slate-400">
+                  <li className="flex items-center gap-2.5">
+                    <span className="text-emerald-500 font-bold">✓</span> Atendimento ágil e humanizado
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <span className="text-emerald-500 font-bold">✓</span> Encaminhamento ao especialista adequado
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <span className="text-emerald-500 font-bold">✓</span> Plantão ativo em horário comercial
+                  </li>
+                </ul>
+              </div>
+
+              <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
+                <a
+                  href="https://wa.me/5511999999999"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300 shadow-md hover:shadow-emerald-500/10 flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
+                >
+                  <span className="text-sm">💬</span> Iniciar Atendimento Digital
+                </a>
+              </div>
+            </div>
+
+            {/* Coluna 2: Consulta Formal */}
+            <div className="bg-white dark:bg-[#0c1424] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-8 shadow-sm flex flex-col justify-between transition-all hover:shadow-md">
+              
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-playfair text-base md:text-lg font-bold text-[#0f1e36] dark:text-white uppercase tracking-wider">
+                    Abertura de Consulta Institucional
+                  </h3>
+                  <p className="text-xs text-[#d4af37] font-bold uppercase tracking-widest mt-0.5">
+                    Seu relato será analisado sob sigilo profissional
+                  </p>
+                </div>
+
+                <form 
+                  onSubmit={handleClientCaptureSubmit} 
+                  action="https://formspree.io/f/janainat.prado@adv.oabsp.org.br" 
+                  method="POST" 
+                  className="space-y-4"
+                >
+                  {/* Nome Completo */}
+                  <div>
+                    <label className="block text-sm font-bold text-[#0f1e36] dark:text-slate-200 uppercase tracking-wider mb-1">
+                      Nome Completo *
+                    </label>
+                    <input
+                      type="text"
+                      name="nome"
+                      required
+                      placeholder="Ex: Laura Azevedo"
+                      value={clientNome}
+                      onChange={(e) => setClientNome(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-[#070a13] border border-slate-200 dark:border-slate-800 text-[#0f1e36] dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-sm py-2.5 px-3 rounded-lg focus:outline-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37]/35 transition-colors"
+                    />
+                  </div>
+
+                  {/* Grid Email / Telefone */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-bold text-[#0f1e36] dark:text-slate-200 uppercase tracking-wider mb-1">
+                        E-mail de Contato *
+                      </label>
+                      <input
+                        type="email"
+                        name="email"
+                        required
+                        placeholder="laura@exemplo.com"
+                        value={clientEmail}
+                        onChange={(e) => setClientEmail(e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-[#070a13] border border-slate-200 dark:border-slate-800 text-[#0f1e36] dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-sm py-2.5 px-3 rounded-lg focus:outline-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37]/35 transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-[#0f1e36] dark:text-slate-200 uppercase tracking-wider mb-1">
+                        Telefone / WhatsApp *
+                      </label>
+                      <input
+                        type="tel"
+                        name="telefone"
+                        required
+                        placeholder="(11) 99999-0000"
+                        value={clientPhone}
+                        onChange={(e) => setClientPhone(e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-[#070a13] border border-slate-200 dark:border-slate-800 text-[#0f1e36] dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-sm py-2.5 px-3 rounded-lg focus:outline-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37]/35 transition-colors"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Área de Interesse */}
+                  <div>
+                    <label className="block text-sm font-bold text-[#0f1e36] dark:text-slate-200 uppercase tracking-wider mb-1">
+                      Área de Interesse *
+                    </label>
+                    <select
+                      name="area"
+                      value={clientArea}
+                      onChange={(e) => setClientArea(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-[#070a13] border border-slate-200 dark:border-slate-800 text-[#0f1e36] dark:text-slate-100 text-sm py-2.5 px-3 rounded-lg focus:outline-none focus:border-[#d4af37] cursor-pointer"
+                    >
+                      <option value="Direito Empresarial" className="bg-white dark:bg-[#070a13]">Direito Empresarial</option>
+                      <option value="Civil" className="bg-white dark:bg-[#070a13]">Civil</option>
+                      <option value="Trabalhista" className="bg-white dark:bg-[#070a13]">Trabalhista</option>
+                      <option value="Administrativo" className="bg-white dark:bg-[#070a13]">Administrativo</option>
+                      <option value="Outros" className="bg-white dark:bg-[#070a13]">Outros</option>
+                    </select>
+                  </div>
+
+                  {/* Relato do Caso */}
+                  <div>
+                    <label className="block text-sm font-bold text-[#0f1e36] dark:text-slate-200 uppercase tracking-wider mb-1">
+                      Descrição do Caso / Dúvida Jurídica *
+                    </label>
+                    <textarea
+                      name="mensagem"
+                      required
+                      rows={4}
+                      placeholder="Descreva detalhadamente a sua situação ou dúvida jurídica..."
+                      value={clientCase}
+                      onChange={(e) => setClientCase(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-[#070a13] border border-slate-200 dark:border-slate-800 text-[#0f1e36] dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-sm py-2.5 px-3 rounded-lg focus:outline-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37]/35 transition-colors"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full py-3.5 bg-[#0f1e36] dark:bg-transparent text-white dark:text-[#d4af37] border border-[#0f1e36] dark:border-[#d4af37] hover:bg-[#1b335c] dark:hover:bg-[#d4af37] dark:hover:text-[#0f1e36] rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300 active:scale-[0.98] shadow-sm flex items-center justify-center cursor-pointer"
+                  >
+                    {captureStatus === "Abertura..." ? "Processando..." : captureStatus === "Enviado" ? "Mensagem Preparada!" : "Enviar Solicitação Formal"}
+                  </button>
+                </form>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

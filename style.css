@@ -2790,3 +2790,72 @@ input:checked + .slider:before {
     display: none !important;
   }
 }
+
+/* =========================================================================
+   🔧 CORREÇÕES DE RESPONSIVIDADE E OVERFLOW NOS MODAIS DE COMPROMISSO
+   ========================================================================= */
+#modal-compromisso .modal-card,
+#modal-edit-compromisso .modal-card {
+  display: flex !important;
+  flex-direction: column !important;
+  max-height: 90vh !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+#modal-compromisso .modal-header,
+#modal-edit-compromisso .modal-header {
+  flex-shrink: 0 !important;
+  padding: 24px 32px 16px 32px !important;
+  border-bottom: 1px solid var(--panel-border) !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+#modal-compromisso form,
+#modal-edit-compromisso form {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  overflow: hidden !important;
+  margin-bottom: 0 !important;
+}
+
+#modal-compromisso .form-scroll-body,
+#modal-edit-compromisso .form-scroll-body {
+  overflow-y: auto !important;
+  flex: 1 !important;
+  padding: 20px 32px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+}
+
+#modal-compromisso .modal-footer,
+#modal-edit-compromisso .modal-footer {
+  flex-shrink: 0 !important;
+  padding: 16px 32px 24px 32px !important;
+  border-top: 1px solid var(--panel-border) !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 12px !important;
+  background: var(--panel-bg) !important;
+}
+
+/* =========================================================================
+   🔒 ACESSIBILIDADE E DIRETRIZES DE CONTRASTE (OUTLOOK-STYLE TOGGLE LIGHT MODE)
+   ========================================================================= */
+[data-theme="light"] .outlook-toggle-container {
+  background: #f8fafc !important; /* bg-slate-50 equivalent */
+  border-color: #e2e8f0 !important; /* border-slate-200 equivalent */
+}
+
+[data-theme="light"] .outlook-toggle-title {
+  color: #0f1e36 !important; /* Azul Imperial puro */
+}
+
+[data-theme="light"] .outlook-toggle-subtitle {
+  color: #475569 !important; /* Slate-500 equivalent */
+  font-size: 12px !important; /* Garantir no mínimo text-xs */
+}

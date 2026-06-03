@@ -24,15 +24,15 @@ export const PaginaBiblioteca: React.FC = () => {
   const [secaoAtiva, setSecaoAtiva] = useState<string>('todos');
   const [itemSelecionado, setItemSelecionado] = useState<ItemBiblioteca | null>(null);
 
-  // ── ACERVO MULTIDISCIPLINAR JURÍDICO Premium ────────────────────────────────
+  // ── ACERVO MULTIDISCIPLINAR JURÍDICO DEFINITIVO ──────────────────────────────
   const acervoJuridico: SecaoBiblioteca[] = [
     { 
-      categoria: "⚖️ Códigos e Legislação Base (Nacional)", 
+      categoria: "⚖️ Legislação Fundamental e Códigos Pátrios", 
       icone: "🏛️",
       itens: [
         { 
           id: "cf88",
-          nome: "Constituição Federal de 1988 (Atualizada)", 
+          nome: "Constituição Federal de 1988 (Texto Oficial e Atualizado)", 
           descricao: "Texto Compilado da Carta Magna da República Federativa do Brasil diretamente do Planalto.",
           url: "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm",
           tipo: 'link',
@@ -40,7 +40,7 @@ export const PaginaBiblioteca: React.FC = () => {
         },
         { 
           id: "cc02",
-          nome: "Código Civil (Lei nº 10.406/02)", 
+          nome: "Código Civil Brasileiro (Lei nº 10.406/02)", 
           descricao: "Legislação Civil consolidada. Regula as relações jurídicas privadas de pessoas, bens e fatos jurídicos.",
           url: "https://www.planalto.gov.br/ccivil_03/leis/2002/l10406compilada.htm",
           tipo: 'link',
@@ -57,12 +57,12 @@ export const PaginaBiblioteca: React.FC = () => {
       ]
     },
     { 
-      categoria: "💼 Modelos de Peças e Contratos Institucionais", 
+      categoria: "💼 Modelos e Práticas Institucionais da Banca", 
       icone: "📝",
       itens: [
         { 
           id: "quota_litis",
-          nome: "Contrato de Honorários Advocatícios (Quota-Litis)", 
+          nome: "Contrato de Honorários Advocatícios Padrão (Quota-Litis)", 
           descricao: "Minuta institucional de prestação de serviços jurídicos com cláusula de êxito associada ao resultado econômico.",
           acao: "Visualizar Minuta",
           tipo: 'modal',
@@ -109,28 +109,33 @@ ___________________________________________________
 OUTORGANTE`
         },
         { 
-          id: "substabelecimento",
-          nome: "Substabelecimento de Poderes (Padrão)", 
-          descricao: "Instrumento de delegação de poderes processuais (com ou sem reserva) para atuação conjunta de equipe jurídica.",
-          acao: "Visualizar Substabelecimento",
+          id: "ata_reuniao_alinhamento",
+          nome: "Ata de Reunião e Alinhamento Estratégico com Cliente", 
+          descricao: "Minuta corporativa para mapeamento de teses jurídicas, alinhamento de fatos probatórios e consolidação de acordos de providências com o cliente.",
+          acao: "Visualizar Minuta",
           tipo: 'modal',
-          autoridade: "Conselho Federal da OAB",
-          conteudoPreview: `SUBSTABELECIMENTO DE PODERES COM RESERVA
+          autoridade: "Governança - JT Advocacia",
+          conteudoPreview: `ATA DE REUNIÃO E ALINHAMENTO ESTRATÉGICO
+DATA: [Inserir Data]
+PARTES: Janaina Tarabauca Advocacia e [Nome do Cliente]
 
-Substabeleço, com reserva de iguais poderes para mim, na pessoa dos advogados integrantes do corpo jurídico de JANAINA TARABAUCA ADVOCACIA, os poderes que me foram outorgados por nossos constituintes nos autos dos processos judiciais e administrativos patrocinados pelo escritório.
+1. OBJETIVO DA REUNIÃO
+Alinhamento de fatos, definição da tese jurídica principal e mapeamento de riscos e probabilidades de êxito para subsidiar o início da instrução processual ou negociação extrajudicial.
 
-Os poderes ora substabelecidos compreendem tanto a representação regular em audiências, peticionamento, acompanhamento de perícias, sustentação oral e interposição de recursos cabíveis perante os juízos de primeira instância e tribunais superiores.
+2. FATOS E TESES JURÍDICAS COMPACTUADAS
+As partes alinharam a cronologia dos fatos sob a ótica dos documentos comprobatórios anexados ao prontuário do cliente. Acordou-se que a tese principal versará sobre o adimplemento substancial das obrigações contratuais e proteção da boa-fé.
 
-São Paulo/SP, 1º de junho de 2026.
+3. PROVIDÊNCIAS E PRAZOS
+a) O cliente compromete-se a enviar cópias autenticadas dos extratos e correspondências em até 5 (cinco) dias úteis.
+b) O escritório Janaina Tarabauca Advocacia procederá com a elaboração da minuta de petição inicial em até 10 (dez) dias úteis após a entrega integral dos documentos.
 
-___________________________________________________
-Dra. Janaina Tarabauca
-OAB/SP 123.456`
+4. DECLARAÇÃO DE CIÊNCIA
+O cliente declara-se ciente dos riscos processuais informados e aprova a estratégia jurídica acordada para o patrocínio da demanda.`
         }
       ]
     },
     { 
-      categoria: "🔒 POPs, Compliance e Resoluções OAB", 
+      categoria: "🔒 Governança, Compliance e Prerrogativas OAB", 
       icone: "🛡️",
       itens: [
         { 
@@ -143,33 +148,33 @@ OAB/SP 123.456`
         },
         { 
           id: "publicidade_oab",
-          nome: "Provimento de Publicidade da OAB nº 205/2021", 
+          nome: "Provimento de Publicidade Jurídica (OAB nº 205/21)", 
           descricao: "Parâmetros éticos e regras imperativas sobre publicidade, marketing jurídico e presença digital de advogados.",
           url: "https://www.oab.org.br/visualizador/16281/provimento-n-205-2021",
           tipo: 'link',
           autoridade: "Conselho Federal da OAB"
         },
         { 
-          id: "manual_lgpd",
-          nome: "Manual Interno de Governança, Proteção de Dados e LGPD", 
-          descricao: "Protocolo corporativo de conformidade ética da Lei Geral de Proteção de Dados (Lei nº 13.709/18) aplicado ao sigilo da relação cliente-advogado.",
-          acao: "Visualizar POP de Compliance",
+          id: "cartilha_seguranca_lgpd",
+          nome: "Cartilha de Segurança da Informação e LGPD no Escritório", 
+          descricao: "Protocolo interno de conformidade de dados pessoais e diretrizes obrigatórias de sigilo da relação cliente-advogado.",
+          acao: "Visualizar Cartilha",
           tipo: 'modal',
           autoridade: "Compliance Interno - JT Advocacia",
-          conteudoPreview: `MANUAL INTERNO DE GOVERNANÇA E SEGURANÇA DA INFORMAÇÃO (LGPD)
+          conteudoPreview: `CARTILHA INTERNA DE SEGURANÇA DA INFORMAÇÃO E LGPD
 
-O presente regulamento define o Procedimento Operacional Padrão (POP) para o tratamento de dados pessoais de clientes, colaboradores e terceiros no âmbito dos escritórios da Janaina Tarabauca Advocacia, em total conformidade com a Lei nº 13.709/2018 (Lei Geral de Proteção de Dados Pessoais - LGPD).
+Esta Cartilha define as diretrizes corporativas obrigatórias de segurança da informação e tratamento de dados pessoais no âmbito do escritório Janaina Tarabauca Advocacia, sob a égide da Lei Geral de Proteção de Dados (Lei nº 13.709/2018).
 
-1. DO SIGILO PROFISSIONAL E CONFIDENCIALIDADE
-Todos os integrantes do escritório, sejam sócios, associados, estagiários ou prestadores de serviços, comprometem-se a guardar o mais estrito sigilo profissional sobre todos os fatos, documentos e informações de que venham a tomar conhecimento em razão de suas funções.
+1. SIGILO PROFISSIONAL E RELAÇÃO DE CONFIANÇA
+Todas as informações trocadas com o cliente estão resguardadas sob o manto do sigilo profissional inerente à advocacia. Nenhum dado do cliente pode ser exposto ou compartilhado fora das dependências operacionais do ecossistema do escritório sem prévia aprovação jurídica formal.
 
-2. DO FLUXO DE ENTRADA E TRATAMENTO DE DOCUMENTOS
-a) Todo documento recebido fisicamente deve ser imediatamente digitalizado e anexado de forma segura ao Prontuário Eletrônico do cliente.
-b) Após a digitalização, os originais físicos devem ser devolvidos imediatamente ao cliente ou fragmentados de forma profissional por trituradora elétrica segura, sendo proibido o descarte no lixo comum.
-c) O compartilhamento de arquivos com terceiros ou partes contrárias somente poderá ocorrer mediante expressa autorização por escrito do titular dos dados ou para cumprimento de dever legal e andamento processual regular.
+2. FLUXO SEGURO DE DADOS PESSOAIS
+- Coleta Mínima: Apenas dados estritamente necessários para a defesa técnica são solicitados e armazenados.
+- Armazenamento Criptografado: Toda peça processual e arquivo probatório deve ser salvo diretamente nos servidores em nuvem do ecossistema JT.
+- Descarte Seguro: Documentos impressos temporários devem ser obrigatoriamente incinerados ou triturados após digitalização.
 
-3. DA SEGURANÇA DOS SISTEMAS
-A senha de acesso ao ecossistema digital JT é de uso pessoal e intransferível, sendo expressamente proibido o compartilhamento de credenciais de login. Todo acesso indevido ou vazamento suspeito de informações deve ser imediatamente reportado à Encarregada de Proteção de Dados (DPO - Dra. Janaina Tarabauca).`
+3. DISPOSITIVOS E CREDENCIAIS
+É expressamente proibido o uso de senhas fracas ou compartilhamento de acessos entre colaboradores. A autenticação multifator está ativa e deve ser utilizada para todas as ferramentas corporativas.`
         }
       ]
     }
@@ -184,11 +189,11 @@ A senha de acesso ao ecossistema digital JT é de uso pessoal e intransferível,
       // Mapeamento lógico de seções/filtros
       let matchCategoria = true;
       if (secaoAtiva === 'legislacao') {
-        matchCategoria = secao.categoria.includes("Códigos");
+        matchCategoria = secao.categoria.includes("Legislação");
       } else if (secaoAtiva === 'modelos') {
         matchCategoria = secao.categoria.includes("Modelos");
       } else if (secaoAtiva === 'compliance') {
-        matchCategoria = secao.categoria.includes("POPs");
+        matchCategoria = secao.categoria.includes("Governança");
       }
 
       return matchBusca && matchCategoria;
@@ -210,10 +215,10 @@ A senha de acesso ao ecossistema digital JT é de uso pessoal e intransferível,
             <span className="text-xl">📜</span>
           </div>
           <div>
-            <h1 className="text-base font-extrabold text-[#0f1e36] dark:text-[#d4af37] uppercase tracking-widest font-serif">
+            <h1 className="text-base md:text-lg font-extrabold text-[#0f1e36] dark:text-[#d4af37] uppercase tracking-widest font-serif">
               Central de Conhecimento
             </h1>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">
               Repositório Corporativo Integrado • Janaina Tarabauca Advocacia
             </p>
           </div>
@@ -224,7 +229,7 @@ A senha de acesso ao ecossistema digital JT é de uso pessoal e intransferível,
           <button 
             type="button" 
             onClick={() => window.print()} 
-            className="flex items-center gap-2 bg-[#0f1e36] hover:bg-[#1b345b] text-white hover:text-[#d4af37] text-[10px] font-extrabold uppercase tracking-wider px-5 py-3 rounded-lg border border-[#d4af37]/45 transition-all shadow-md active:scale-95 cursor-pointer"
+            className="flex items-center gap-2 bg-[#0f1e36] hover:bg-[#1b345b] text-white hover:text-[#d4af37] text-xs font-extrabold uppercase tracking-wider px-5 py-3 rounded-lg border border-[#d4af37]/45 transition-all shadow-md active:scale-95 cursor-pointer"
           >
             🖨️ Imprimir Acervo
           </button>
@@ -236,10 +241,10 @@ A senha de acesso ao ecossistema digital JT é de uso pessoal e intransferível,
         <div className="flex items-start gap-3">
           <span className="text-base shrink-0 text-[#0f1e36] dark:text-[#d4af37]">🛡️</span>
           <div className="flex-1">
-            <h4 className="text-[10px] font-extrabold text-[#0f1e36] dark:text-[#d4af37] uppercase tracking-wider mb-0.5">
+            <h4 className="text-xs sm:text-sm font-extrabold text-[#0f1e36] dark:text-[#d4af37] uppercase tracking-wider mb-1">
               Conformidade Regulatória Automática
             </h4>
-            <p className="text-[10.5px] text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+            <p className="text-xs sm:text-sm text-slate-650 dark:text-slate-400 leading-relaxed font-medium">
               Para assegurar estrita conformidade com as frequentes alterações legislativas brasileiras, os links externos apontam diretamente para os textos oficiais compilados do <strong>Planalto (Presidência da República)</strong> e do <strong>Conselho Federal da OAB</strong>, garantindo que toda a equipe opere baseada na legislação em vigor atualizada em tempo real.
             </p>
           </div>
@@ -255,7 +260,7 @@ A senha de acesso ao ecossistema digital JT é de uso pessoal e intransferível,
             placeholder="Buscar legislação, códigos, resoluções ou modelos..." 
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-white dark:bg-[#0c1424] border border-slate-200/80 dark:border-slate-800 rounded-xl text-xs font-semibold placeholder-slate-400 text-[#0f1e36] dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-[#d4af37] focus:border-[#d4af37] transition-all shadow-sm"
+            className="w-full pl-10 pr-4 py-3 bg-white dark:bg-[#0c1424] border border-slate-200/80 dark:border-slate-800 rounded-xl text-sm font-semibold placeholder-slate-400 text-[#0f1e36] dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-[#d4af37] focus:border-[#d4af37] transition-all shadow-sm"
           />
           <span className="absolute left-3.5 top-3.5 text-xs text-slate-400 select-none">🔍</span>
         </div>
@@ -271,11 +276,8 @@ A senha de acesso ao ecossistema digital JT é de uso pessoal e intransferível,
             <button
               key={btn.id}
               onClick={() => setSecaoAtiva(btn.id)}
-              className={`px-4 py-2.5 rounded-lg text-[10.5px] font-extrabold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${
-                secaoAtiva === btn.id
-                  ? 'bg-[#0f1e36] text-white border border-[#d4af37] shadow-sm'
-                  : 'bg-white dark:bg-[#0c1424] text-slate-500 hover:text-[#0f1e36] dark:hover:text-[#d4af37] border border-slate-200/60 dark:border-slate-800 hover:border-[#d4af37]/35'
-              }`}
+              className="px-4 py-2.5 rounded-lg text-xs font-extrabold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer bg-white dark:bg-[#0c1424] text-slate-500 hover:text-[#0f1e36] dark:hover:text-[#d4af37] border border-slate-200/60 dark:border-slate-800 hover:border-[#d4af37]/35"
+              style={secaoAtiva === btn.id ? { backgroundColor: '#0f1e36', color: '#fff', borderColor: '#d4af37' } : undefined}
             >
               {btn.label}
             </button>
@@ -284,78 +286,83 @@ A senha de acesso ao ecossistema digital JT é de uso pessoal e intransferível,
       </div>
 
       {/* ── GRID PRINCIPAL DO ACERVO JURÍDICO ── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 print:h-auto print:overflow-visible print:block">
-        {acervoFiltrado.map((secao, idx) => (
-          <div 
-            key={idx} 
-            className="bg-white dark:bg-[#0c1424] p-5 rounded-xl border border-slate-200/50 dark:border-slate-800 shadow-sm hover:shadow-md transition-all hover:border-[#d4af37]/25 flex flex-col justify-between print:bg-white print:border-none print:shadow-none print:p-0 print:mb-8 print:break-inside-avoid print:w-full print:h-auto print:overflow-visible"
-          >
-            <div>
-              {/* Título da Categoria */}
-              <div className="flex items-center gap-2 pb-3 mb-4 border-b border-slate-100 dark:border-slate-800 print:border-b-2 print:border-slate-300">
-                <span className="text-base select-none">{secao.icone}</span>
-                <h3 className="text-xs font-extrabold text-[#0f1e36] dark:text-[#d4af37] uppercase tracking-widest font-serif">
-                  {secao.categoria}
-                </h3>
-              </div>
+      {acervoFiltrado.length === 0 ? (
+        <div className="w-full bg-white dark:bg-[#0c1424] border border-slate-200/60 dark:border-slate-800 rounded-xl p-12 text-center shadow-sm">
+          <p className="text-sm text-slate-400">Nenhum documento ou código encontrado para o termo pesquisado.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 print:h-auto print:overflow-visible print:block">
+          {acervoFiltrado.map((secao, idx) => (
+            <div 
+              key={idx} 
+              className="bg-white dark:bg-[#0c1424] p-6 rounded-xl border border-slate-200/50 dark:border-slate-800 shadow-sm hover:shadow-md transition-all hover:border-[#d4af37]/25 flex flex-col justify-between print:bg-white print:border-none print:shadow-none print:p-0 print:mb-8 print:break-inside-avoid print:w-full print:h-auto print:overflow-visible"
+            >
+              <div>
+                {/* Título da Categoria */}
+                <div className="flex items-center gap-2 pb-3 mb-4 border-b border-slate-100 dark:border-slate-800 print:border-b-2 print:border-slate-300">
+                  <span className="text-base select-none">{secao.icone}</span>
+                  <h3 className="text-sm md:text-base font-extrabold text-[#0f1e36] dark:text-[#d4af37] uppercase tracking-wider font-serif">
+                    {secao.categoria}
+                  </h3>
+                </div>
 
-              {/* Lista de Itens */}
-              <ul className="flex flex-col gap-3.5 print:h-auto print:overflow-visible">
-                {secao.itens.map((item) => (
-                  <li 
-                    key={item.id} 
-                    className="p-3 bg-[#fafafc] dark:bg-[#060a10] border border-slate-100 dark:border-slate-900 rounded-lg hover:border-[#d4af37]/20 transition-all hover:bg-slate-50 dark:hover:bg-slate-900/40 print:bg-white print:border-none print:p-0 print:mb-4"
-                  >
-                    <div className="flex flex-col gap-1">
-                      <div className="flex justify-between items-start gap-2">
-                        <span className="text-[11.5px] font-extrabold text-slate-800 dark:text-slate-200 font-serif leading-tight">
-                          {item.nome}
-                        </span>
-                        
-                        {/* Selo de Órgão Emissor / Autoridade */}
-                        {item.autoridade && (
-                          <span className="text-[7.5px] bg-[#d4af37]/10 text-[#a5821c] border border-[#d4af37]/20 px-1.5 py-0.5 rounded font-extrabold tracking-widest uppercase shrink-0 print:border-slate-300 print:text-black">
-                            {item.autoridade}
+                {/* Lista de Itens */}
+                <ul className="flex flex-col gap-3.5 print:h-auto print:overflow-visible">
+                  {secao.itens.map((item) => (
+                    <li 
+                      key={item.id} 
+                      className="p-4 bg-[#fafafc] dark:bg-[#060a10] border border-slate-100 dark:border-slate-900 rounded-lg hover:border-[#d4af37]/20 transition-all hover:bg-slate-50 dark:hover:bg-slate-900/40 print:bg-white print:border-none print:p-0 print:mb-4"
+                    >
+                      <div className="flex flex-col gap-1.5">
+                        <div className="flex justify-between items-start gap-2">
+                          <span className="text-sm font-semibold text-slate-800 dark:text-slate-200 font-serif leading-tight">
+                            {item.nome}
                           </span>
-                        )}
+                          
+                          {/* Selo de Órgão Emissor / Autoridade */}
+                          {item.autoridade && (
+                            <span className="text-[10px] bg-[#d4af37]/10 text-[#a5821c] border border-[#d4af37]/20 px-2 py-0.5 rounded font-bold tracking-widest uppercase shrink-0 print:border-slate-300 print:text-black">
+                              {item.autoridade}
+                            </span>
+                          )}
+                        </div>
+                        
+                        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed mt-0.5 print:text-slate-700">
+                          {item.descricao}
+                        </p>
+                        
+                        {/* Gatilho de Ação (Apenas na tela, ocultado na impressão) */}
+                        <div className="mt-2 text-right print:hidden">
+                          {item.tipo === 'link' ? (
+                            <a 
+                              href={item.url} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0f1e36] dark:text-[#d4af37] hover:underline uppercase tracking-wider"
+                            >
+                              <span>Acessar Fonte Oficial</span>
+                              <span className="text-[10px]">↗</span>
+                            </a>
+                          ) : (
+                            <button 
+                              type="button" 
+                              onClick={() => setItemSelecionado(item)} 
+                              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#d4af37] dark:text-[#d4af37] hover:underline uppercase tracking-wider cursor-pointer"
+                            >
+                              <span>{item.acao || "Abrir Minuta"}</span>
+                              <span className="text-[10px]">👁️</span>
+                            </button>
+                          )}
+                        </div>
                       </div>
-                      
-                      <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium leading-relaxed mt-0.5 print:text-slate-700">
-                        {item.descricao}
-                      </p>
-                      
-                      {/* Gatilho de Ação (Apenas na tela, ocultado na impressão) */}
-                      <div className="mt-2 text-right print:hidden">
-                        {item.tipo === 'link' ? (
-                          <a 
-                            href={item.url} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="inline-flex items-center gap-1.5 text-[9px] font-extrabold text-[#0f1e36] dark:text-[#d4af37] hover:underline uppercase tracking-wider"
-                          >
-                            <span>Acessar Fonte Oficial</span>
-                            <span className="text-[8px]">↗</span>
-                          </a>
-                        ) : (
-                          <button 
-                            type="button" 
-                            onClick={() => setItemSelecionado(item)} 
-                            className="inline-flex items-center gap-1.5 text-[9px] font-extrabold text-[#d4af37] dark:text-[#d4af37] hover:underline uppercase tracking-wider cursor-pointer"
-                          >
-                            <span>{item.acao || "Abrir Minuta"}</span>
-                            <span className="text-[8px]">👁️</span>
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             
             {/* Indicador discreto de rodapé de card */}
             <div className="mt-4 pt-3 border-t border-slate-100/50 dark:border-slate-800/50 text-right print:hidden">
-              <span className="text-[8px] text-slate-300 dark:text-slate-600 font-semibold tracking-widest uppercase">
+              <span className="text-xs text-slate-300 dark:text-slate-600 font-semibold tracking-widest uppercase">
                 JT Advocacia • Luxo Sóbrio
               </span>
             </div>
@@ -371,10 +378,10 @@ A senha de acesso ao ecossistema digital JT é de uso pessoal e intransferível,
             {/* Cabeçalho do Modal */}
             <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-[#0f1e36] rounded-t-xl">
               <div>
-                <h3 className="text-xs font-extrabold text-[#d4af37] uppercase tracking-widest">
+                <h3 className="text-sm md:text-base font-extrabold text-[#d4af37] uppercase tracking-widest font-serif">
                   {itemSelecionado.nome}
                 </h3>
-                <p className="text-[9px] text-slate-300 font-medium mt-0.5">
+                <p className="text-xs text-slate-300 font-medium mt-0.5">
                   Minuta Padrão para Simulação de Instrumentos Jurídicos
                 </p>
               </div>
@@ -388,13 +395,13 @@ A senha de acesso ao ecossistema digital JT é de uso pessoal e intransferível,
             </div>
 
             {/* Conteúdo da Minuta */}
-            <div className="p-6 overflow-y-auto font-mono text-[11px] text-slate-700 dark:text-slate-300 leading-relaxed bg-[#fafafc] dark:bg-[#060a10] border-b border-slate-100 dark:border-slate-800 whitespace-pre-wrap select-text scrollbar-thin">
+            <div className="p-6 overflow-y-auto font-mono text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed bg-[#fafafc] dark:bg-[#060a10] border-b border-slate-100 dark:border-slate-800 whitespace-pre-wrap select-text scrollbar-thin">
               {itemSelecionado.conteudoPreview}
             </div>
 
             {/* Rodapé do Modal */}
             <div className="px-6 py-4 bg-white dark:bg-[#0c1424] rounded-b-xl flex justify-between items-center">
-              <span className="text-[9px] text-slate-400 font-medium">
+              <span className="text-xs text-slate-400 font-medium">
                 © Janaina Tarabauca Advocacia • Todos os direitos reservados.
               </span>
               <div className="flex gap-2">
@@ -410,7 +417,7 @@ A senha de acesso ao ecossistema digital JT é de uso pessoal e intransferível,
                     link.click();
                     URL.revokeObjectURL(url);
                   }}
-                  className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#0f1e36] dark:text-white text-[9px] font-extrabold uppercase tracking-wider px-4 py-2 rounded transition-all cursor-pointer border border-slate-200 dark:border-slate-700"
+                  className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#0f1e36] dark:text-white text-xs font-extrabold uppercase tracking-wider px-4 py-2 rounded transition-all cursor-pointer border border-slate-200 dark:border-slate-700"
                 >
                   📥 Baixar Texto
                 </button>
@@ -419,7 +426,7 @@ A senha de acesso ao ecossistema digital JT é de uso pessoal e intransferível,
                   onClick={() => {
                     window.print();
                   }}
-                  className="bg-[#0f1e36] hover:bg-[#1b345b] text-white hover:text-[#d4af37] text-[9px] font-extrabold uppercase tracking-wider px-4 py-2 rounded border border-[#d4af37]/30 transition-all cursor-pointer"
+                  className="bg-[#0f1e36] hover:bg-[#1b345b] text-white hover:text-[#d4af37] text-xs font-extrabold uppercase tracking-wider px-4 py-2 rounded border border-[#d4af37]/30 transition-all cursor-pointer"
                 >
                   🖨️ Imprimir Minuta
                 </button>
