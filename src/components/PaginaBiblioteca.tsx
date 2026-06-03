@@ -218,7 +218,7 @@ Todas as informações trocadas com o cliente estão resguardadas sob o manto do
             <h1 className="text-base md:text-lg font-extrabold text-[#0f1e36] dark:text-[#d4af37] uppercase tracking-widest font-serif">
               Central de Conhecimento
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+            <p className="text-sm md:text-base lg:text-base text-slate-500 dark:text-slate-400 font-medium mt-0.5">
               Repositório Corporativo Integrado • Janaina Tarabauca Advocacia
             </p>
           </div>
@@ -244,7 +244,7 @@ Todas as informações trocadas com o cliente estão resguardadas sob o manto do
             <h4 className="text-xs sm:text-sm font-extrabold text-[#0f1e36] dark:text-[#d4af37] uppercase tracking-wider mb-1">
               Conformidade Regulatória Automática
             </h4>
-            <p className="text-xs sm:text-sm text-slate-650 dark:text-slate-400 leading-relaxed font-medium">
+            <p className="text-sm md:text-base lg:text-base text-slate-650 dark:text-slate-400 leading-relaxed font-medium">
               Para assegurar estrita conformidade com as frequentes alterações legislativas brasileiras, os links externos apontam diretamente para os textos oficiais compilados do <strong>Planalto (Presidência da República)</strong> e do <strong>Conselho Federal da OAB</strong>, garantindo que toda a equipe opere baseada na legislação em vigor atualizada em tempo real.
             </p>
           </div>
@@ -301,7 +301,7 @@ Todas as informações trocadas com o cliente estão resguardadas sob o manto do
                 {/* Título da Categoria */}
                 <div className="flex items-center gap-2 pb-3 mb-4 border-b border-slate-100 dark:border-slate-800 print:border-b-2 print:border-slate-300">
                   <span className="text-base select-none">{secao.icone}</span>
-                  <h3 className="text-sm md:text-base font-extrabold text-[#0f1e36] dark:text-[#d4af37] uppercase tracking-wider font-serif">
+                  <h3 className="text-base md:text-lg lg:text-xl font-extrabold tracking-wide text-[#0f1e36] dark:text-[#d4af37] uppercase font-serif">
                     {secao.categoria}
                   </h3>
                 </div>
@@ -315,7 +315,7 @@ Todas as informações trocadas com o cliente estão resguardadas sob o manto do
                     >
                       <div className="flex flex-col gap-1.5">
                         <div className="flex justify-between items-start gap-2">
-                          <span className="text-sm font-semibold text-slate-800 dark:text-slate-200 font-serif leading-tight">
+                          <span className="text-sm md:text-base font-semibold text-slate-800 dark:text-slate-200 font-serif leading-tight">
                             {item.nome}
                           </span>
                           
@@ -327,7 +327,7 @@ Todas as informações trocadas com o cliente estão resguardadas sob o manto do
                           )}
                         </div>
                         
-                        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed mt-0.5 print:text-slate-700">
+                        <p className="text-sm md:text-base lg:text-base text-slate-500 dark:text-slate-400 font-medium leading-relaxed mt-0.5 print:text-slate-700">
                           {item.descricao}
                         </p>
                         
@@ -378,7 +378,7 @@ Todas as informações trocadas com o cliente estão resguardadas sob o manto do
             {/* Cabeçalho do Modal */}
             <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-[#0f1e36] rounded-t-xl">
               <div>
-                <h3 className="text-sm md:text-base font-extrabold text-[#d4af37] uppercase tracking-widest font-serif">
+                <h3 className="text-base md:text-lg lg:text-xl font-extrabold tracking-wide text-[#d4af37] uppercase font-serif">
                   {itemSelecionado.nome}
                 </h3>
                 <p className="text-xs text-slate-300 font-medium mt-0.5">

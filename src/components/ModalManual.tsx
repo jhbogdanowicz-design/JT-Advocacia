@@ -19,7 +19,7 @@ export const ModalManual: React.FC<ModalManualProps> = ({ isOpen, onClose }) => 
             <div className="mx-auto w-12 h-12 bg-[#d4af37]/10 border border-[#d4af37]/30 rounded-full flex items-center justify-center text-xl text-[#d4af37]">
               📖
             </div>
-            <h3 className="font-playfair font-extrabold text-[#0f1e36] dark:text-slate-100 text-base uppercase tracking-wide">
+            <h3 className="font-playfair font-extrabold text-[#0f1e36] dark:text-slate-100 text-base md:text-lg lg:text-xl uppercase tracking-wide">
               Manual do Usuário
             </h3>
             <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">
@@ -27,7 +27,7 @@ export const ModalManual: React.FC<ModalManualProps> = ({ isOpen, onClose }) => 
             </p>
           </div>
 
-          <p className="text-xs text-slate-500 dark:text-slate-400 font-light leading-relaxed">
+          <p className="text-sm md:text-base lg:text-base text-slate-500 dark:text-slate-400 font-light leading-relaxed">
             Acesse as diretrizes de governança, o fluxo de assinatura digital e a operação da Jus IA em um arquivo PDF timbrado de alta resolução.
           </p>
 
