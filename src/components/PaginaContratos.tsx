@@ -23,6 +23,11 @@ export const PaginaContratos: React.FC = () => {
   const [motorIA, setMotorIA] = useState<"gemini" | "openai" | "jus_ia">("jus_ia");
   const [tipoPlano, setTipoPlano] = useState<"mensal" | "anual">("mensal");
   const [areaSelecionada, setAreaSelecionada] = useState<"civil" | "empresarial" | "trabalhista" | "administrativo">("civil");
+  const [fatosNarrados, setFatosNarrados] = useState<string>("");
+
+  const contextoDoContrato = useMemo(() => {
+    return `Área Jurídica: ${areaSelecionada} | Fatos e Contexto do Cliente: ${fatosNarrados}`;
+  }, [areaSelecionada, fatosNarrados]);
 
   // Estado do Toast de Sucesso Emerald
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
@@ -262,6 +267,14 @@ export const PaginaContratos: React.FC = () => {
     if (clienteSelecionadoId) {
       carregarMensalidades(clienteSelecionadoId);
       if (clienteAtivo) {
+        setFatosNarrados(clienteAtivo.observacoes || "");
+        if (clienteAtivo.areas_interesse) {
+          const area = clienteAtivo.areas_interesse.toLowerCase();
+          if (area.includes("civil")) setAreaSelecionada("civil");
+          else if (area.includes("empresarial") || area.includes("societário") || area.includes("societario")) setAreaSelecionada("empresarial");
+          else if (area.includes("trabalhista") || area.includes("trabalho")) setAreaSelecionada("trabalhista");
+          else if (area.includes("administrativo")) setAreaSelecionada("administrativo");
+        }
         if (clienteAtivo.valor_mensalidade) {
           setValorRecorrencia(formatBRL(clienteAtivo.valor_mensalidade));
         } else {
@@ -275,6 +288,7 @@ export const PaginaContratos: React.FC = () => {
       }
     } else {
       setMensalidades([]);
+      setFatosNarrados("");
     }
   }, [clienteSelecionadoId, clienteAtivo]);
 
@@ -332,13 +346,13 @@ export const PaginaContratos: React.FC = () => {
     setDiaRenovacao(5);
     setValorRecorrencia(formatBRL(1500));
     setSignatureImgUrl(null);
-    handleClearSigna  // Helper para gerar o texto da minuta com base na área e tipo de pessoa
+    handleClearSigna  // Helper para gerar o texto da minuta com base na área  // Helper para gerar o texto da minuta com base na área e tipo de pessoa
   const gerarTextoMinuta = (
     area: "civil" | "empresarial" | "trabalhista" | "administrativo",
     tipoPessoa: "PF" | "PJ",
     nomeCliente: string,
     cnpjCpf: string,
-    observacoes: string
+    contextoContratoStr: string
   ): string => {
     const dataHoje = new Date().toLocaleDateString("pt-BR", {
       day: "2-digit",
@@ -349,6 +363,11 @@ export const PaginaContratos: React.FC = () => {
     const cleanVal = valorRecorrencia.replace(/[^\d]/g, "");
     const valorNum = cleanVal ? parseInt(cleanVal, 10) / 100 : 1500;
     const valorFormatado = valorNum.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+    // Extrair os fatos do contextoDoContrato para injeção dinâmica
+    const fatosParte = contextoContratoStr.includes("Fatos e Contexto do Cliente: ")
+      ? contextoContratoStr.split("Fatos e Contexto do Cliente: ")[1]
+      : contextoContratoStr;
 
     // Áreas do Direito Titles
     const titulos = {
@@ -372,24 +391,42 @@ export const PaginaContratos: React.FC = () => {
 
     const definicaoContratada = `CONTRATADA: DRA. JANAINA TARABAUCA, inscrita na OAB/SP sob o nº 123.456, com endereço profissional no escritório JT Advocacia.`;
 
-    // Cláusula do Objeto Dinâmica
+    // Cláusulas e variáveis dinâmicas baseadas nos fatos narrados
     let clausulaObjeto = "";
+    let clausulaEspecifica = "";
+
     if (area === "civil") {
       clausulaObjeto = tipoPessoa === "PJ"
-        ? `O presente instrumento tem como objeto a prestação de serviços de consultoria cível preventiva, incluindo elaboração e revisão de contratos de prestação de serviços, locação, compra e venda, bem como análise de riscos baseada no relato de fatos: "${observacoes || "Sem notas de fatos no prontuário"}".`
-        : `O presente instrumento tem como objeto o patrocínio e representação judicial da parte Contratante em ações de natureza cível, incluindo obrigações, contratos, responsabilidade civil e direitos reais, fundamentando-se especialmente nos fatos e defesas técnicas a seguir: "${observacoes || "Nenhuma observação cadastrada."}".`;
+        ? `O presente instrumento tem como objeto a prestação de serviços de consultoria cível preventiva, incluindo elaboração e revisão de contratos de prestação de serviços, locação, compra e venda, bem como análise de riscos baseada no relato de fatos: "${fatosParte || "Sem notas de fatos no prontuário"}".`
+        : `O presente instrumento tem como objeto o patrocínio e representação judicial da parte Contratante em ações de natureza cível, incluindo obrigações, contratos, responsabilidade civil e direitos reais, fundamentando-se especialmente nos fatos e defesas técnicas a seguir: "${fatosParte || "Nenhuma observação cadastrada."}".`;
     } else if (area === "empresarial") {
+      // Extrair sócios e cotas dinamicamente sem usar valores fixos (hardcoded)
+      const matchSocios = fatosParte.match(/sócio[s]?\s+([^,\.\n]+)/i);
+      const matchCotas = fatosParte.match(/(\d+[\d\.,]*%|\d+\s+cotas)/i);
+      const socios = matchSocios ? matchSocios[1] : "qualificados em anexo";
+      const cotas = matchCotas ? matchCotas[1] : "conforme participação societária";
+
       clausulaObjeto = tipoPessoa === "PJ"
-        ? `O presente instrumento tem como objeto a prestação de serviços de assessoria empresarial e societária, abrangendo a elaboração de acordos de sócios, termos de confidencialidade (NDA), estruturação de estatuto social e mitigação de passivos societários, baseada nos fatos descritos: "${observacoes || "Sem notas de fatos no prontuário"}".`
-        : `O presente instrumento tem como objeto a assessoria jurídica preventiva individual em direito empresarial, regulando obrigações de confidencialidade (NDA), estruturação societária inicial de sócios ou parceiros comerciais, e análise jurídica dos fatos a seguir: "${observacoes || "Nenhuma observação cadastrada."}".`;
+        ? `O presente instrumento tem como objeto a prestação de serviços de assessoria empresarial e societária, abrangendo a elaboração de acordos de sócios, termos de confidencialidade (NDA), estruturação de estatuto social e mitigação de passivos societários, baseada nos fatos descritos: "${fatosParte || "Sem notas de fatos no prontuário"}".`
+        : `O presente instrumento tem como objeto a assessoria jurídica preventiva individual em direito empresarial, regulando obrigações de confidencialidade (NDA), estruturação societária inicial de sócios ou parceiros comerciais, e análise jurídica dos fatos a seguir: "${fatosParte || "Nenhuma observação cadastrada."}".`;
+
+      clausulaEspecifica = `\n\nCLÁUSULA ADICIONAL - DA ESTRUTURA SOCIETÁRIA:\nAs partes pactuam que o planejamento empresarial levará em conta a divisão de cotas no percentual aproximado de ${cotas}, sob responsabilidade e gestão dos sócios definidos como ${socios}, conforme delineado no contexto fático informado.`;
     } else if (area === "trabalhista") {
+      // Extrair salário/valores e verbas dinamicamente sem usar valores fixos
+      const matchSalario = fatosParte.match(/(salário|salario|R\$)\s*(\d+[\d\.,]*)/i);
+      const matchVerbas = fatosParte.match(/(décimo|ferias|rescisórias|rescisao|fgts|horas extras)/i);
+      const salario = matchSalario ? `com remuneração baseada em ${matchSalario[0]} ${matchSalario[2]}` : "com remuneração acordada na ficha funcional";
+      const verbas = matchVerbas ? `abrangendo direitos de ${matchVerbas[0]}` : "abrangendo as verbas rescisórias e trabalhistas legais cabíveis";
+
       clausulaObjeto = tipoPessoa === "PJ"
-        ? `O presente instrumento tem como objeto a prestação de serviços de consultoria trabalhista preventiva, incluindo auditoria de contratos de trabalho, acordos de rescisão contratual e elaboração de pareceres de prevenção de passivo trabalhista, baseada nos fatos descritos: "${observacoes || "Sem notas de fatos no prontuário"}".`
-        : `O presente instrumento tem como objeto a representação e patrocínio dos interesses do Contratante em reclamações trabalhistas e consultoria individual de direitos de trabalho, fundamentando-se especialmente nos fatos e defesas técnicas a seguir: "${observacoes || "Nenhuma observação cadastrada."}".`;
+        ? `O presente instrumento tem como objeto a prestação de serviços de consultoria trabalhista preventiva, incluindo auditoria de contratos de trabalho, acordos de rescisão contratual e elaboração de pareceres de prevenção de passivo trabalhista, baseada nos fatos descritos: "${fatosParte || "Sem notas de fatos no prontuário"}".`
+        : `O presente instrumento tem como objeto a representação e patrocínio dos interesses do Contratante em reclamações trabalhistas e consultoria individual de direitos de trabalho, fundamentando-se especialmente nos fatos e defesas técnicas a seguir: "${fatosParte || "Nenhuma observação cadastrada."}".`;
+
+      clausulaEspecifica = `\n\nCLÁUSULA ADICIONAL - DOS DIREITOS LABORAIS AVALIADOS:\nA contratada prestará assessoria técnica minuciosa para o cálculo e homologação das verbas contratuais informadas pelo cliente, ${salario}, ${verbas}, conforme os fatos narrados no cadastro.`;
     } else if (area === "administrativo") {
       clausulaObjeto = tipoPessoa === "PJ"
-        ? `O presente instrumento tem como objeto a prestação de serviços de assessoria em Direito Administrativo, com foco em análise jurídica de editais de licitação, elaboração de recursos e impugnações administrativas, e defesa técnica baseada nos fatos descritos: "${observacoes || "Sem notas de fatos no prontuário"}".`
-        : `O presente instrumento tem como objeto o patrocínio e representação judicial ou administrativa do Contratante em face de órgãos públicos, concursos públicos, processos disciplinares ou recursos correlatos, fundamentando-se nos fatos descritos: "${observacoes || "Nenhuma observação cadastrada."}".`;
+        ? `O presente instrumento tem como objeto a prestação de serviços de assessoria em Direito Administrativo, com foco em análise jurídica de editais de licitação, elaboração de recursos e impugnações administrativas, e defesa técnica baseada nos fatos descritos: "${fatosParte || "Sem notas de fatos no prontuário"}".`
+        : `O presente instrumento tem como objeto o patrocínio e representação judicial ou administrativa do Contratante em face de órgãos públicos, concursos públicos, processos disciplinares ou recursos correlatos, fundamentando-se nos fatos descritos: "${fatosParte || "Nenhuma observação cadastrada."}".`;
     }
 
     return `${titulos[area]}
@@ -399,7 +436,7 @@ ${definicaoContratante}
 ${definicaoContratada}
 
 CLÁUSULA PRIMEIRA - DO OBJETO:
-${clausulaObjeto}
+${clausulaObjeto}${clausulaEspecifica}
 
 CLÁUSULA SEGUNDA - DA CONFIDENCIALIDADE:
 As partes se comprometem a manter sigilo absoluto sobre todas as informações comerciais, operacionais ou técnicas de que venham a ter conhecimento em virtude deste contrato, sob pena de responsabilização civil e contratual.
@@ -485,7 +522,7 @@ Dra. Janaina Tarabauca (Contratada)`;
         clienteAtivo?.tipo_pessoa || "PF",
         nomeCliente,
         cnpjCpf,
-        clienteAtivo?.observacoes || ""
+        contextoDoContrato
       );
 
       setMinutaTexto(minutaGerada);
@@ -887,11 +924,17 @@ Dra. Janaina Tarabauca (Contratada)`;
                   <span className="text-slate-400 font-light block text-[10px]">CPF / CNPJ</span>
                   <span className="font-mono text-[#0f1e36] dark:text-slate-200">{clienteAtivo.cpf_cnpj || "Não cadastrado"}</span>
                 </div>
-                <div>
-                  <span className="text-slate-400 font-light block text-[10px]">Fatos Narrados no Prontuário</span>
-                  <p className="text-slate-600 dark:text-slate-300 font-light leading-relaxed text-[11px] bg-white dark:bg-[#070a13] p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 mt-1 max-h-48 overflow-y-auto print:max-h-none print:overflow-visible whitespace-pre-wrap">
-                    {clienteAtivo.observacoes || "Nenhum relato de fatos registrado no prontuário."}
-                  </p>
+                <div className="space-y-1.5">
+                  <label className="block text-xs md:text-sm font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                    Observações Gerais / Fatos Narrados *
+                  </label>
+                  <textarea
+                    rows={5}
+                    value={fatosNarrados}
+                    onChange={(e) => setFatosNarrados(e.target.value)}
+                    placeholder="Descreva aqui os fatos narrados e o contexto do cliente para a geração da minuta..."
+                    className="w-full bg-white dark:bg-[#070a13] border border-slate-250 dark:border-slate-800 text-[#0f1e36] dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-sm md:text-base py-2.5 px-3 rounded-lg focus:outline-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37] transition-colors resize-y font-medium leading-relaxed"
+                  />
                 </div>
               </div>
             </div>
