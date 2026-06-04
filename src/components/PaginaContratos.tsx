@@ -1354,7 +1354,7 @@ NÃO utilize termos genéricos de contratos cíveis comuns. Use jargões técnic
                   <div className="flex items-center gap-4 mb-4 border-b-2 border-[#d4af37] pb-4">
                     <div>
                       <h2 className="font-bold text-base text-[#0f1e36] dark:text-slate-100 tracking-wider uppercase m-0">
-                        Janaina Tarabauca Advogados
+                        Janaina Tarabauca Advocacia
                       </h2>
                       <p className="text-[10px] uppercase tracking-widest text-[#d4af37] font-bold mt-0.5">
                         {areaSelecionada === "civil" && "Direito Civil"}
@@ -1806,7 +1806,7 @@ NÃO utilize termos genéricos de contratos cíveis comuns. Use jargões técnic
                 <div className="grid grid-cols-4 gap-2">
                   <div className="col-span-2 border border-slate-200 p-1.5 rounded">
                     <span className="text-[8px] text-slate-400 block font-bold uppercase">Beneficiário</span>
-                    <strong className="text-slate-800">JT ADVOGADOS ASSOCIADOS (CNPJ: 12.345.678/0001-90)</strong>
+                    <strong className="text-slate-800">JT ADVOCACIA (CNPJ: 12.345.678/0001-90)</strong>
                   </div>
                   <div className="border border-slate-200 p-1.5 rounded">
                     <span className="text-[8px] text-slate-400 block font-bold uppercase">Vencimento</span>
@@ -1868,7 +1868,7 @@ NÃO utilize termos genéricos de contratos cíveis comuns. Use jargões técnic
 
                   <div className="col-span-4 border-r border-b border-black p-1.5">
                     <span className="text-[7px] text-slate-500 block font-black uppercase">Beneficiário</span>
-                    <span className="text-black font-semibold">JT ADVOGADOS ASSOCIADOS (CNPJ: 12.345.678/0001-90)</span>
+                    <span className="text-black font-semibold">JT ADVOCACIA (CNPJ: 12.345.678/0001-90)</span>
                   </div>
                   <div className="border-r border-b border-black p-1.5 bg-slate-50">
                     <span className="text-[7px] text-slate-500 block font-black uppercase">Agência / Código Beneficiário</span>
@@ -1906,7 +1906,7 @@ NÃO utilize termos genéricos de contratos cíveis comuns. Use jargões técnic
                     <p className="text-black font-semibold text-[9px] leading-relaxed uppercase m-0">
                       - MULTA DE R$ 50,00 APÓS O VENCIMENTO<br />
                       - JUROS DE 1% AO MÊS SOBRE O SALDO DEVEDOR<br />
-                      - NÃO RECEBER APÓS 30 DIAS DE ATRASO. CONTACTAR O ESCRITÓRIO JT ADVOGADOS
+                      - NÃO RECEBER APÓS 30 DIAS DE ATRASO. CONTACTAR O ESCRITÓRIO JT ADVOCACIA
                     </p>
                   </div>
                   <div className="border-r border-b border-black p-1.5 bg-slate-50">
@@ -2020,13 +2020,13 @@ NÃO utilize termos genéricos de contratos cíveis comuns. Use jargões técnic
                   <input
                     type="text"
                     readOnly
-                    value={`00020101021126580014br.gov.pix.0136nainaja@hotmail.com5204000053039865407${mensalidadeSelecionada.valor.toFixed(2)}5802BR5925JANAINA TARABAUCA ADVOGADOS6009SAO PAULO62070503***6304E8A3`}
+                    value={`00020101021126580014br.gov.pix.0136nainaja@hotmail.com5204000053039865407${mensalidadeSelecionada.valor.toFixed(2)}5802BR5925JANAINA TARABAUCA ADVOCACIA6009SAO PAULO62070503***6304E8A3`}
                     className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-[10px] font-mono focus:outline-none"
                   />
                   <button
                     type="button"
                     onClick={() => {
-                      const code = `00020101021126580014br.gov.pix.0136nainaja@hotmail.com5204000053039865407${mensalidadeSelecionada.valor.toFixed(2)}5802BR5925JANAINA TARABAUCA ADVOGADOS6009SAO PAULO62070503***6304E8A3`;
+                      const code = `00020101021126580014br.gov.pix.0136nainaja@hotmail.com5204000053039865407${mensalidadeSelecionada.valor.toFixed(2)}5802BR5925JANAINA TARABAUCA ADVOCACIA6009SAO PAULO62070503***6304E8A3`;
                       navigator.clipboard.writeText(code);
                       showToast("Copiado para a área de transferência!");
                     }}
@@ -2087,7 +2087,7 @@ NÃO utilize termos genéricos de contratos cíveis comuns. Use jargões técnic
           <div style={{ display: "flex", alignItems: "center", gap: "16px", borderBottom: "3px solid #d4af37", paddingBottom: "16px", marginBottom: "24px" }}>
             <div>
               <div style={{ fontSize: "18px", fontWeight: 900, color: "#0f1e36", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                Janaina Tarabauca Advogados
+                Janaina Tarabauca Advocacia
               </div>
               <div style={{ fontSize: "10px", color: "#d4af37", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", marginTop: "4px" }}>
                 {areaSelecionada === "civil" && "Direito Civil"}
