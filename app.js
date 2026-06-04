@@ -7524,32 +7524,53 @@ function initContratosModule() {
   }
 
   if (btnContratosEditar) {
-    btnContratosEditar.addEventListener("click", () => {
-      if (contractsIsEditing) {
-        // Concluir Edição: muda para modo de visualização
-        const newText = contratosMinutaTextarea.value;
-        if (contratosMinutaVisualizacao) {
-          contratosMinutaVisualizacao.textContent = newText;
-          contratosMinutaVisualizacao.style.display = "block";
+    btnContratosEditar.addEventListener("click", (e) => {
+      if (e) e.preventDefault();
+      console.log("[Contratos] Botão editar clicado. Estado atual de edição:", contractsIsEditing);
+      
+      try {
+        if (contractsIsEditing) {
+          // Concluir Edição: muda para modo de visualização
+          const newText = contratosMinutaTextarea ? contratosMinutaTextarea.value : "";
+          console.log("[Contratos] Concluindo edição. Tamanho do texto:", newText.length);
+          if (contratosMinutaVisualizacao) {
+            contratosMinutaVisualizacao.textContent = newText;
+            contratosMinutaVisualizacao.style.display = "block";
+          }
+          if (contratosMinutaTextarea) {
+            contratosMinutaTextarea.style.display = "none";
+          }
+          btnContratosEditar.innerHTML = "✏️ Editar Texto";
+          btnContratosEditar.style.background = "var(--navy)";
+          btnContratosEditar.style.color = "#fff";
+          btnContratosEditar.style.borderColor = "rgba(197, 168, 92, 0.3)";
+          contractsIsEditing = false;
+        } else {
+          // Editar Texto: muda para modo textarea
+          console.log("[Contratos] Habilitando modo de edição (textarea)...");
+          if (contratosMinutaVisualizacao) {
+            contratosMinutaVisualizacao.style.display = "none";
+          }
+          if (contratosMinutaTextarea) {
+            contratosMinutaTextarea.style.display = "block";
+            // Foca com timeout de segurança para garantir renderização prévia do navegador
+            setTimeout(() => {
+              try {
+                contratosMinutaTextarea.focus();
+                console.log("[Contratos] Textarea focado com sucesso.");
+              } catch (focusErr) {
+                console.warn("[Contratos] Falha ao focar o textarea:", focusErr);
+              }
+            }, 50);
+          }
+          btnContratosEditar.innerHTML = "✅ Concluir Edição";
+          btnContratosEditar.style.background = "var(--success-color)";
+          btnContratosEditar.style.color = "#fff";
+          btnContratosEditar.style.borderColor = "transparent";
+          contractsIsEditing = true;
         }
-        contratosMinutaTextarea.style.display = "none";
-        btnContratosEditar.innerHTML = "✏️ Editar Texto";
-        btnContratosEditar.style.background = "var(--navy)";
-        btnContratosEditar.style.color = "#fff";
-        btnContratosEditar.style.borderColor = "rgba(197, 168, 92, 0.3)";
-        contractsIsEditing = false;
-      } else {
-        // Editar Texto: muda para modo textarea
-        if (contratosMinutaVisualizacao) {
-          contratosMinutaVisualizacao.style.display = "none";
-        }
-        contratosMinutaTextarea.style.display = "block";
-        contratosMinutaTextarea.focus();
-        btnContratosEditar.innerHTML = "✅ Concluir Edição";
-        btnContratosEditar.style.background = "var(--success-color)";
-        btnContratosEditar.style.color = "#fff";
-        btnContratosEditar.style.borderColor = "transparent";
-        contractsIsEditing = true;
+      } catch (err) {
+        console.error("[Contratos] Erro ao alternar modo de edição:", err);
       }
     });
   }
