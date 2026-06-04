@@ -7,6 +7,40 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // =========================================================================
+// FUNÇÕES AUXILIARES DE MÁSCARA MONETÁRIA (BRL)
+// =========================================================================
+function formatarMoedaBRL(valor) {
+  let v = String(valor).replace(/\D/g, "");
+  if (!v) return "";
+  let floatVal = parseFloat(v) / 100;
+  return floatVal.toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
+function desformatarMoedaBRL(valorFormatado) {
+  if (!valorFormatado) return null;
+  const limpo = String(valorFormatado)
+    .replace(/[^\d,]/g, "")
+    .replace(",", ".");
+  const parsed = parseFloat(limpo);
+  return isNaN(parsed) ? null : parsed;
+}
+
+const formatarInputMoedaBRL = (e) => {
+  const input = e.target;
+  const originalLength = input.value.length;
+  let cursorPosition = input.selectionStart;
+  const formatado = formatarMoedaBRL(input.value);
+  input.value = formatado;
+  const newLength = formatado.length;
+  cursorPosition = cursorPosition + (newLength - originalLength);
+  input.setSelectionRange(cursorPosition, cursorPosition);
+};
+
+
+// =========================================================================
 // VARIÁVEIS DE ESTADO GLOBAL (SPA STATE)
 // =========================================================================
 let activeClientId = null; // Guarda o ID do cliente visualizado no momento
@@ -207,6 +241,11 @@ const commitmentsDashboardList = document.getElementById("commitments-dashboard-
 const formLancarHonorario = document.getElementById("form-lancar-honorario");
 const finProcessoId = document.getElementById("fin-processo-id");
 const finValorTotal = document.getElementById("fin-valor-total");
+
+if (inRenda) inRenda.addEventListener("input", formatarInputMoedaBRL);
+if (editInRenda) editInRenda.addEventListener("input", formatarInputMoedaBRL);
+if (finValorTotal) finValorTotal.addEventListener("input", formatarInputMoedaBRL);
+
 const finTipoHonorario = document.getElementById("fin-tipo-honorario");
 const finStatusPagamento = document.getElementById("fin-status-pagamento");
 const finDataVencimento = document.getElementById("fin-data-vencimento");
@@ -1403,7 +1442,7 @@ clienteForm.addEventListener("submit", async (e) => {
   const processosEmAndamento = possuiProcesso ? inProcessosAndamento.value.trim() : "Nenhum";
   
   const tipoAssistencia = inTipoAssistencia.value;
-  const faturamento = inRenda.value ? parseFloat(inRenda.value) : null;
+  const faturamento = inRenda.value ? desformatarMoedaBRL(inRenda.value) : null;
   const observacoes = inObservacoes.value.trim();
 
   try {
@@ -1732,7 +1771,7 @@ function openClientDetails(c, activeTab = null) {
   }
 
   editInTipoAssistencia.value = c.tipo_assistencia || "";
-  editInRenda.value = c.renda_faturamento || "";
+  editInRenda.value = c.renda_faturamento ? formatarMoedaBRL(c.renda_faturamento.toFixed(2).replace(".", "")) : "";
   editInObservacoes.value = c.observacoes || "";
 
   // 3. Carregar Compromissos e Status (Seção 2)
@@ -1864,7 +1903,7 @@ editClienteForm.addEventListener("submit", async (e) => {
   const processosEmAndamento = possuiProcesso ? editInProcessosAndamento.value.trim() : "Nenhum";
   
   const tipoAssistencia = editInTipoAssistencia.value;
-  const faturamento = editInRenda.value ? parseFloat(editInRenda.value) : null;
+  const faturamento = editInRenda.value ? desformatarMoedaBRL(editInRenda.value) : null;
   const observacoes = editInObservacoes.value.trim();
 
   try {
@@ -4152,7 +4191,7 @@ if (formLancarHonorario) {
       return;
     }
 
-    const valor = parseFloat(finValorTotal.value);
+    const valor = desformatarMoedaBRL(finValorTotal.value);
     const tipo = finTipoHonorario.value;
     const status = finStatusPagamento.value;
     const vencimento = finDataVencimento.value;
