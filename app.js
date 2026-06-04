@@ -6656,7 +6656,7 @@ function initFinanceiroFilters() {
 let contratosClientesList = [];
 let activeLawyerProfile = null;
 let contratosSelectedClienteId = "";
-let contratosActiveMotor = "gemini";
+let contratosActiveMotor = "jusia";
 let contratosActiveTab = "minuta";
 let contratosActivePlano = "mensal";
 let signaturePadIsDrawing = false;
@@ -7160,6 +7160,28 @@ async function executeEsbocarContrato() {
     const nomeCliente = client.nome;
     const cnpjCpf = client.cpf_cnpj || "000.000.000-00";
 
+    const nomeAgente = contratosActiveMotor === "jusia" ? "JUS IA" : contratosActiveMotor === "gemini" ? "Gemini" : "OpenAI";
+    const areaInteresse = (area.includes("consumidor") || area.includes("consumo")) ? "Consumidor" : area;
+
+    let promptSistema = `Você é o agente de IA ${nomeAgente}.`;
+    if (areaInteresse === "Consumidor") {
+      promptSistema = `Você é a JUS IA, especialista em Direito do Consumidor e CDC. O cliente em questão é um Consumidor. Adapte o título para: CONTRATO DE PRESTAÇÃO DE SERVIÇOS ADVOCATÍCIOS E DEFESA DO CONSUMIDOR.
+Qualifique a parte Contratante destacando sua condição de consumidor e relacione o objeto da ação com práticas abusivas, responsabilidade civil pelo fato/vício do serviço ou produto, ou cláusulas abusivas, costurando estritamente com os Fatos e Histórico de Prontuário informados: ${fatosParte}.
+NÃO utilize termos genéricos de contratos cíveis comuns. Use jargões técnicos adequados à vulnerabilidade do consumidor.`;
+    }
+
+    const instrucaoIA = `
+      [Agente: ${nomeAgente}] 
+      [Área Jurídica Estrita: ${areaInteresse}]
+      [Dados Fáticos do Prontuário: ${fatosParte}]
+      
+      System: ${promptSistema}
+      
+      Instrução: Com base nos dados acima, elabore um esboço de cláusulas contratuais personalizado. Se a área for Consumidor, embase o Objeto no CDC e nos fatos narrados. Evite qualquer texto genérico ou corporativo padrão que não cite o problema real do cliente.
+    `;
+
+    console.log("Enviando Payload de Prompt Contextualizado para a IA (Vanilla):", instrucaoIA);
+
     // 1. MAPEAMENTO DE TEMPLATES (Dicionário de Escopos)
     let tituloContrato = "";
     let qualificacaoContratante = "";
@@ -7177,6 +7199,15 @@ async function executeEsbocarContrato() {
       const salario = matchSalario ? `com remuneração baseada em ${matchSalario[0]} ${matchSalario[2]}` : "com remuneração acordada na ficha funcional";
       const verbas = matchVerbas ? `abrangendo direitos de ${matchVerbas[0]}` : "abrangendo as verbas rescisórias e trabalhistas legais cabíveis";
       clausulaEspecifica = `\n\nCLÁUSULA ADICIONAL - DOS DIREITOS LABORAIS AVALIADOS:\nA contratada prestará assessoria técnica minuciosa para o cálculo e homologação das verbas contratuais informadas pelo cliente, ${salario}, ${verbas}, conforme os fatos narrados no cadastro.`;
+    } else if (area.includes("consumidor") || area.includes("consumo")) {
+      tituloContrato = "CONTRATO DE PRESTAÇÃO DE SERVIÇOS ADVOCATÍCIOS E DEFESA DO CONSUMIDOR";
+      qualificacaoContratante = "Consumidor(a) / Contratante";
+      clausulaObjeto = `O presente instrumento tem como objeto a prestação de serviços advocatícios para a representação judicial e extrajudicial dos interesses do Contratante perante práticas abusivas de fornecedores de produtos ou serviços, responsabilidade civil pelo fato/vício do serviço ou produto, ou declaração de nulidade de cláusulas abusivas, em estrita observância ao Código de Defesa do Consumidor (CDC), fundamentando-se nos Fatos e Histórico de Prontuário: ${fatosParte || "Sem notas de fatos no prontuário"}`;
+      
+      // Extrair vulnerabilidades e cláusulas abusivas se descritas nos fatos
+      const matchFornecedor = fatosParte.match(/(fornecedor|empresa|loja|banco|operadora)\s+([^,\.\n]+)/i);
+      const fornecedor = matchFornecedor ? matchFornecedor[2] : "fornecedor indicado na ação";
+      clausulaEspecifica = `\n\nCLÁUSULA ADICIONAL - DA DEFESA DA VULNERABILIDADE:\nA Contratada assume a obrigação de patrocinar a causa com foco especial na reparação integral de danos patrimoniais e morais sofridos pelo Consumidor frente às práticas abusivas imputadas a(o) ${fornecedor}, pleiteando a inversão do ônus da prova nos termos do Art. 6º, VIII do CDC e a facilitação da defesa de seus direitos.`;
     } else if (area.includes("empresarial") || area.includes("societário") || area.includes("societario")) {
       tituloContrato = "CONTRATO DE ASSESSORIA JURÍDICA E CONSULTORIA EMPRESARIAL";
       qualificacaoContratante = "sociedade empresária / contratante";

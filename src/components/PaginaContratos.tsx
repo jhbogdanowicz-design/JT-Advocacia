@@ -24,7 +24,7 @@ export const PaginaContratos: React.FC = () => {
   const [loadingMinuta, setLoadingMinuta] = useState<boolean>(false);
   const [motorIA, setMotorIA] = useState<"gemini" | "openai" | "jus_ia">("jus_ia");
   const [tipoPlano, setTipoPlano] = useState<"mensal" | "anual">("mensal");
-  const [areaSelecionada, setAreaSelecionada] = useState<"civil" | "empresarial" | "trabalhista" | "administrativo">("civil");
+  const [areaSelecionada, setAreaSelecionada] = useState<"civil" | "empresarial" | "trabalhista" | "administrativo" | "consumidor">("civil");
   const [fatosNarrados, setFatosNarrados] = useState<string>("");
 
   // Interface para o perfil do advogado logado
@@ -361,6 +361,7 @@ export const PaginaContratos: React.FC = () => {
         if (clienteAtivo.areas_interesse) {
           const area = clienteAtivo.areas_interesse.toLowerCase();
           if (area.includes("civil")) setAreaSelecionada("civil");
+          else if (area.includes("consumidor") || area.includes("consumo")) setAreaSelecionada("consumidor");
           else if (area.includes("empresarial") || area.includes("societário") || area.includes("societario")) setAreaSelecionada("empresarial");
           else if (area.includes("trabalhista") || area.includes("trabalho")) setAreaSelecionada("trabalhista");
           else if (area.includes("administrativo")) setAreaSelecionada("administrativo");
@@ -441,7 +442,7 @@ export const PaginaContratos: React.FC = () => {
 
   // Helper para gerar o texto da minuta com base na área e tipo de pessoa
   const gerarTextoMinuta = (
-    area: "civil" | "empresarial" | "trabalhista" | "administrativo",
+    area: "civil" | "empresarial" | "trabalhista" | "administrativo" | "consumidor",
     tipoPessoa: "PF" | "PJ",
     nomeCliente: string,
     cnpjCpf: string,
@@ -494,6 +495,14 @@ export const PaginaContratos: React.FC = () => {
       tituloContrato = "CONTRATO DE PRESTAÇÃO DE SERVIÇOS JURÍDICOS EM DIREITO ADMINISTRATIVO";
       qualificacaoContratante = "Contratante";
       clausulaObjeto = `O presente instrumento tem como objeto a prestação de serviços de assessoria em Direito Administrativo, com foco em análise jurídica de editais de licitação, elaboração de recursos e impugnações administrativas, e defesa técnica baseada nos fatos descritos: ${fatosParte || "Sem notas de fatos no prontuário"}`;
+    } else if (area === "consumidor") {
+      tituloContrato = "CONTRATO DE PRESTAÇÃO DE SERVIÇOS ADVOCATÍCIOS E DEFESA DO CONSUMIDOR";
+      qualificacaoContratante = "Consumidor(a) / Contratante";
+      clausulaObjeto = `O presente instrumento tem como objeto a prestação de serviços advocatícios para a representação judicial e extrajudicial dos interesses do Contratante perante práticas abusivas de fornecedores de produtos ou serviços, responsabilidade civil pelo fato/vício do serviço ou produto, ou declaração de nulidade de cláusulas abusivas, em estrita observância ao Código de Defesa do Consumidor (CDC), fundamentando-se nos Fatos e Histórico de Prontuário: ${fatosParte || "Sem notas de fatos no prontuário"}`;
+      
+      const matchFornecedor = fatosParte.match(/(fornecedor|empresa|loja|banco|operadora)\s+([^,\.\n]+)/i);
+      const fornecedor = matchFornecedor ? matchFornecedor[2] : "fornecedor indicado na ação";
+      clausulaEspecifica = `\n\nCLÁUSULA ADICIONAL - DA DEFESA DA VULNERABILIDADE:\nA Contratada assume a obrigação de patrocinar a causa com foco especial na reparação integral de danos patrimoniais e morais sofridos pelo Consumidor frente às práticas abusivas imputadas a(o) ${fornecedor}, pleiteando a inversão do ônus da prova nos termos do Art. 6º, VIII do CDC e a facilitação da defesa de seus direitos.`;
     } else {
       // Civil / Padrão
       tituloContrato = "CONTRATO DE PRESTAÇÃO DE SERVIÇOS ADVOCATÍCIOS";
@@ -545,8 +554,8 @@ Pelos serviços preventivos contratados, o CONTRATANTE pagará à CONTRATADA o v
       "paciente", "crm", "cfm", "corpo clínico", "corpo clinico", "erro médico", "erro medico"
     ];
 
-    const areas: ("civil" | "empresarial" | "trabalhista" | "administrativo")[] = [
-      "civil", "empresarial", "trabalhista", "administrativo"
+    const areas: ("civil" | "empresarial" | "trabalhista" | "administrativo" | "consumidor")[] = [
+      "civil", "empresarial", "trabalhista", "administrativo", "consumidor"
     ];
 
     const tiposPessoa: ("PF" | "PJ")[] = ["PF", "PJ"];
@@ -591,6 +600,28 @@ Pelos serviços preventivos contratados, o CONTRATANTE pagará à CONTRATADA o v
       setMinutaTexto("");
       handleClearSignature();
 
+      const nomeAgente = motorIA === "jus_ia" ? "JUS IA" : motorIA === "gemini" ? "Gemini" : "ChatGPT";
+      const areaInteresse = areaSelecionada === "consumidor" ? "Consumidor" : areaSelecionada;
+
+      let promptSistema = `Você é o agente de IA ${nomeAgente}.`;
+      if (areaSelecionada === "consumidor") {
+        promptSistema = `Você é a JUS IA, especialista em Direito do Consumidor e CDC. O cliente em questão é um Consumidor. Adapte o título para: CONTRATO DE PRESTAÇÃO DE SERVIÇOS ADVOCATÍCIOS E DEFESA DO CONSUMIDOR.
+Qualifique a parte Contratante destacando sua condição de consumidor e relacione o objeto da ação com práticas abusivas, responsabilidade civil pelo fato/vício do serviço ou produto, ou cláusulas abusivas, costurando estritamente com os Fatos e Histórico de Prontuário informados: ${fatosNarrados}.
+NÃO utilize termos genéricos de contratos cíveis comuns. Use jargões técnicos adequados à vulnerabilidade do consumidor.`;
+      }
+
+      const instrucaoIA = `
+        [Agente: ${nomeAgente}] 
+        [Área Jurídica Estrita: ${areaInteresse}]
+        [Dados Fáticos do Prontuário: ${fatosNarrados}]
+        
+        System: ${promptSistema}
+        
+        Instrução: Com base nos dados acima, elabore um esboço de cláusulas contratuais personalizado. Se a área for Consumidor, embase o Objeto no CDC e nos fatos narrados. Evite qualquer texto genérico ou corporativo padrão que não cite o problema real do cliente.
+      `;
+
+      console.log("Enviando Payload de Prompt Contextualizado para a IA:", instrucaoIA);
+
       // Simulação realista da resposta com base na IA selecionada e nos dados do cliente
       await new Promise((resolve) => setTimeout(resolve, 3000));
 
@@ -602,7 +633,7 @@ Pelos serviços preventivos contratados, o CONTRATANTE pagará à CONTRATADA o v
         clienteAtivo?.tipo_pessoa || "PF",
         nomeCliente,
         cnpjCpf,
-        contextoDoContrato
+        instrucaoIA
       );
 
       setMinutaTexto(minutaGerada);
@@ -636,6 +667,7 @@ Pelos serviços preventivos contratados, o CONTRATANTE pagará à CONTRATADA o v
         areaSelecionada === "civil" ? "Direito Civil" :
         areaSelecionada === "empresarial" ? "Direito Empresarial" :
         areaSelecionada === "trabalhista" ? "Direito Trabalhista" :
+        areaSelecionada === "consumidor" ? "Direito do Consumidor" :
         "Direito Administrativo";
 
       const nomePlano =
@@ -1090,6 +1122,7 @@ Pelos serviços preventivos contratados, o CONTRATANTE pagará à CONTRATADA o v
               className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2.5 text-sm md:text-base text-[#0f1e36] dark:text-slate-200 focus:outline-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37] cursor-pointer font-semibold"
             >
               <option value="civil">⚖️ Direito Civil</option>
+              <option value="consumidor">🛍️ Direito do Consumidor</option>
               <option value="empresarial">🏢 Direito Empresarial / Societário</option>
               <option value="trabalhista">💼 Direito Trabalhista</option>
               <option value="administrativo">🏛️ Direito Administrativo</option>
@@ -1187,7 +1220,7 @@ Pelos serviços preventivos contratados, o CONTRATANTE pagará à CONTRATADA o v
                   onClick={() => setMotorIA("jus_ia")}
                   className={`px-3 py-1.5 rounded text-[10px] font-bold transition-all ${
                     motorIA === "jus_ia"
-                      ? "bg-[#0f1e36] text-white dark:bg-[#d4af37] dark:text-slate-950 shadow-sm"
+                      ? "bg-[#d4af37] text-slate-950 shadow-sm"
                       : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
                   }`}
                 >
@@ -1266,6 +1299,7 @@ Pelos serviços preventivos contratados, o CONTRATANTE pagará à CONTRATADA o v
                       </h2>
                       <p className="text-[10px] uppercase tracking-widest text-[#d4af37] font-bold mt-0.5">
                         {areaSelecionada === "civil" && "Direito Civil"}
+                        {areaSelecionada === "consumidor" && "Direito do Consumidor"}
                         {areaSelecionada === "empresarial" && "Direito Empresarial / Societário"}
                         {areaSelecionada === "trabalhista" && "Direito Trabalhista"}
                         {areaSelecionada === "administrativo" && "Direito Administrativo"}
@@ -1282,11 +1316,11 @@ Pelos serviços preventivos contratados, o CONTRATANTE pagará à CONTRATADA o v
                     </span>
                   </div>
 
-                  <div className="w-full p-6 bg-white dark:bg-slate-900 border rounded shadow-sm h-[500px] overflow-y-auto">
+                  <div className="w-full p-6 bg-white dark:bg-slate-900 border rounded shadow-sm h-[500px] overflow-y-auto prose dark:prose-invert max-w-none">
                     <textarea
                       value={minutaTexto}
                       onChange={(e) => setMinutaTexto(e.target.value)}
-                      className="w-full h-full bg-transparent border-none outline-none resize-none focus:ring-0 text-xs font-mono leading-relaxed text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500/70"
+                      className="prose dark:prose-invert w-full h-full bg-transparent border-none outline-none resize-none focus:ring-0 text-xs font-mono leading-relaxed text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500/70"
                       placeholder="O documento gerado aparecerá aqui..."
                     />
                   </div>
@@ -1993,6 +2027,7 @@ Pelos serviços preventivos contratados, o CONTRATANTE pagará à CONTRATADA o v
               </div>
               <div style={{ fontSize: "10px", color: "#d4af37", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", marginTop: "4px" }}>
                 {areaSelecionada === "civil" && "Direito Civil"}
+                {areaSelecionada === "consumidor" && "Direito do Consumidor"}
                 {areaSelecionada === "empresarial" && "Direito Empresarial / Societário"}
                 {areaSelecionada === "trabalhista" && "Direito Trabalhista"}
                 {areaSelecionada === "administrativo" && "Direito Administrativo"}
