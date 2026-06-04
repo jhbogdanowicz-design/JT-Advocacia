@@ -1176,13 +1176,13 @@ Pelos serviços preventivos contratados, o CONTRATANTE pagará à CONTRATADA o v
                           {clienteAtivo?.nome || "CONTRATANTE"}
                         </span>
                         <div className="border-b border-slate-300 dark:border-slate-700 print:border-black w-full h-24 flex items-center justify-center bg-white dark:bg-slate-950 p-2 rounded-lg print:bg-white print:p-0">
-                          {signatureImgUrl ? (
+                          {modoImpressao === "assinado" && signatureImgUrl ? (
                             <img src={signatureImgUrl} alt="Assinatura Contratante" className="max-h-[80px] max-w-[220px] object-contain" />
                           ) : (
                             <span className="text-xs text-slate-400 dark:text-slate-500 italic select-none">Aguardando assinatura do cliente...</span>
                           )}
                         </div>
-                        {signatureImgUrl && (
+                        {modoImpressao === "assinado" && signatureImgUrl && (
                           <span className="text-[8px] text-[#10b981] font-bold mt-0.5 leading-tight print:text-[#10b981]">
                             ASSINADO ELETRONICAMENTE EM {new Date().toLocaleDateString("pt-BR")} às {new Date().toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' })} IP: 186.220.12.92 (HASH SHA256)
                           </span>
