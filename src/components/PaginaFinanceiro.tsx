@@ -497,7 +497,11 @@ export const PaginaFinanceiro: React.FC<PaginaFinanceiroProps> = ({ onNavigateTo
 
   // ── JSX ───────────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen p-6 space-y-6 bg-gray-50 dark:bg-[#070a13] text-[#0f1e36] dark:text-slate-100 print:bg-white print:p-0 print:text-black">
+    <div className="min-h-screen p-6 space-y-6 bg-gray-50 dark:bg-[#070a13] text-[#0f1e36] dark:text-slate-100 print:bg-white print:p-0 print:text-black relative overflow-hidden">
+
+      {/* ── Pano de Fundo Suavizado — Gradiente Radial Difuso ── */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(212,175,55,0.04)_0%,rgba(15,30,54,0.0)_60%)] pointer-events-none print:hidden" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_80%,rgba(15,30,54,0.15)_0%,rgba(7,10,19,0)_65%)] pointer-events-none print:hidden" />
 
       {/* 1. CABEÇALHO */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm print:hidden">

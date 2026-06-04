@@ -227,7 +227,11 @@ export const PaginaLogin: React.FC<PaginaLoginProps> = ({ onAuthSuccess }) => {
 
   return (
     <div className="min-h-screen bg-[#070a13] text-slate-100 flex flex-col font-sans relative overflow-y-auto">
-      
+
+      {/* ── Pano de Fundo Suavizado — Gradiente Radial Difuso ── */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(212,175,55,0.06)_0%,rgba(15,30,54,0.0)_60%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_80%,rgba(15,30,54,0.35)_0%,rgba(7,10,19,0)_65%)] pointer-events-none" />
+
       {/* Background Subtle Glows */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#d4af37]/3 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#0c1625]/20 rounded-full blur-[120px] pointer-events-none" />

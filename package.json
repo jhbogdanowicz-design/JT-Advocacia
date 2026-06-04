@@ -4,12 +4,15 @@
   "description": "Sistema de Gestão Jurídica para JT Advocacia",
   "main": "index.html",
   "scripts": {
-    "dev": "vite"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
     "@supabase/supabase-js": "^2.106.2",
     "dotenv": "^16.4.5",
+    "html2canvas": "^1.4.1",
     "jspdf": "^2.5.1"
   },
   "devDependencies": {

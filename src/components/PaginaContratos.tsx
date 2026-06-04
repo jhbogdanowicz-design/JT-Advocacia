@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { supabase } from "../lib/supabase";
 import { PremiumIALoader } from "./PremiumIALoader";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 interface Cliente {
   id: string;
@@ -89,14 +91,39 @@ export const PaginaContratos: React.FC = () => {
   // Estado da Minuta Gerada
   const [minutaTexto, setMinutaTexto] = useState<string>("");
 
+  // Ref da div off-screen para captura do html2canvas
+  const pdfContainerRef = useRef<HTMLDivElement | null>(null);
+
   // Estados do Canvas de Assinatura
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const isDrawingRef = useRef<boolean>(false);
   const [signatureExists, setSignatureExists] = useState<boolean>(false);
   const [isSigned, setIsSigned] = useState<boolean>(false);
-  const [modoImpressao, setModoImpressao] = useState<"previa" | "assinado">("previa");
   const [signatureImgUrl, setSignatureImgUrl] = useState<string | null>(null);
   const [lawyerSignatureImgUrl, setLawyerSignatureImgUrl] = useState<string | null>(null);
+
+  // Base64 das assinaturas — injetadas na div off-screen antes do html2canvas
+  const [lawyerSigBase64, setLawyerSigBase64] = useState<string | null>(null);
+  const [clientSigBase64, setClientSigBase64] = useState<string | null>(null);
+  const [preparingPrint, setPreparingPrint] = useState<boolean>(false);
+
+  // Converte qualquer URL de imagem para Base64 via fetch (resolve CORS do Supabase)
+  const carregarImagemBase64 = async (url: string): Promise<string | null> => {
+    try {
+      const response = await fetch(url, { mode: "cors", cache: "no-cache" });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const blob = await response.blob();
+      return await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (err) {
+      console.warn("Não foi possível converter imagem para Base64:", url, err);
+      return null;
+    }
+  };
 
   // Estados do Histórico de Mensalidades
   const [mensalidades, setMensalidades] = useState<any[]>([]);
@@ -146,6 +173,7 @@ export const PaginaContratos: React.FC = () => {
       }
     } catch (err: any) {
       console.warn("Erro ao carregar assinatura da advogada:", err.message);
+    }
   };
 
   // Carrega dinamicamente os dados do advogado logado (perfil)
@@ -820,15 +848,140 @@ Pelos serviços preventivos contratados, o CONTRATANTE pagará à CONTRATADA o v
     showToast("Assinatura salva com sucesso!");
   };
 
-  const handleImprimir = (modo: "previa" | "assinado") => {
-    setModoImpressao(modo);
-    setTimeout(() => {
-      window.print();
-    }, 150);
+  // ─────────────────────────────────────────────────────────────────────────────
+  // GERAÇÃO DE PDF — html2canvas + jsPDF (Off-Screen Rendering)
+  // ─────────────────────────────────────────────────────────────────────────────
+  const handleGerarPDF = async (incluirAssinaturaCliente: boolean = false) => {
+    if (!minutaTexto) {
+      alert("Gere a minuta antes de exportar o PDF.");
+      return;
+    }
+
+    setPreparingPrint(true);
+
+    try {
+      // ── ETAPA 1: Converter assinatura da CONTRATADA (advogada) para Base64 ──
+      const rawLawyerUrl = advogado?.assinatura_digital_url || lawyerSignatureImgUrl || null;
+      let resolvedLawyerB64: string | null = null;
+
+      if (rawLawyerUrl) {
+        if (rawLawyerUrl.startsWith("data:image/")) {
+          resolvedLawyerB64 = rawLawyerUrl;
+          console.log("[PDF] ✅ Assinatura da advogada: já é Base64 válido.");
+        } else {
+          console.log("[PDF] ⏳ Convertendo assinatura da advogada para Base64:", rawLawyerUrl);
+          resolvedLawyerB64 = await carregarImagemBase64(rawLawyerUrl);
+          if (!resolvedLawyerB64 || !resolvedLawyerB64.startsWith("data:image/")) {
+            console.error("[PDF] ❌ FALHA na conversão Base64 da assinatura da advogada. Verifique a URL e as políticas CORS do Supabase Storage.");
+            resolvedLawyerB64 = null;
+          } else {
+            console.log("[PDF] ✅ Assinatura da advogada convertida com sucesso.");
+          }
+        }
+      } else {
+        console.warn("[PDF] ⚠️ Nenhuma URL de assinatura encontrada para a advogada. Verifique o cadastro em 'Configurações > Perfil Profissional'.");
+      }
+
+      // ── ETAPA 2: Converter assinatura do CONTRATANTE (cliente) para Base64 ──
+      let resolvedClientB64: string | null = null;
+
+      if (incluirAssinaturaCliente && signatureImgUrl) {
+        if (signatureImgUrl.startsWith("data:image/")) {
+          resolvedClientB64 = signatureImgUrl;
+          console.log("[PDF] ✅ Assinatura do cliente: já é Base64 válido (canvas).");
+        } else {
+          console.log("[PDF] ⏳ Convertendo assinatura do cliente para Base64...");
+          resolvedClientB64 = await carregarImagemBase64(signatureImgUrl);
+          if (!resolvedClientB64 || !resolvedClientB64.startsWith("data:image/")) {
+            console.error("[PDF] ❌ FALHA na conversão Base64 da assinatura do cliente.");
+            resolvedClientB64 = null;
+          } else {
+            console.log("[PDF] ✅ Assinatura do cliente convertida com sucesso.");
+          }
+        }
+      }
+
+      // ── ETAPA 3: Atualizar estados com os Base64 resolvidos ──
+      setLawyerSigBase64(resolvedLawyerB64);
+      setClientSigBase64(resolvedClientB64);
+
+      // ── ETAPA 4: Timeout de segurança (500ms) para o React re-renderizar a div off-screen ──
+      // Sem este delay, o html2canvas captura o DOM antes das <img> carregarem os Base64.
+      await new Promise<void>((resolve) => setTimeout(resolve, 500));
+
+      // ── ETAPA 5: Capturar a div off-screen com html2canvas ──
+      const container = pdfContainerRef.current;
+      if (!container) {
+        console.error("[PDF] ❌ Container off-screen (#pdf-contrato-offscreen) não encontrado no DOM.");
+        alert("Erro interno: elemento de renderização não encontrado. Recarregue a página.");
+        return;
+      }
+
+      console.log("[PDF] ⏳ Iniciando captura html2canvas (scale: 2)...");
+      const canvas = await html2canvas(container, {
+        useCORS: true,
+        allowTaint: false,
+        logging: true,
+        scale: 2,
+        backgroundColor: "#ffffff",
+        width: container.offsetWidth,
+        height: container.offsetHeight,
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      console.log("[PDF] ✅ Canvas capturado. Dimensões:", canvas.width, "x", canvas.height);
+
+      // ── ETAPA 6: Montar o PDF A4 com jsPDF ──
+      const PDF_WIDTH_MM = 210;   // A4 largura em mm
+      const PDF_HEIGHT_MM = 297;  // A4 altura em mm
+      const pdf = new jsPDF("portrait", "mm", "a4");
+
+      const imgProps = pdf.getImageProperties(imgData);
+      const pxRatio = imgProps.height / imgProps.width;
+      const pageImgHeightMm = PDF_WIDTH_MM * pxRatio;
+
+      let heightLeft = pageImgHeightMm;
+      let position = 0;
+      let page = 0;
+
+      while (heightLeft > 0) {
+        if (page > 0) pdf.addPage();
+        pdf.addImage(
+          imgData,
+          "PNG",
+          0,
+          position,
+          PDF_WIDTH_MM,
+          pageImgHeightMm,
+          undefined,
+          "FAST"
+        );
+        heightLeft -= PDF_HEIGHT_MM;
+        position -= PDF_HEIGHT_MM;
+        page++;
+      }
+
+      // ── ETAPA 7: Download automático ──
+      const nomeArquivo = `Contrato_${clienteAtivo?.nome?.replace(/\s+/g, "_") || "cliente"}_${new Date().toISOString().split("T")[0]}.pdf`;
+      pdf.save(nomeArquivo);
+      console.log("[PDF] ✅ PDF gerado e download iniciado:", nomeArquivo);
+      showToast("PDF exportado com sucesso!", "success");
+
+    } catch (err: any) {
+      console.error("[PDF] ❌ Erro crítico na geração do PDF:", err);
+      alert("Erro ao gerar PDF: " + (err?.message || "Erro desconhecido. Verifique o console."));
+    } finally {
+      setPreparingPrint(false);
+    }
   };
 
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#070a13] text-slate-800 dark:text-slate-100 p-6 space-y-6 print:bg-white print:p-0 print:text-black">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#070a13] text-slate-800 dark:text-slate-100 p-6 space-y-6 print:bg-white print:p-0 print:text-black relative overflow-hidden">
+
+      {/* ── Pano de Fundo Suavizado — Gradiente Radial Difuso ── */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(212,175,55,0.04)_0%,rgba(15,30,54,0.0)_60%)] pointer-events-none print:hidden" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_80%,rgba(15,30,54,0.15)_0%,rgba(7,10,19,0)_65%)] pointer-events-none print:hidden" />
       {toast && (
         <div className="fixed top-6 right-6 z-[9999] flex items-center gap-2.5 px-4 py-3 rounded-xl border border-emerald-500/30 bg-emerald-50/95 dark:bg-[#0f172a]/95 text-emerald-800 dark:text-emerald-300 shadow-2xl backdrop-blur-md animate-slideDown font-sans text-xs font-bold tracking-wide print:hidden">
           <span className="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-500/25 text-emerald-600 dark:text-emerald-400 text-xs">✓</span>
@@ -854,13 +1007,15 @@ Pelos serviços preventivos contratados, o CONTRATANTE pagará à CONTRATADA o v
 
         <button
           type="button"
-          onClick={() => {
-            console.log("Executando impressão do contrato...");
-            window.print();
-          }}
-          className="w-full sm:w-auto bg-[#0f1e36] hover:bg-slate-800 active:scale-95 text-white font-extrabold text-xs uppercase tracking-widest px-6 py-3.5 rounded shadow-md flex items-center justify-center gap-2 transition-all border-b-4 border-[#d4af37] cursor-pointer"
+          disabled={preparingPrint || !minutaTexto}
+          onClick={() => handleGerarPDF(isSigned)}
+          className="w-full sm:w-auto bg-[#0f1e36] hover:bg-slate-800 active:scale-95 text-white font-extrabold text-xs uppercase tracking-widest px-6 py-3.5 rounded shadow-md flex items-center justify-center gap-2 transition-all border-b-4 border-[#d4af37] cursor-pointer disabled:opacity-50"
         >
-          📄 EXPORTAR CONTRATO PARA PDF
+          {preparingPrint ? (
+            <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" /> Gerando PDF...</>
+          ) : (
+            <>📄 EXPORTAR CONTRATO PARA PDF</>
+          )}
         </button>
       </div>
 
@@ -1070,18 +1225,20 @@ Pelos serviços preventivos contratados, o CONTRATANTE pagará à CONTRATADA o v
                     <>
                       <button
                         type="button"
-                        onClick={() => handleImprimir("previa")}
-                        className="bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-[#0f1e36] dark:text-[#d4af37] border border-slate-300 dark:border-slate-800 font-bold text-xs uppercase tracking-wide px-3 py-1.5 rounded flex items-center gap-1.5 transition-all cursor-pointer"
+                        disabled={preparingPrint}
+                        onClick={() => handleGerarPDF(false)}
+                        className="bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-[#0f1e36] dark:text-[#d4af37] border border-slate-300 dark:border-slate-800 font-bold text-xs uppercase tracking-wide px-3 py-1.5 rounded flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
                       >
-                        📄 Exportar Prévia (PDF)
+                        {preparingPrint ? "Gerando..." : "📄 Exportar Prévia (PDF)"}
                       </button>
                       {isSigned && (
                         <button
                           type="button"
-                          onClick={() => handleImprimir("assinado")}
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wide px-3 py-1.5 rounded flex items-center gap-1.5 transition-all cursor-pointer"
+                          disabled={preparingPrint}
+                          onClick={() => handleGerarPDF(true)}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wide px-3 py-1.5 rounded flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
                         >
-                          ✍️ Exportar Assinado (PDF)
+                          {preparingPrint ? "Gerando..." : "✍️ Exportar Assinado (PDF)"}
                         </button>
                       )}
                     </>
@@ -1101,11 +1258,10 @@ Pelos serviços preventivos contratados, o CONTRATANTE pagará à CONTRATADA o v
                 <PremiumIALoader />
               ) : minutaTexto ? (
                 <>
-                  {/* CABEÇALHO TIMBRADO JURÍDICO - EXCLUSIVO PARA IMPRESSÃO */}
-                  <div className="hidden print:flex print:items-center print:gap-4 mb-8 border-b-2 border-[#d4af37] pb-4">
-                    <img src="/logo-jt.png" alt="JT" className="h-12 w-12 object-contain" />
+                  {/* CABEÇALHO TIMBRADO JURÍDICO - VISÍVEL NA UI */}
+                  <div className="flex items-center gap-4 mb-4 border-b-2 border-[#d4af37] pb-4">
                     <div>
-                      <h2 className="font-playfair font-extrabold text-xl text-[#0f1e36] tracking-wider uppercase m-0">
+                      <h2 className="font-bold text-base text-[#0f1e36] dark:text-slate-100 tracking-wider uppercase m-0">
                         Janaina Tarabauca Advogados
                       </h2>
                       <p className="text-[10px] uppercase tracking-widest text-[#d4af37] font-bold mt-0.5">
@@ -1117,37 +1273,27 @@ Pelos serviços preventivos contratados, o CONTRATANTE pagará à CONTRATADA o v
                     </div>
                   </div>
 
-                  {/* BANNER DE STATUS DE ASSINATURA - EXCLUSIVO PARA IMPRESSÃO */}
-                  <div className="hidden print:block text-center border p-2.5 mb-6 rounded-lg"
-                       style={{
-                         borderColor: modoImpressao === "assinado" ? "#10b981" : "#d4af37",
-                         backgroundColor: modoImpressao === "assinado" ? "rgba(16, 185, 129, 0.05)" : "#fffdf5"
-                       }}>
+                  {/* BANNER DE STATUS */}
+                  <div className="text-center border p-2.5 mb-6 rounded-lg"
+                       style={{ borderColor: isSigned ? "#10b981" : "#d4af37", backgroundColor: isSigned ? "rgba(16, 185, 129, 0.05)" : "#fffdf5" }}>
                     <span className="text-[11px] font-bold uppercase tracking-wider"
-                          style={{ color: modoImpressao === "assinado" ? "#10b981" : "#d4af37" }}>
-                      {modoImpressao === "assinado" 
-                        ? "CONTRATO ASSINADO ELETRONICAMENTE VIA PORTAL JT ADVOCACIA" 
-                        : "RASCUNHO / PRÉVIA DE MINUTA DE CONTRATO"}
+                          style={{ color: isSigned ? "#10b981" : "#d4af37" }}>
+                      {isSigned ? "CONTRATO ASSINADO ELETRONICAMENTE VIA PORTAL JT ADVOCACIA" : "RASCUNHO / PRÉVIA DE MINUTA DE CONTRATO"}
                     </span>
                   </div>
 
-                  <div className="w-full p-6 bg-white dark:bg-slate-900 border rounded shadow-sm h-[500px] overflow-y-auto print:h-auto print:max-h-none print:overflow-visible print:border-none print:shadow-none print:p-0">
+                  <div className="w-full p-6 bg-white dark:bg-slate-900 border rounded shadow-sm h-[500px] overflow-y-auto">
                     <textarea
                       value={minutaTexto}
                       onChange={(e) => setMinutaTexto(e.target.value)}
-                      className="w-full h-full bg-transparent border-none outline-none resize-none focus:ring-0 text-xs font-mono leading-relaxed text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500/70 print:hidden"
+                      className="w-full h-full bg-transparent border-none outline-none resize-none focus:ring-0 text-xs font-mono leading-relaxed text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500/70"
                       placeholder="O documento gerado aparecerá aqui..."
                     />
-
-                    {/* Texto do Contrato formatado de forma limpa exclusivamente para a folha A4 no Print */}
-                    <pre className="hidden print:block whitespace-pre-wrap font-mono text-xs text-black bg-white leading-relaxed p-0 border-none outline-none print:h-auto print:overflow-visible">
-                      {minutaTexto}
-                    </pre>
                   </div>
 
-                  {/* BLOCO DE ASSINATURAS E TIMESTAMP - VISÍVEL NO PREVIEW E NA IMPRESSÃO */}
-                  <div className="mt-8 border-t border-slate-200 dark:border-slate-800 pt-8 print:break-inside-avoid" style={{ pageBreakInside: "avoid" }}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:grid-cols-2 print:gap-10">
+                  {/* BLOCO DE ASSINATURAS E TIMESTAMP - VISÍVEL NO PREVIEW */}
+                  <div className="mt-8 border-t border-slate-200 dark:border-slate-800 pt-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       
                       {/* Coluna Esquerda (CONTRATADA) */}
                       <div className="flex flex-col items-center gap-2 text-center p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 print:bg-white print:p-0 print:border-none">
@@ -1156,11 +1302,12 @@ Pelos serviços preventivos contratados, o CONTRATANTE pagará à CONTRATADA o v
                           {((advogado?.tratamento || "Dra.") + " " + (advogado?.nome || "Janaina Tarabauca")).toUpperCase()}
                         </span>
                         <div className="border-b border-slate-300 dark:border-slate-700 print:border-black w-full h-24 flex items-center justify-center bg-white dark:bg-slate-950 p-2 rounded-lg print:bg-white print:p-0">
-                          {advogado?.assinatura_digital_url || lawyerSignatureImgUrl ? (
+                          {/* Usa Base64 no print para evitar CORS; URL normal na tela */}
+                          {(lawyerSigBase64 || advogado?.assinatura_digital_url || lawyerSignatureImgUrl) ? (
                             <img
-                              src={advogado?.assinatura_digital_url || lawyerSignatureImgUrl || ""}
+                              src={lawyerSigBase64 || advogado?.assinatura_digital_url || lawyerSignatureImgUrl || ""}
                               alt={`Assinatura ${advogado?.nome || "Advogada"}`}
-                              className="h-12 w-auto object-contain mx-auto mix-blend-multiply"
+                              className="h-16 w-auto object-contain mx-auto mix-blend-multiply"
                             />
                           ) : (
                             <span className="text-xs text-slate-400 dark:text-slate-500 italic select-none">Aguardando assinatura cadastrada...</span>
@@ -1170,24 +1317,29 @@ Pelos serviços preventivos contratados, o CONTRATANTE pagará à CONTRATADA o v
                       </div>
 
                       {/* Coluna Direita (CONTRATANTE) */}
-                      <div className="flex flex-col items-center gap-2 text-center p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 print:bg-white print:p-0 print:border-none">
+                      <div className="flex flex-col items-center gap-2 text-center p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800">
                         <span className="text-[9px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest">CONTRATANTE</span>
-                        <span className="text-xs font-bold text-slate-800 dark:text-slate-100 print:text-black uppercase mt-1">
+                        <span className="text-xs font-bold text-slate-800 dark:text-slate-100 uppercase mt-1">
                           {clienteAtivo?.nome || "CONTRATANTE"}
                         </span>
-                        <div className="border-b border-slate-300 dark:border-slate-700 print:border-black w-full h-24 flex items-center justify-center bg-white dark:bg-slate-950 p-2 rounded-lg print:bg-white print:p-0">
-                          {modoImpressao === "assinado" && signatureImgUrl ? (
-                            <img src={signatureImgUrl} alt="Assinatura Contratante" className="max-h-[80px] max-w-[220px] object-contain" />
+                        <div className="border-b border-slate-300 dark:border-slate-700 w-full h-24 flex items-center justify-center bg-white dark:bg-slate-950 p-2 rounded-lg">
+                          {signatureImgUrl ? (
+                            <img
+                              src={signatureImgUrl}
+                              alt="Assinatura Contratante"
+                              className="h-16 w-auto max-w-[220px] object-contain mx-auto"
+                            />
                           ) : (
                             <span className="text-xs text-slate-400 dark:text-slate-500 italic select-none">Aguardando assinatura do cliente...</span>
                           )}
                         </div>
-                        {modoImpressao === "assinado" && signatureImgUrl && (
-                          <span className="text-[8px] text-[#10b981] font-bold mt-0.5 leading-tight print:text-[#10b981]">
-                            ASSINADO ELETRONICAMENTE EM {new Date().toLocaleDateString("pt-BR")} às {new Date().toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' })} IP: 186.220.12.92 (HASH SHA256)
+                        {signatureImgUrl && (
+                          <span className="text-[8px] text-[#10b981] font-bold mt-0.5 leading-tight">
+                            ✅ ASSINADO EM {new Date().toLocaleDateString("pt-BR")} às {new Date().toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         )}
                       </div>
+
 
                     </div>
 
@@ -1806,6 +1958,143 @@ Pelos serviços preventivos contratados, o CONTRATANTE pagará à CONTRATADA o v
               </button>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════════
+          DIV OFF-SCREEN A4 — CAPTURADA PELO html2canvas
+          REGRA DE OURO: NUNCA use display:none ou hidden aqui!
+          O posicionamento fora da tela (top: -9999px) garante que o navegador
+          renderize o conteúdo completamente, mas o usuário não enxerga.
+          ═══════════════════════════════════════════════════════════════════════ */}
+      {minutaTexto && (
+        <div
+          ref={pdfContainerRef}
+          id="pdf-contrato-offscreen"
+          style={{
+            position: "absolute",
+            top: "-9999px",
+            left: "-9999px",
+            width: "794px",        /* Largura A4 a 96dpi */
+            minHeight: "1123px",   /* Altura A4 a 96dpi */
+            backgroundColor: "#ffffff",
+            color: "#000000",
+            fontFamily: "Georgia, 'Times New Roman', serif",
+            padding: "60px 70px",
+            boxSizing: "border-box",
+          }}
+        >
+          {/* ── TIMBRADO ── */}
+          <div style={{ display: "flex", alignItems: "center", gap: "16px", borderBottom: "3px solid #d4af37", paddingBottom: "16px", marginBottom: "24px" }}>
+            <div>
+              <div style={{ fontSize: "18px", fontWeight: 900, color: "#0f1e36", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                Janaina Tarabauca Advogados
+              </div>
+              <div style={{ fontSize: "10px", color: "#d4af37", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", marginTop: "4px" }}>
+                {areaSelecionada === "civil" && "Direito Civil"}
+                {areaSelecionada === "empresarial" && "Direito Empresarial / Societário"}
+                {areaSelecionada === "trabalhista" && "Direito Trabalhista"}
+                {areaSelecionada === "administrativo" && "Direito Administrativo"}
+              </div>
+            </div>
+          </div>
+
+          {/* ── BANNER DE STATUS ── */}
+          <div style={{
+            textAlign: "center",
+            border: `2px solid ${isSigned ? "#10b981" : "#d4af37"}`,
+            borderRadius: "8px",
+            padding: "8px 16px",
+            marginBottom: "28px",
+            backgroundColor: isSigned ? "rgba(16,185,129,0.06)" : "#fffdf5",
+          }}>
+            <span style={{ fontSize: "10px", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: isSigned ? "#10b981" : "#b8860b" }}>
+              {isSigned
+                ? "✅ CONTRATO ASSINADO ELETRONICAMENTE VIA PORTAL JT ADVOCACIA"
+                : "📋 RASCUNHO / PRÉVIA DE MINUTA DE CONTRATO"}
+            </span>
+          </div>
+
+          {/* ── CORPO DO CONTRATO ── */}
+          <pre style={{
+            whiteSpace: "pre-wrap",
+            fontFamily: "Georgia, 'Times New Roman', serif",
+            fontSize: "11px",
+            lineHeight: "1.85",
+            color: "#111111",
+            margin: "0 0 40px 0",
+            wordBreak: "break-word",
+          }}>
+            {minutaTexto}
+          </pre>
+
+          {/* ── BLOCO DE ASSINATURAS ── */}
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "40px",
+            marginTop: "48px",
+            paddingTop: "32px",
+            borderTop: "1px solid #cbd5e1",
+          }}>
+            {/* Contratada */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+              <span style={{ fontSize: "9px", fontWeight: 800, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.12em" }}>CONTRATADA</span>
+              <span style={{ fontSize: "11px", fontWeight: 700, color: "#0f1e36", textTransform: "uppercase", margin: "6px 0 10px" }}>
+                {((advogado?.tratamento || "Dra.") + " " + (advogado?.nome || "Janaina Tarabauca")).toUpperCase()}
+              </span>
+              <div style={{ width: "100%", height: "80px", borderBottom: "1.5px solid #94a3b8", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#fafafa" }}>
+                {lawyerSigBase64 ? (
+                  <img
+                    src={lawyerSigBase64}
+                    alt="Assinatura Advogada"
+                    style={{ maxHeight: "70px", maxWidth: "200px", objectFit: "contain" }}
+                    crossOrigin="anonymous"
+                  />
+                ) : (
+                  <span style={{ fontSize: "9px", color: "#94a3b8", fontStyle: "italic" }}>Assinatura Digital Cadastrada</span>
+                )}
+              </div>
+              <span style={{ fontSize: "8px", color: "#10b981", fontWeight: 700, marginTop: "6px", textTransform: "uppercase" }}>● ASSINADO DIGITALMENTE</span>
+            </div>
+
+            {/* Contratante */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+              <span style={{ fontSize: "9px", fontWeight: 800, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.12em" }}>CONTRATANTE</span>
+              <span style={{ fontSize: "11px", fontWeight: 700, color: "#0f1e36", textTransform: "uppercase", margin: "6px 0 10px" }}>
+                {clienteAtivo?.nome?.toUpperCase() || "CONTRATANTE"}
+              </span>
+              <div style={{ width: "100%", height: "80px", borderBottom: "1.5px solid #94a3b8", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#fafafa" }}>
+                {clientSigBase64 ? (
+                  <img
+                    src={clientSigBase64}
+                    alt="Assinatura Cliente"
+                    style={{ maxHeight: "70px", maxWidth: "200px", objectFit: "contain" }}
+                    crossOrigin="anonymous"
+                  />
+                ) : (
+                  <span style={{ fontSize: "9px", color: "#94a3b8", fontStyle: "italic" }}>
+                    {isSigned ? "Assinatura Eletrônica Coletada" : "Aguardando assinatura do cliente"}
+                  </span>
+                )}
+              </div>
+              {clientSigBase64 && (
+                <span style={{ fontSize: "7px", color: "#10b981", fontWeight: 700, marginTop: "6px" }}>
+                  ASSINADO EM {new Date().toLocaleDateString("pt-BR")} às {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })} (HASH SHA-256)
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* ── RODAPÉ ── */}
+          <div style={{ marginTop: "48px", paddingTop: "12px", borderTop: "1px solid #e2e8f0", textAlign: "center" }}>
+            <p style={{ fontSize: "8px", color: "#94a3b8", margin: 0 }}>
+              JT Advocacia • Av. Paulista, 1000, 16º andar, São Paulo/SP • CEP 01311-100 • Tel: (11) 94753-4587
+            </p>
+            <p style={{ fontSize: "8px", color: "#94a3b8", margin: "4px 0 0" }}>
+              Documento gerado eletronicamente e protegido por criptografia de dados de ponta.
+            </p>
           </div>
         </div>
       )}

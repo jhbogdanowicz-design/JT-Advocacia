@@ -868,7 +868,11 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
   };
 
   return (
-    <div className="min-h-screen p-6 space-y-6 bg-gray-50 dark:bg-[#070a13] text-[#0f1e36] dark:text-slate-100 print:bg-white print:p-0 print:text-black">
+    <div className="min-h-screen p-6 space-y-6 bg-gray-50 dark:bg-[#070a13] text-[#0f1e36] dark:text-slate-100 print:bg-white print:p-0 print:text-black relative overflow-hidden">
+
+      {/* ── Pano de Fundo Suavizado — Gradiente Radial Difuso ── */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(212,175,55,0.04)_0%,rgba(15,30,54,0.0)_60%)] pointer-events-none print:hidden" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_80%,rgba(15,30,54,0.15)_0%,rgba(7,10,19,0)_65%)] pointer-events-none print:hidden" />
       {toast && (
         <div className="fixed top-6 right-6 z-[9999] flex items-center gap-2.5 px-4 py-3 rounded-xl border border-emerald-500/30 bg-emerald-50/95 dark:bg-[#0f172a]/95 text-emerald-800 dark:text-emerald-300 shadow-2xl backdrop-blur-md animate-slideDown font-sans text-xs font-bold tracking-wide print:hidden">
           <span className="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-500/25 text-emerald-600 dark:text-emerald-400 text-xs">✓</span>

@@ -64,6 +64,21 @@ body {
   overflow-x: hidden;
 }
 
+/* ── Pano de Fundo Suavizado — Gradiente Radial Difuso ── */
+.radial-diffuse-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 20%, rgba(241, 245, 249, 0.6) 0%, rgba(255, 255, 255, 0) 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+[data-theme="dark"] .radial-diffuse-bg {
+  background: radial-gradient(circle at 30% 20%, rgba(212, 175, 55, 0.05) 0%, rgba(15, 30, 54, 0.0) 60%),
+              radial-gradient(circle at 75% 80%, rgba(15, 30, 54, 0.3) 0%, rgba(7, 10, 19, 0) 65%);
+}
+
+
 /* =========================================================================
    CONTROLES DE UTILITÁRIOS & CABEÇALHO GLOBAL (ÁREA PÚBLICA)
    ========================================================================= */
@@ -1544,7 +1559,7 @@ body {
    ========================================================================= */
 .landing-page-view {
   font-family: 'Outfit', sans-serif;
-  background-color: #050814;
+  background-color: #0f172a;
   color: #e2e8f0;
   min-height: 100vh;
   display: block;
@@ -2271,8 +2286,8 @@ body {
 }
 
 [data-theme="light"] .landing-page-view {
-  background-color: var(--bg-color) !important;
-  background: var(--bg-gradient) !important;
+  background-color: #ffffff !important;
+  background: #ffffff !important;
   color: var(--text-primary) !important;
 }
 

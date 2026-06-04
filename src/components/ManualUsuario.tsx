@@ -1,8 +1,11 @@
 import React from "react";
 
 export const ManualUsuario: React.FC = () => {
-  return (
-    <div className="min-h-screen bg-white dark:bg-slate-900 text-[#0f1e36] dark:text-slate-100 font-sans selection:bg-[#d4af37]/35 transition-colors duration-300 pb-20 print:bg-white print:text-black print:h-auto print:overflow-visible print:p-0">
+    <div className="min-h-screen bg-white dark:bg-slate-900 text-[#0f1e36] dark:text-slate-100 font-sans selection:bg-[#d4af37]/35 transition-colors duration-300 pb-20 print:bg-white print:text-black print:h-auto print:overflow-visible print:p-0 relative overflow-hidden">
+      
+      {/* ── Pano de Fundo Suavizado — Gradiente Radial Difuso ── */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(212,175,55,0.04)_0%,rgba(15,30,54,0.0)_60%)] pointer-events-none print:hidden" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_80%,rgba(15,30,54,0.15)_0%,rgba(7,10,19,0)_65%)] pointer-events-none print:hidden" />
       
       {/* ── CABEÇALHO DO MANUAL (Estilo Papel Timbrado - print:relative) ── */}
       <header className="sticky top-0 z-50 bg-white/95 dark:bg-slate-900/95 border-b border-slate-200 dark:border-slate-800/80 backdrop-blur-md px-6 py-4 flex items-center justify-between shadow-sm print:relative print:border-none print:shadow-none print:bg-white">

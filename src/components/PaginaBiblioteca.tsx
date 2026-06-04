@@ -206,7 +206,11 @@ Todas as informações trocadas com o cliente estão resguardadas sob o manto do
   }).filter(secao => secao.itens.length > 0);
 
   return (
-    <div className="w-full min-h-screen bg-[#fafafc] dark:bg-[#070b12] p-6 font-sans text-slate-800 dark:text-slate-200 transition-colors duration-300 print:bg-white print:text-black print:p-0 print:m-0">
+    <div className="w-full min-h-screen bg-[#fafafc] dark:bg-[#070b12] p-6 font-sans text-slate-800 dark:text-slate-200 transition-colors duration-300 print:bg-white print:text-black print:p-0 print:m-0 relative overflow-hidden">
+
+      {/* ── Pano de Fundo Suavizado — Gradiente Radial Difuso ── */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(212,175,55,0.04)_0%,rgba(15,30,54,0.0)_60%)] pointer-events-none print:hidden" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_80%,rgba(15,30,54,0.15)_0%,rgba(7,10,19,0)_65%)] pointer-events-none print:hidden" />
       
       {/* ── CABEÇALHO DO MÓDULO (PAPEL TIMBRADO PREMIUM) ── */}
       <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white dark:bg-[#0c1424] p-6 mb-6 border border-slate-200/60 dark:border-slate-800 rounded-xl shadow-sm gap-4 print:border-none print:shadow-none print:p-0 print:mb-8">
