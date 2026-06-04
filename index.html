@@ -4,32 +4,91 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <!-- SEO Básico e Autoridade de Marca -->
-  <title>JT - Janaina Tarabauca Advogados | Advocacia de Alta Performance e Assessoria Jurídica Estratégica</title>
-  <meta name="description" content="Escritório de advocacia premium especializado em soluções estratégicas de alto impacto nas esferas cível, trabalhista, empresarial, regulatória e da saúde. Atendimento de excelência com a Dra. Janaina Tarabauca." />
+  <!-- ═══════════════════════════════════════════════════════════════════════════
+       SEO TÉCNICO — JANAINA TARABAUCA ADVOCACIA
+       Atualizado: 2026-06 | Engenheiro: JH Design
+       ═══════════════════════════════════════════════════════════════════════════ -->
+
+  <!-- ── 1. SEO BÁSICO E AUTORIDADE DE MARCA ───────────────────────────────── -->
+  <title>Janaina Tarabauca Advocacia | Banca Jurídica</title>
+  <meta name="description" content="Soluções jurídicas especializadas com excelência, segurança e sigilo profissional. Assessoria cível, empresarial, trabalhista e do consumidor com a Dra. Janaina Tarabauca." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://www.jt-janainatarabauca.com.br" />
 
-  <!-- Palavras-Chave Estratégicas (Para buscadores alternativos) -->
-  <meta name="keywords" content="Janaina Tarabauca, JT Advogados, JT Advocacia, Advogado Direito Médico, Advogada Erro Médico, Liminar Plano de Saúde, Defesa Médica Judicial, Escritório de Advocacia Especializado em Saúde, Janaina Tarabauca Advogados" />
+  <!-- ── 2. PALAVRAS-CHAVE ESTRATÉGICAS ────────────────────────────────────── -->
+  <!-- Nota: keywords têm peso mínimo no Google desde 2009, mas ainda
+       são lidas por Bing, DuckDuckGo e crawlers de diretórios jurídicos. -->
+  <meta name="keywords" content="Janaina Tarabauca, JT Advocacia, Advogada São Paulo, Direito Civil, Direito Empresarial, Direito do Consumidor, Direito Trabalhista, Assessoria Jurídica Empresarial, Contrato Advocatício, OAB SP" />
 
-  <!-- Metadados de Geolocalização (Avançado para busca local) -->
-  <meta name="geo.region" content="BR" />
-  <meta name="geo.position" content="-23.55052;-46.633308" /> <!-- Ajuste com as coordenadas exatas do escritório se houver sede física -->
+  <!-- ── 3. GEOLOCALIZAÇÃO (SEO Local Avançado) ────────────────────────────── -->
+  <meta name="geo.region" content="BR-SP" />
+  <meta name="geo.placename" content="São Paulo" />
+  <meta name="geo.position" content="-23.55052;-46.633308" />
   <meta name="ICBM" content="-23.55052, -46.633308" />
 
-  <!-- Open Graph / Facebook / WhatsApp (Garante visual profissional ao compartilhar o link) -->
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://www.jt-janainatarabauca.com.br" />
-  <meta property="og:title" content="JT - Janaina Tarabauca Advogados | Advocacia de Alta Performance" />
-  <meta property="og:description" content="Assessoria jurídica e contencioso de alta complexidade nas áreas cível, empresarial, trabalhista e da saúde. Fale com a Dra. Janaina Tarabauca." />
-  <meta property="og:image" content="https://www.jt-janainatarabauca.com.br/og-image.jpg" /> <!-- Coloque uma imagem corporativa com essa nomenclatura na pasta public -->
+  <!-- ── 4. OPEN GRAPH — WhatsApp · Facebook · LinkedIn ────────────────────── -->
+  <!--
+    INSTRUÇÕES DE INVALIDAÇÃO DE CACHE APÓS DEPLOY:
+    Sempre que alterar a og:image ou qualquer tag og:* abaixo, force a
+    atualização do cache nas redes sociais usando as ferramentas oficiais:
 
-  <!-- Twitter / X -->
-  <meta property="twitter:card" content="summary_large_image" />
-  <meta property="twitter:url" content="https://www.jt-janainatarabauca.com.br" />
-  <meta property="twitter:title" content="JT - Janaina Tarabauca Advogados" />
-  <meta property="twitter:description" content="Consultoria jurídica estratégica e contencioso de alta complexidade." />
+    ① Facebook / WhatsApp Sharing Debugger:
+       → https://developers.facebook.com/tools/debug/
+       → Cole a URL do site → clique em "Depurar" → depois "Limpar e Recriar Cache"
+       → O WhatsApp usa o mesmo cache do Facebook; aguarde ~5 min para propagação.
+
+    ② LinkedIn Post Inspector:
+       → https://www.linkedin.com/post-inspector/
+       → Cole a URL → clique em "Inspect" → clique em "Re-inspect"
+
+    ③ Twitter / X Card Validator:
+       → https://cards-dev.twitter.com/validator
+       → Cole a URL para visualizar o card summary.
+
+    ④ Dica de Cache-Busting avançado:
+       Se as plataformas persistirem com o cache antigo, adicione um
+       query string versionado à URL da imagem:
+       og:image → /og-jt-logo.png?v=2
+       Isso força todos os crawlers a baixarem um novo asset.
+  -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:locale"      content="pt_BR" />
+  <meta property="og:site_name"   content="Janaina Tarabauca Advocacia" />
+  <meta property="og:url"         content="https://www.jt-janainatarabauca.com.br" />
+  <meta property="og:title"       content="Janaina Tarabauca Advocacia | Banca Jurídica" />
+  <meta property="og:description" content="Soluções jurídicas especializadas com excelência, segurança e sigilo profissional." />
+
+  <!--
+    og:image — Logotipo JT quadrado 600×600px (proporção 1:1)
+    A proporção 1:1 garante:
+    · Mobile (WhatsApp iOS/Android): exibe o logo como thumbnail compacto e simétrico
+    · Desktop (WhatsApp Web / LinkedIn): exibe em bloco centralizado sem corte
+    · Arquivo: /og-jt-logo.png — coloque na pasta /public da Vercel
+    · Tamanho recomendado: 600×600px, fundo #0f1e36, logo JT centralizado em ouro #d4af37
+    · Limite de tamanho: max 8MB (mas mantenha abaixo de 300KB para carregamento rápido)
+  -->
+  <meta property="og:image"        content="https://www.jt-janainatarabauca.com.br/og-jt-logo.png" />
+  <meta property="og:image:secure_url" content="https://www.jt-janainatarabauca.com.br/og-jt-logo.png" />
+  <meta property="og:image:type"   content="image/png" />
+  <meta property="og:image:width"  content="600" />
+  <meta property="og:image:height" content="600" />
+  <meta property="og:image:alt"    content="Logotipo JT — Janaina Tarabauca Advocacia" />
+
+  <!-- ── 5. TWITTER / X CARDS ──────────────────────────────────────────────── -->
+  <!--
+    twitter:card = "summary" (não "summary_large_image")
+    Motivo: o modo "summary" renderiza a og:image como um bloco quadrado
+    compacto ao lado do texto — ideal para logotipos/monogramas como o "JT".
+    O modo "summary_large_image" exibiria a imagem como banner horizontal
+    (16:9), cortando o logo quadrado e perdendo a identidade visual.
+  -->
+  <meta name="twitter:card"        content="summary" />
+  <meta name="twitter:site"        content="@JTAdvocacia" />
+  <meta name="twitter:url"         content="https://www.jt-janainatarabauca.com.br" />
+  <meta name="twitter:title"       content="Janaina Tarabauca Advocacia | Banca Jurídica" />
+  <meta name="twitter:description" content="Soluções jurídicas especializadas com excelência, segurança e sigilo profissional." />
+  <meta name="twitter:image"       content="https://www.jt-janainatarabauca.com.br/og-jt-logo.png" />
+  <meta name="twitter:image:alt"   content="Logotipo JT — Janaina Tarabauca Advocacia" />
 
   <!-- Favicon e Apple Touch Icon -->
   <link rel="icon" type="image/png" href="/logo-jt.png" />
