@@ -1,0 +1,44 @@
+# robots.txt — Janaina Tarabauca Advocacia
+# https://www.janainatarabauca.adv.br/robots.txt
+
+# ── Crawlers de motores de busca ──────────────────────────────
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+# ── Crawlers de redes sociais (ESSENCIAL para Open Graph) ─────
+# Facebook e WhatsApp: necessário para exibir preview do logo JT
+User-agent: facebookexternalhit
+Allow: /
+
+# Instagram (usa o mesmo crawler do Facebook)
+User-agent: Facebot
+Allow: /
+
+# LinkedIn
+User-agent: LinkedInBot
+Allow: /
+
+# Twitter / X
+User-agent: Twitterbot
+Allow: /
+
+# WhatsApp (agente específico para links em conversas)
+User-agent: WhatsApp
+Allow: /
+
+# Telegram
+User-agent: TelegramBot
+Allow: /
+
+# ── Regra geral para todos os outros robôs ────────────────────
+User-agent: *
+Allow: /
+
+# ── Sitemap ───────────────────────────────────────────────────
+Sitemap: https://www.janainatarabauca.adv.br/sitemap.xml
