@@ -22,6 +22,7 @@ export const PaginaContratos: React.FC = () => {
   const [loadingMinuta, setLoadingMinuta] = useState<boolean>(false);
   const [motorIA, setMotorIA] = useState<"gemini" | "openai" | "jus_ia">("jus_ia");
   const [tipoPlano, setTipoPlano] = useState<"mensal" | "anual">("mensal");
+  const [areaSelecionada, setAreaSelecionada] = useState<"civil" | "empresarial" | "trabalhista" | "administrativo">("civil");
 
   // Estado do Toast de Sucesso Emerald
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
@@ -331,7 +332,134 @@ export const PaginaContratos: React.FC = () => {
     setDiaRenovacao(5);
     setValorRecorrencia(formatBRL(1500));
     setSignatureImgUrl(null);
-    handleClearSignature();
+    handleClearSigna  // Helper para gerar o texto da minuta com base na área e tipo de pessoa
+  const gerarTextoMinuta = (
+    area: "civil" | "empresarial" | "trabalhista" | "administrativo",
+    tipoPessoa: "PF" | "PJ",
+    nomeCliente: string,
+    cnpjCpf: string,
+    observacoes: string
+  ): string => {
+    const dataHoje = new Date().toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+
+    const cleanVal = valorRecorrencia.replace(/[^\d]/g, "");
+    const valorNum = cleanVal ? parseInt(cleanVal, 10) / 100 : 1500;
+    const valorFormatado = valorNum.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+    // Áreas do Direito Titles
+    const titulos = {
+      civil: tipoPessoa === "PJ" 
+        ? "CONTRATO DE PRESTAÇÃO DE SERVIÇOS DE CONSULTORIA CÍVEL PREVENTIVA"
+        : "CONTRATO DE PRESTAÇÃO DE SERVIÇOS ADVOCATÍCIOS EM DIREITO CIVIL",
+      empresarial: tipoPessoa === "PJ"
+        ? "ACORDO DE PRESTAÇÃO DE SERVIÇOS EM DIREITO EMPRESARIAL E SOCIETÁRIO"
+        : "CONTRATO DE CONSULTORIA SOCIETÁRIA E CONFIDENCIALIDADE (NDA)",
+      trabalhista: tipoPessoa === "PJ"
+        ? "CONTRATO DE ASSESSORIA TRABALHISTA PREVENTIVA E COMPLIANCE"
+        : "CONTRATO DE PRESTAÇÃO DE SERVIÇOS ADVOCATÍCIOS TRABALHISTAS",
+      administrativo: tipoPessoa === "PJ"
+        ? "CONTRATO DE ASSESSORIA EM DIREITO ADMINISTRATIVO E LICITAÇÕES"
+        : "CONTRATO DE PRESTAÇÃO DE SERVIÇOS JURÍDICOS EM DIREITO ADMINISTRATIVO",
+    };
+
+    const definicaoContratante = tipoPessoa === "PJ"
+      ? `CONTRATANTE: ${nomeCliente.toUpperCase()}, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº ${cnpjCpf}, com sede no endereço cadastrado.`
+      : `CONTRATANTE: ${nomeCliente.toUpperCase()}, portador(a) do CPF sob o nº ${cnpjCpf}, residente e domiciliado(a) no endereço cadastrado.`;
+
+    const definicaoContratada = `CONTRATADA: DRA. JANAINA TARABAUCA, inscrita na OAB/SP sob o nº 123.456, com endereço profissional no escritório JT Advocacia.`;
+
+    // Cláusula do Objeto Dinâmica
+    let clausulaObjeto = "";
+    if (area === "civil") {
+      clausulaObjeto = tipoPessoa === "PJ"
+        ? `O presente instrumento tem como objeto a prestação de serviços de consultoria cível preventiva, incluindo elaboração e revisão de contratos de prestação de serviços, locação, compra e venda, bem como análise de riscos baseada no relato de fatos: "${observacoes || "Sem notas de fatos no prontuário"}".`
+        : `O presente instrumento tem como objeto o patrocínio e representação judicial da parte Contratante em ações de natureza cível, incluindo obrigações, contratos, responsabilidade civil e direitos reais, fundamentando-se especialmente nos fatos e defesas técnicas a seguir: "${observacoes || "Nenhuma observação cadastrada."}".`;
+    } else if (area === "empresarial") {
+      clausulaObjeto = tipoPessoa === "PJ"
+        ? `O presente instrumento tem como objeto a prestação de serviços de assessoria empresarial e societária, abrangendo a elaboração de acordos de sócios, termos de confidencialidade (NDA), estruturação de estatuto social e mitigação de passivos societários, baseada nos fatos descritos: "${observacoes || "Sem notas de fatos no prontuário"}".`
+        : `O presente instrumento tem como objeto a assessoria jurídica preventiva individual em direito empresarial, regulando obrigações de confidencialidade (NDA), estruturação societária inicial de sócios ou parceiros comerciais, e análise jurídica dos fatos a seguir: "${observacoes || "Nenhuma observação cadastrada."}".`;
+    } else if (area === "trabalhista") {
+      clausulaObjeto = tipoPessoa === "PJ"
+        ? `O presente instrumento tem como objeto a prestação de serviços de consultoria trabalhista preventiva, incluindo auditoria de contratos de trabalho, acordos de rescisão contratual e elaboração de pareceres de prevenção de passivo trabalhista, baseada nos fatos descritos: "${observacoes || "Sem notas de fatos no prontuário"}".`
+        : `O presente instrumento tem como objeto a representação e patrocínio dos interesses do Contratante em reclamações trabalhistas e consultoria individual de direitos de trabalho, fundamentando-se especialmente nos fatos e defesas técnicas a seguir: "${observacoes || "Nenhuma observação cadastrada."}".`;
+    } else if (area === "administrativo") {
+      clausulaObjeto = tipoPessoa === "PJ"
+        ? `O presente instrumento tem como objeto a prestação de serviços de assessoria em Direito Administrativo, com foco em análise jurídica de editais de licitação, elaboração de recursos e impugnações administrativas, e defesa técnica baseada nos fatos descritos: "${observacoes || "Sem notas de fatos no prontuário"}".`
+        : `O presente instrumento tem como objeto o patrocínio e representação judicial ou administrativa do Contratante em face de órgãos públicos, concursos públicos, processos disciplinares ou recursos correlatos, fundamentando-se nos fatos descritos: "${observacoes || "Nenhuma observação cadastrada."}".`;
+    }
+
+    return `${titulos[area]}
+
+${definicaoContratante}
+
+${definicaoContratada}
+
+CLÁUSULA PRIMEIRA - DO OBJETO:
+${clausulaObjeto}
+
+CLÁUSULA SEGUNDA - DA CONFIDENCIALIDADE:
+As partes se comprometem a manter sigilo absoluto sobre todas as informações comerciais, operacionais ou técnicas de que venham a ter conhecimento em virtude deste contrato, sob pena de responsabilização civil e contratual.
+
+CLÁUSULA TERCEIRA - DA VIGÊNCIA E RESCISÃO:
+O contrato terá vigência de 12 (doze) meses a contar da data de início acordada, com renovação automática. A rescisão imotivada exigirá aviso prévio por escrito de 30 dias.
+
+CLÁUSULA QUARTA - DOS HONORÁRIOS:
+Pelos serviços preventivos contratados, o CONTRATANTE pagará à CONTRATADA o valor de ${valorFormatado} em caráter recorrente, via boleto bancário ou transferência, com vencimento todo dia ${diaRenovacao} de cada mês.
+
+Foro de Eleição: Fica eleito o foro da Comarca de São Paulo/SP para dirimir eventuais dúvidas.
+
+São Paulo, ${dataHoje}.
+
+__________________________________
+${nomeCliente} (Contratante)
+
+__________________________________
+Dra. Janaina Tarabauca (Contratada)`;
+  };
+
+  // Teste de validação cruzada para garantir ausência de vazamento de contexto
+  const executarTesteValidacaoCruzada = () => {
+    const termosProibidos = [
+      "médico", "medico", "saúde", "saude", "hospitalar", "clínica", "clinica",
+      "paciente", "crm", "cfm", "corpo clínico", "corpo clinico", "erro médico", "erro medico"
+    ];
+
+    const areas: ("civil" | "empresarial" | "trabalhista" | "administrativo")[] = [
+      "civil", "empresarial", "trabalhista", "administrativo"
+    ];
+
+    const tiposPessoa: ("PF" | "PJ")[] = ["PF", "PJ"];
+    let logs: string[] = [];
+    let passou = true;
+
+    for (const area of areas) {
+      for (const tipo of tiposPessoa) {
+        const texto = gerarTextoMinuta(area, tipo, "Cliente Teste", "123.456.789-00", "Fatos de teste para homologação.");
+        
+        const termosEncontrados = termosProibidos.filter(termo => 
+          texto.toLowerCase().includes(termo.toLowerCase())
+        );
+
+        if (termosEncontrados.length > 0) {
+          passou = false;
+          logs.push(`❌ Falha: Área [${area}] (${tipo}) contém termos proibidos: ${termosEncontrados.join(", ")}`);
+        } else {
+          logs.push(`✅ Sucesso: Área [${area}] (${tipo}) livre de termos da saúde.`);
+        }
+      }
+    }
+
+    if (passou) {
+      showToast("Validação Cruzada: 100% livre de vazamento!", "success");
+      alert("🏆 Teste de Validação Cruzada Aprovado!\n\n" + logs.join("\n"));
+    } else {
+      showToast("Falha na Validação Cruzada!", "error");
+      alert("🚨 Erro de Vazamento de Contexto Detectado:\n\n" + logs.join("\n"));
+    }
   };
 
   // Ação de geração de Minuta via IA
@@ -351,73 +479,14 @@ export const PaginaContratos: React.FC = () => {
 
       const nomeCliente = clienteAtivo?.nome || "Cliente";
       const cnpjCpf = clienteAtivo?.cpf_cnpj || "00.000.000/0001-00";
-      const dataHoje = new Date().toLocaleDateString("pt-BR", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      });
 
-      let minutaGerada = "";
-
-      if (clienteAtivo?.tipo_pessoa === "PJ") {
-        minutaGerada = `CONTRATO DE ASSESSORIA JURÍDICA PREVENTIVA EM DIREITO MÉDICO
-
-CONTRATANTE: ${nomeCliente.toUpperCase()}, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº ${cnpjCpf}, com sede no endereço cadastrado em prontuário.
-
-CONTRATADA: DRA. JANAINA TARABAUCA, inscrita na OAB/SP sob o nº 123.456, com endereço profissional no escritório JT Advocacia.
-
-CLÁUSULA PRIMEIRA - DO OBJETO:
-O presente instrumento tem como objeto a prestação de serviços de consultoria preventiva e auditoria em Direito Médico, abrangendo especificamente:
-a) Auditoria detalhada de prontuários médicos e fichas de consentimento informado.
-b) Elaboração de relatórios de compliance regulatório com base nas diretrizes do Conselho Federal de Medicina (CFM) e ANVISA.
-c) Treinamento preventivo de corpo clínico para mitigação de riscos de erro médico.
-d) Análise jurídica preventiva baseada no relato de fatos: "${clienteAtivo.observacoes || "Sem notas de fatos no prontuário"}".
-
-CLÁUSULA SEGUNDA - DA CONFIDENCIALIDADE:
-As partes se comprometem a manter sigilo absoluto sobre todas as informações médicas, operacionais ou técnicas de que venham a ter conhecimento em virtude deste contrato, sob pena de responsabilização civil e criminal.
-
-CLÁUSULA TERCEIRA - DA VIGÊNCIA E RESCISÃO:
-O contrato terá vigência de 12 (doze) meses a contar da data de início acordada, com renovação automática. A rescisão imotivada exigirá aviso prévio por escrito de 30 dias.
-
-CLÁUSULA QUARTA - DOS HONORÁRIOS:
-Pelos serviços preventivos contratados, o CONTRATANTE pagará à CONTRATADA o valor de ${parseFloat(valorRecorrencia).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} em caráter recorrente, via boleto bancário ou transferência, com vencimento todo dia ${diaRenovacao} de cada mês.
-
-E por estarem justos e contratados, assinam o presente instrumento.
-
-São Paulo, ${dataHoje}.
-
-__________________________________
-${nomeCliente} (Contratante)
-
-__________________________________
-Dra. Janaina Tarabauca (Contratada)`;
-      } else {
-        minutaGerada = `CONTRATO DE PRESTAÇÃO DE SERVIÇOS ADVOCATÍCIOS DE DEFESA MÉDICA
-
-CONTRATANTE: ${nomeCliente.toUpperCase()}, profissional da saúde, portador do CPF sob o nº ${cnpjCpf}, residente e domiciliado no endereço cadastrado em prontuário.
-
-CONTRATADA: DRA. JANAINA TARABAUCA, inscrita na OAB/SP sob o nº 123.456, com endereço profissional no escritório JT Advocacia.
-
-CLÁUSULA PRIMEIRA - DO OBJETO:
-O presente instrumento tem como objeto o patrocínio e representação judicial da parte Contratante em ações de indenização por erro médico e processos administrativo-disciplinares junto ao CRM, fundamentando-se especialmente nos fatos e defesas técnicas a seguir:
-"${clienteAtivo.observacoes || "Nenhuma observação cadastrada."}"
-
-CLÁUSULA SEGUNDA - DAS OBRIGAÇÕES DA CONTRATADA:
-A Contratada obriga-se a prestar seus serviços profissionais com o devido zelo técnico e de acordo com as normas éticas contidas no Estatuto da Advocacia e da OAB, acompanhando todas as fases processuais judiciais ou administrativas.
-
-CLÁUSULA TERCERA - DOS HONORÁRIOS CONTRATUAIS:
-Pelos serviços contenciosos prestados, o CONTRATANTE pagará à CONTRATADA o valor de ${parseFloat(valorRecorrencia).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}, com vencimento conforme acordado e liquidado diretamente pelo sistema.
-
-Foro de Eleição: Fica eleito o foro da Comarca de São Paulo/SP para dirimir eventuais dúvidas.
-
-São Paulo, ${dataHoje}.
-
-__________________________________
-${nomeCliente} (Contratante)
-
-__________________________________
-Dra. Janaina Tarabauca (Contratada)`;
-      }
+      const minutaGerada = gerarTextoMinuta(
+        areaSelecionada,
+        clienteAtivo?.tipo_pessoa || "PF",
+        nomeCliente,
+        cnpjCpf,
+        clienteAtivo?.observacoes || ""
+      );
 
       setMinutaTexto(minutaGerada);
     } catch (err: any) {
@@ -446,10 +515,16 @@ Dra. Janaina Tarabauca (Contratada)`;
       }
       const diaFinal = parseInt(diaRenovacao.toString());
 
+      const areaNome = 
+        areaSelecionada === "civil" ? "Direito Civil" :
+        areaSelecionada === "empresarial" ? "Direito Empresarial" :
+        areaSelecionada === "trabalhista" ? "Direito Trabalhista" :
+        "Direito Administrativo";
+
       const nomePlano =
         tipoPlano === "mensal"
-          ? "Assessoria Prontuário Médico (Mensal)"
-          : "Defesa Integral + Auditoria (Anual Premium)";
+          ? `Assessoria Preventiva - ${areaNome} (Mensal)`
+          : `Defesa Integral e Compliance - ${areaNome} (Anual Premium)`;
 
       // 1. Insere o lançamento financeiro recorrente
       const novoLancamento = {
@@ -731,7 +806,7 @@ Dra. Janaina Tarabauca (Contratada)`;
 
           {/* Selecionar Cliente */}
           <div className="space-y-2">
-            <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+            <label className="block text-xs md:text-sm font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
               Cliente do Contrato *
             </label>
             {loadingClientes ? (
@@ -744,7 +819,7 @@ Dra. Janaina Tarabauca (Contratada)`;
                   setMinutaTexto(""); // Limpa o rascunho/esboço anterior
                   handleClearSignature(); // Reseta assinaturas vinculadas
                 }}
-                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2.5 text-xs text-[#0f1e36] dark:text-slate-200 focus:outline-none focus:border-[#d4af37] cursor-pointer font-semibold"
+                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2.5 text-sm md:text-base text-[#0f1e36] dark:text-slate-200 focus:outline-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37] cursor-pointer font-semibold"
               >
                 <option value="">Selecione um cliente...</option>
                 {clientes.map((c) => (
@@ -754,6 +829,27 @@ Dra. Janaina Tarabauca (Contratada)`;
                 ))}
               </select>
             )}
+          </div>
+
+          {/* Selecionar Área do Direito */}
+          <div className="space-y-2">
+            <label className="block text-xs md:text-sm font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+              Área do Direito / Especialidade *
+            </label>
+            <select
+              value={areaSelecionada}
+              onChange={(e) => {
+                setAreaSelecionada(e.target.value as any);
+                setMinutaTexto(""); // Limpa o rascunho/esboço anterior
+                handleClearSignature(); // Reseta assinaturas vinculadas
+              }}
+              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2.5 text-sm md:text-base text-[#0f1e36] dark:text-slate-200 focus:outline-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37] cursor-pointer font-semibold"
+            >
+              <option value="civil">⚖️ Direito Civil</option>
+              <option value="empresarial">🏢 Direito Empresarial / Societário</option>
+              <option value="trabalhista">💼 Direito Trabalhista</option>
+              <option value="administrativo">🏛️ Direito Administrativo</option>
+            </select>
           </div>
 
           {/* Fatos Narrados + Badge de Assinatura */}
@@ -854,9 +950,17 @@ Dra. Janaina Tarabauca (Contratada)`;
               <button
                 onClick={handleGerarMinuta}
                 disabled={loadingMinuta || !clienteSelecionadoId}
-                className="bg-[#0f1e36] text-white px-6 py-3 rounded text-xs font-bold uppercase tracking-wide border-b border-[#d4af37] hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-[#0f1e36] transition-all cursor-pointer"
+                className="bg-[#0f1e36] text-white px-6 py-3 rounded text-sm md:text-base font-bold uppercase tracking-wide border-b border-[#d4af37] hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-[#0f1e36] transition-all cursor-pointer"
               >
-                {loadingMinuta ? "Processando Minuta Jurídica..." : "Gerar Minuta por IA"}
+                {loadingMinuta ? "Processando..." : "Gerar Minuta por IA"}
+              </button>
+
+              <button
+                type="button"
+                onClick={executarTesteValidacaoCruzada}
+                className="bg-transparent text-[#0f1e36] dark:text-[#d4af37] border border-[#d4af37] hover:bg-[#d4af37] hover:text-[#0f1e36] dark:hover:text-[#0f1e36] px-5 py-3 rounded text-sm md:text-base font-bold uppercase tracking-wide transition-all cursor-pointer"
+              >
+                🧪 Testar Validação Cruzada
               </button>
             </div>
 
@@ -910,7 +1014,10 @@ Dra. Janaina Tarabauca (Contratada)`;
                         Janaina Tarabauca Advogados
                       </h2>
                       <p className="text-[10px] uppercase tracking-widest text-[#d4af37] font-bold mt-0.5">
-                        Direito Médico e da Saúde
+                        {areaSelecionada === "civil" && "Direito Civil"}
+                        {areaSelecionada === "empresarial" && "Direito Empresarial / Societário"}
+                        {areaSelecionada === "trabalhista" && "Direito Trabalhista"}
+                        {areaSelecionada === "administrativo" && "Direito Administrativo"}
                       </p>
                     </div>
                   </div>
@@ -1038,7 +1145,7 @@ Dra. Janaina Tarabauca (Contratada)`;
                 <div>
                   <strong className="text-xs font-bold block text-[#0f1e36] dark:text-slate-200">Plano Mensal</strong>
                   <span className="text-[10px] text-slate-500 dark:text-slate-400 font-light block leading-normal mt-1">
-                    Assessoria preventiva jurídica com análise recorrente de prontuários.
+                    Assessoria preventiva jurídica com suporte mensal e análise de contratos.
                   </span>
                 </div>
                 <strong className="text-sm font-bold mt-2 block text-[#0f1e36] dark:text-slate-200">R$ 1.500,00 / mês</strong>
@@ -1057,7 +1164,7 @@ Dra. Janaina Tarabauca (Contratada)`;
                 <div>
                   <strong className="text-xs font-bold block text-[#0f1e36] dark:text-slate-200">Plano Anual Premium</strong>
                   <span className="text-[10px] text-slate-500 dark:text-slate-400 font-light block leading-normal mt-1">
-                    Defesa integral contenciosa, auditoria clínica corporativa e compliance regulatório.
+                    Defesa integral contenciosa, assessoria jurídica preventiva corporativa e compliance de normas.
                   </span>
                 </div>
                 <strong className="text-sm font-bold mt-2 block text-[#0f1e36] dark:text-slate-200">R$ 15.000,00 / ano</strong>
