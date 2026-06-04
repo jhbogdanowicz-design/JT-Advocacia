@@ -7064,8 +7064,11 @@ function triggerContratoClientSelected() {
       contratosMinutaTextarea.style.display = "none";
     }
     if (contratosMinutaVisualizacao) {
-      contratosMinutaVisualizacao.textContent = "";
-      contratosMinutaVisualizacao.style.display = "none";
+      contratosMinutaVisualizacao.textContent = "Nenhuma minuta gerada. Clique em 'Esboçar Cláusulas Contratuais' para iniciar.";
+      contratosMinutaVisualizacao.style.display = "block";
+      contratosMinutaVisualizacao.contentEditable = "false";
+      contratosMinutaVisualizacao.style.border = "1px solid var(--panel-border)";
+      contratosMinutaVisualizacao.style.background = "rgba(255, 255, 255, 0.03)";
     }
     if (btnContratosEditar) btnContratosEditar.style.display = "none";
     contractsIsEditing = false;
@@ -7530,15 +7533,18 @@ function initContratosModule() {
       
       try {
         if (contractsIsEditing) {
-          // Concluir Edição: muda para modo de visualização
-          const newText = contratosMinutaTextarea ? contratosMinutaTextarea.value : "";
-          console.log("[Contratos] Concluindo edição. Tamanho do texto:", newText.length);
+          // Concluir Edição: muda para modo de visualização (desativa contentEditable)
           if (contratosMinutaVisualizacao) {
-            contratosMinutaVisualizacao.textContent = newText;
-            contratosMinutaVisualizacao.style.display = "block";
-          }
-          if (contratosMinutaTextarea) {
-            contratosMinutaTextarea.style.display = "none";
+            contratosMinutaVisualizacao.contentEditable = "false";
+            contratosMinutaVisualizacao.style.border = "1px solid var(--panel-border)";
+            contratosMinutaVisualizacao.style.background = "rgba(255, 255, 255, 0.03)";
+            
+            // Sincroniza o texto editado no div de volta para a textarea
+            const newText = contratosMinutaVisualizacao.innerText;
+            console.log("[Contratos] Concluindo edição direta. Tamanho do texto:", newText.length);
+            if (contratosMinutaTextarea) {
+              contratosMinutaTextarea.value = newText;
+            }
           }
           btnContratosEditar.innerHTML = "✏️ Editar Texto";
           btnContratosEditar.style.background = "var(--navy)";
@@ -7546,20 +7552,22 @@ function initContratosModule() {
           btnContratosEditar.style.borderColor = "rgba(197, 168, 92, 0.3)";
           contractsIsEditing = false;
         } else {
-          // Editar Texto: muda para modo textarea
-          console.log("[Contratos] Habilitando modo de edição (textarea)...");
+          // Editar Texto: ativa contentEditable diretamente no visualizador
+          console.log("[Contratos] Habilitando modo de edição direta (contentEditable)...");
           if (contratosMinutaVisualizacao) {
-            contratosMinutaVisualizacao.style.display = "none";
-          }
-          if (contratosMinutaTextarea) {
-            contratosMinutaTextarea.style.display = "block";
+            contratosMinutaVisualizacao.contentEditable = "true";
+            
+            // Estilo visual de edição (borda tracejada dourada, fundo destacado)
+            contratosMinutaVisualizacao.style.border = "2px dashed var(--gold)";
+            contratosMinutaVisualizacao.style.background = "rgba(255, 255, 255, 0.05)";
+            
             // Foca com timeout de segurança para garantir renderização prévia do navegador
             setTimeout(() => {
               try {
-                contratosMinutaTextarea.focus();
-                console.log("[Contratos] Textarea focado com sucesso.");
+                contratosMinutaVisualizacao.focus();
+                console.log("[Contratos] Elemento de visualização focado.");
               } catch (focusErr) {
-                console.warn("[Contratos] Falha ao focar o textarea:", focusErr);
+                console.warn("[Contratos] Falha ao focar o elemento de visualização:", focusErr);
               }
             }, 50);
           }
@@ -7571,6 +7579,20 @@ function initContratosModule() {
         }
       } catch (err) {
         console.error("[Contratos] Erro ao alternar modo de edição:", err);
+      }
+    });
+  }
+
+  // Sincronização em tempo real da edição contentEditable para a textarea (que é lida pelo PDF)
+  if (contratosMinutaVisualizacao) {
+    contratosMinutaVisualizacao.addEventListener("input", () => {
+      if (contratosMinutaTextarea) {
+        contratosMinutaTextarea.value = contratosMinutaVisualizacao.innerText;
+      }
+    });
+    contratosMinutaVisualizacao.addEventListener("blur", () => {
+      if (contratosMinutaTextarea) {
+        contratosMinutaTextarea.value = contratosMinutaVisualizacao.innerText;
       }
     });
   }

@@ -1375,22 +1375,24 @@ NÃO utilize termos genéricos de contratos cíveis comuns. Use jargões técnic
                     </span>
                   </div>
 
-                  {/* Texto do Contrato */}
+                  {/* Texto do Contrato com Edição Direta na Tela */}
                   <div className="w-full min-h-[400px] overflow-y-auto">
-                    {estaEditando ? (
-                      <textarea
-                        value={minutaTexto}
-                        onChange={(e) => setMinutaTexto(e.target.value)}
-                        rows={18}
-                        className="w-full p-4 text-sm md:text-base font-mono text-slate-800 bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d4af37] focus:border-transparent leading-relaxed resize-y"
-                        placeholder="Modifique as cláusulas contratuais aqui..."
-                      />
-                    ) : (
-                      // Modo de Leitura/Visualização: Preserva a formatação para o html2canvas capturar o PDF
-                      <div className="prose max-w-none text-sm md:text-base text-slate-800 dark:text-slate-100 leading-relaxed whitespace-pre-line font-serif">
-                        {minutaTexto}
-                      </div>
-                    )}
+                    <div 
+                      id="contrato-impressao" 
+                      contentEditable={estaEditando}
+                      suppressContentEditableWarning={true}
+                      onBlur={(e) => {
+                        setMinutaTexto(e.currentTarget.innerText);
+                      }}
+                      className={`p-6 rounded-lg min-h-[400px] transition-all duration-200 text-sm md:text-base text-slate-800 dark:text-slate-100 leading-relaxed whitespace-pre-line font-serif ${
+                        estaEditando 
+                          ? "bg-slate-50 dark:bg-slate-900 border-2 border-dashed border-[#d4af37] focus:outline-none focus:bg-white dark:focus:bg-slate-800 shadow-inner" 
+                          : "bg-white dark:bg-slate-950 border border-transparent"
+                      }`}
+                      style={{ outline: 'none' }}
+                    >
+                      {minutaTexto || "Nenhuma minuta gerada. Selecione a área, narre os fatos e clique em 'Esboçar cláusulas contratuais' para iniciar."}
+                    </div>
                   </div>
 
                   {/* BLOCO DE ASSINATURAS E TIMESTAMP - VISÍVEL NO PREVIEW */}
