@@ -8047,18 +8047,22 @@ function initBibliotecaModule() {
 }
 
 // Chamar a inicialização ao carregar a página
-document.addEventListener("DOMContentLoaded", () => {
+let appInitialized = false;
+function initAllModules() {
+  if (appInitialized) return;
+  appInitialized = true;
+  console.log("[JT Advocacia] Inicializando módulos do sistema de forma segura e única...");
   initFinanceiroFilters();
   initContratosModule();
   initLawyerSignatureCanvas();
   initDocumentacaoModule();
   initBibliotecaModule();
-});
+}
+
+// Chamar a inicialização ao carregar a página
+document.addEventListener("DOMContentLoaded", initAllModules);
+
 // Caso o DOMContentLoaded já tenha disparado, rodamos imediatamente
 if (document.readyState === "complete" || document.readyState === "interactive") {
-  initFinanceiroFilters();
-  initContratosModule();
-  initLawyerSignatureCanvas();
-  initDocumentacaoModule();
-  initBibliotecaModule();
+  initAllModules();
 }

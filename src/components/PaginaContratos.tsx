@@ -1378,7 +1378,7 @@ NÃO utilize termos genéricos de contratos cíveis comuns. Use jargões técnic
                   {/* Texto do Contrato com Edição Direta na Tela */}
                   <div className="w-full min-h-[400px] overflow-y-auto">
                     <div 
-                      id="contrato-impressao" 
+                      id="contrato-texto-editavel" 
                       contentEditable={estaEditando}
                       suppressContentEditableWarning={true}
                       onBlur={(e) => {
@@ -2069,22 +2069,20 @@ NÃO utilize termos genéricos de contratos cíveis comuns. Use jargões técnic
           renderize o conteúdo completamente, mas o usuário não enxerga.
           ═══════════════════════════════════════════════════════════════════════ */}
       {minutaTexto && (
-        <div
-          ref={pdfContainerRef}
-          id="pdf-contrato-offscreen"
-          style={{
-            position: "absolute",
-            top: "-9999px",
-            left: "-9999px",
-            width: "794px",        /* Largura A4 a 96dpi */
-            minHeight: "1123px",   /* Altura A4 a 96dpi */
-            backgroundColor: "#ffffff",
-            color: "#000000",
-            fontFamily: "Georgia, 'Times New Roman', serif",
-            padding: "60px 70px",
-            boxSizing: "border-box",
-          }}
-        >
+        <div style={{ width: 0, height: 0, overflow: "hidden", position: "fixed", top: 0, left: 0, zIndex: -9999 }}>
+          <div
+            ref={pdfContainerRef}
+            id="pdf-contrato-offscreen"
+            style={{
+              width: "794px",        /* Largura A4 a 96dpi */
+              minHeight: "1123px",   /* Altura A4 a 96dpi */
+              backgroundColor: "#ffffff",
+              color: "#000000",
+              fontFamily: "Georgia, 'Times New Roman', serif",
+              padding: "60px 70px",
+              boxSizing: "border-box",
+            }}
+          >
           {/* ── TIMBRADO ── */}
           <div style={{ display: "flex", alignItems: "center", gap: "16px", borderBottom: "3px solid #d4af37", paddingBottom: "16px", marginBottom: "24px" }}>
             <div>
@@ -2198,7 +2196,8 @@ NÃO utilize termos genéricos de contratos cíveis comuns. Use jargões técnic
             </p>
           </div>
         </div>
-      )}
+      </div>
+    )}
     </div>
   );
 };
