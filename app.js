@@ -2758,6 +2758,11 @@ editLawyerForm.addEventListener("submit", async (e) => {
     alert("Perfil profissional atualizado com sucesso!");
     modalEditLawyer.style.display = "none";
 
+    // Refresh contracts active profile cache and signatures
+    if (typeof loadContratosData === "function") {
+      loadContratosData();
+    }
+
     // Atualizar UI
     const primeName = name.split(' ')[0];
     let saudacao = "Bem-vindo(a), Dr(a).";
