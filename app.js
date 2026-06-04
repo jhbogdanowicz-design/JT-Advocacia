@@ -351,6 +351,7 @@ const contratosPrintClientName = document.getElementById("contratos-print-client
 const contratosPrintSigTimestamp = document.getElementById("contratos-print-sig-timestamp");
 const contratosPrintLawyerSigImg = document.getElementById("contratos-print-lawyer-sig-img");
 const contratosPrintLawyerSigFallback = document.getElementById("contratos-print-lawyer-sig-fallback");
+const contratosPrintLawyerNameLabel = document.getElementById("contratos-print-lawyer-name-label");
 
 // Elementos de Assinatura da Advogada (Configuração de Perfil)
 const lawyerSignatureCanvas = document.getElementById("lawyer-signature-canvas");
@@ -6643,6 +6644,7 @@ function initFinanceiroFilters() {
 // 📜 MÓDULO DE GESTÃO DE CONTRATOS & IA MINUTAS
 // =========================================================================
 let contratosClientesList = [];
+let activeLawyerProfile = null;
 let contratosSelectedClienteId = "";
 let contratosActiveMotor = "gemini";
 let contratosActiveTab = "minuta";
@@ -6690,17 +6692,48 @@ async function loadContratosData() {
       contratosClientSelect.appendChild(opt);
     });
     
-    // 2. Carregar assinatura da advogada logada para a impressão
+    // 2. Carregar dados do advogado logado (perfil) para o contrato e assinatura
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       const { data: lawyerData } = await supabase
         .from("advogados")
-        .select("assinatura_digital_url")
+        .select("*")
         .eq("id", user.id)
         .single();
-      if (lawyerData && lawyerData.assinatura_digital_url) {
+      
+      if (lawyerData) {
+        activeLawyerProfile = {
+          id: user.id,
+          email: user.email || "",
+          nome: lawyerData.nome || user.user_metadata?.nome || "Dra. Janaina Tarabauca",
+          oab: lawyerData.oab || user.user_metadata?.oab || "123.456",
+          tratamento: lawyerData.tratamento || user.user_metadata?.tratamento || "Dra.",
+          telefone: lawyerData.telefone || "",
+          assinatura_digital_url: lawyerData.assinatura_digital_url || user.user_metadata?.assinatura_digital_url || null,
+          cpf_cnpj: lawyerData.cpf_cnpj || "12.345.678/0001-90",
+          endereco_profissional: lawyerData.endereco_profissional || "Av. Paulista, 1000, 16º andar, São Paulo/SP",
+        };
+      } else {
+        activeLawyerProfile = {
+          id: user.id,
+          email: user.email || "",
+          nome: user.user_metadata?.nome || "Dra. Janaina Tarabauca",
+          oab: user.user_metadata?.oab || "123.456",
+          tratamento: user.user_metadata?.tratamento || "Dra.",
+          telefone: user.user_metadata?.telefone || "",
+          assinatura_digital_url: user.user_metadata?.assinatura_digital_url || null,
+          cpf_cnpj: "12.345.678/0001-90",
+          endereco_profissional: "Av. Paulista, 1000, 16º andar, São Paulo/SP",
+        };
+      }
+
+      if (activeLawyerProfile.nome && contratosPrintLawyerNameLabel) {
+        contratosPrintLawyerNameLabel.textContent = `${activeLawyerProfile.tratamento || "Dr."} ${activeLawyerProfile.nome}`.toUpperCase();
+      }
+
+      if (activeLawyerProfile.assinatura_digital_url) {
         if (contratosPrintLawyerSigImg) {
-          contratosPrintLawyerSigImg.src = lawyerData.assinatura_digital_url;
+          contratosPrintLawyerSigImg.src = activeLawyerProfile.assinatura_digital_url;
           contratosPrintLawyerSigImg.style.display = "block";
         }
         if (contratosPrintLawyerSigFallback) {
@@ -7063,11 +7096,12 @@ function generateContratosPromptText(client) {
   const docTipo = client.tipo_pessoa === "PJ"
     ? "Contrato de Assessoria Médica Preventiva e Auditoria Corporativa"
     : "Contrato de Prestação de Serviços de Defesa Médica Contenciosa";
+  const nomeAdv = activeLawyerProfile?.nome || "Dra. Janaina Tarabauca";
   return `Você é o JUS IA, um assistente jurídico sênior e parecerista altamente qualificado.
 Esboce um ${docTipo} personalizado com base nas informações do cliente a seguir:
 
 DADOS CONTRATUAIS DE SUPORTE:
-- Advogado Responsável: Dra. Janaina Tarabauca
+- Advogado Responsável: ${nomeAdv}
 - Nome do Cliente: ${client.nome}
 - Documento: ${client.cpf_cnpj || "Não cadastrado"}
 - Área de Foco: ${area}
@@ -7078,7 +7112,7 @@ RELATO DE FATOS E NECESSIDADES DO PRONTUÁRIO:
 DIRETRIZES DE REDAÇÃO CONTRATUAL:
 1. Comece com um cabeçalho profissional e qualificação completa das partes.
 2. Defina o Objeto do Contrato de forma clara, focando na defesa e conformidade exigida nos fatos.
-3. Estabeleça Obrigações da Contratada (Dra. Janaina Tarabauca) e Obrigações do Contratante de acordo com o padrão ético da OAB.
+3. Estabeleça Obrigações da Contratada (${nomeAdv}) e Obrigações do Contratante de acordo com o padrão ético da OAB.
 4. Escreva uma cláusula de confidencialidade estrita (segredo de justiça e sigilo médico).
 5. Defina o Foro de eleição competente para solucionar eventuais litígios.
 
@@ -7163,8 +7197,13 @@ async function executeEsbocarContrato() {
       clausulaObjeto = `O presente instrumento tem como objeto a prestação de serviços advocatícios para representação e patrocínio dos interesses civis da parte Contratante, judicial ou extrajudicialmente, baseando-se nos fatos narrados: ${fatosParte}`;
     }
 
+    const nomeAdv = activeLawyerProfile?.nome || "Janaina Tarabauca";
+    const oabAdv = activeLawyerProfile?.oab || "123.456";
+    const tratamentoAdv = activeLawyerProfile?.tratamento || "Dra.";
+    const enderecoAdv = activeLawyerProfile?.endereco_profissional || "no escritório JT Advocacia";
+
     const definicaoContratante = `CONTRATANTE: ${nomeCliente.toUpperCase()}, na qualidade de ${qualificacaoContratante}, portador(a) do CPF/CNPJ sob o nº ${cnpjCpf}, residente, domiciliado(a) ou sediado(a) no endereço cadastrado.`;
-    const definicaoContratada = `CONTRATADA: DRA. JANAINA TARABAUCA, inscrita na OAB/SP sob o nº 123.456, com endereço profissional no escritório JT Advocacia.`;
+    const definicaoContratada = `CONTRATADA: ${nomeAdv.toUpperCase()}, inscrita na OAB sob o nº ${oabAdv}, com endereço profissional ${enderecoAdv.startsWith("em ") || enderecoAdv.startsWith("no ") ? "" : "em "}${enderecoAdv}.`;
 
     minutaGerada = `${tituloContrato}
 
@@ -7192,7 +7231,7 @@ __________________________________
 ${nomeCliente} (Contratante)
 
 __________________________________
-Dra. Janaina Tarabauca (Contratada)`;
+${tratamentoAdv} ${nomeAdv} (Contratada)`;
     
     contratosMinutaTextarea.value = minutaGerada;
     contratosMinutaTextarea.style.display = "block";
