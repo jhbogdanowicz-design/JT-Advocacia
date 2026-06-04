@@ -1525,61 +1525,63 @@ NÃO utilize termos genéricos de contratos cíveis comuns. Use jargões técnic
             </div>
 
             {/* Configuração de Valores & Histórico de Cobranças Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-2">
+            <div className="space-y-6 pt-2">
               {/* Lado Esquerdo: Inputs e Ação */}
-              <form onSubmit={handleAtivarAssinatura} className="space-y-4">
-                <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 pb-1.5">
+              <form onSubmit={handleAtivarAssinatura} className="space-y-4 border-b border-slate-100 dark:border-slate-800 pb-6">
+                <h4 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 pb-1.5">
                   🛠️ Parâmetros de Faturamento
                 </h4>
                 
-                <div className="space-y-1.5">
-                  <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-                    Início da Vigência
-                  </label>
-                  <input
-                    type="date"
-                    value={dataInicio}
-                    onChange={(e) => setDataInicio(e.target.value)}
-                    required
-                    className="w-full bg-slate-50 dark:bg-[#070a13] border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-xs text-[#0f1e36] dark:text-slate-200 focus:outline-none focus:border-[#d4af37]"
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                      Início da Vigência
+                    </label>
+                    <input
+                      type="date"
+                      value={dataInicio}
+                      onChange={(e) => setDataInicio(e.target.value)}
+                      required
+                      className="w-full bg-slate-50 dark:bg-[#070a13] border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-[#0f1e36] dark:text-slate-200 focus:outline-none focus:border-[#d4af37]"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                      Dia do Vencimento Mensal
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={31}
+                      value={diaRenovacao}
+                      onChange={(e) => setDiaRenovacao(parseInt(e.target.value) || 5)}
+                      required
+                      className="w-full bg-slate-50 dark:bg-[#070a13] border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-[#0f1e36] dark:text-slate-200 focus:outline-none focus:border-[#d4af37]"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-[#0f1e36] dark:text-slate-200 uppercase tracking-widest">
+                      Valor da Mensalidade/Anuidade (R$)
+                    </label>
+                    <input
+                      type="text"
+                      value={valorRecorrencia}
+                      onChange={(e) => handleCurrencyInputChange(e.target.value, setValorRecorrencia)}
+                      required
+                      className="w-full bg-slate-50 dark:bg-[#070a13] border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-[#0f1e36] dark:text-slate-200 focus:outline-none focus:border-[#d4af37] font-mono font-bold"
+                    />
+                  </div>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-                    Dia do Vencimento Mensal
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={31}
-                    value={diaRenovacao}
-                    onChange={(e) => setDiaRenovacao(parseInt(e.target.value) || 5)}
-                    required
-                    className="w-full bg-slate-50 dark:bg-[#070a13] border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-xs text-[#0f1e36] dark:text-slate-200 focus:outline-none focus:border-[#d4af37]"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-[10px] font-bold text-[#0f1e36] dark:text-slate-200 uppercase tracking-widest">
-                    Valor da Mensalidade/Anuidade (R$)
-                  </label>
-                  <input
-                    type="text"
-                    value={valorRecorrencia}
-                    onChange={(e) => handleCurrencyInputChange(e.target.value, setValorRecorrencia)}
-                    required
-                    className="w-full bg-slate-50 dark:bg-[#070a13] border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-xs text-[#0f1e36] dark:text-slate-200 focus:outline-none focus:border-[#d4af37] font-mono font-bold"
-                  />
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                <div className="flex flex-col sm:flex-row gap-3 pt-2 max-w-xl">
                   {/* Botão Salvar: sempre disponível para atualizar valores */}
                   <button
                     type="button"
                     onClick={handleAtualizarValores}
                     disabled={atualizandoValores || !clienteSelecionadoId}
-                    className="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#0f1e36] dark:text-[#d4af37] border border-slate-300 dark:border-slate-700 px-4 py-2.5 rounded text-[11px] font-bold uppercase transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#0f1e36] dark:text-[#d4af37] border border-slate-300 dark:border-slate-700 px-4 py-2.5 rounded text-xs font-bold uppercase transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {atualizandoValores ? "Salvando..." : "💾 Atualizar Valores do Plano"}
                   </button>
@@ -1589,7 +1591,7 @@ NÃO utilize termos genéricos de contratos cíveis comuns. Use jargões técnic
                     <button
                       type="button"
                       disabled
-                      className="flex-1 bg-emerald-700/20 text-emerald-600 dark:text-emerald-400 border border-emerald-400/40 px-4 py-2.5 rounded text-[11px] font-bold uppercase cursor-not-allowed opacity-80"
+                      className="flex-1 bg-emerald-700/20 text-emerald-600 dark:text-emerald-400 border border-emerald-400/40 px-4 py-2.5 rounded text-xs font-bold uppercase cursor-not-allowed opacity-80"
                       title="Este cliente já possui um plano ativo. Cancele o plano atual antes de contratar um novo."
                     >
                       ✅ Plano Já Ativo
@@ -1598,7 +1600,7 @@ NÃO utilize termos genéricos de contratos cíveis comuns. Use jargões técnic
                     <button
                       type="submit"
                       disabled={ativandoAssinatura || !clienteSelecionadoId}
-                      className="flex-1 bg-[#0f1e36] text-white hover:bg-slate-800 px-4 py-2.5 rounded text-[11px] font-bold uppercase border-b border-[#d4af37] transition-all cursor-pointer disabled:opacity-40"
+                      className="flex-1 bg-[#0f1e36] text-white hover:bg-slate-800 px-4 py-2.5 rounded text-xs font-bold uppercase border-b border-[#d4af37] transition-all cursor-pointer disabled:opacity-40"
                     >
                       {ativandoAssinatura ? "Ativando..." : "+ Ativar Plano"}
                     </button>
@@ -1608,13 +1610,13 @@ NÃO utilize termos genéricos de contratos cíveis comuns. Use jargões técnic
 
               {/* Lado Direito: Histórico de Cobranças */}
               <div className="space-y-4">
-                <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 pb-1.5 flex justify-between items-center">
+                <h4 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 pb-1.5 flex justify-between items-center">
                   <span>💳 Painel de Emissão de Cobranças</span>
                   {clienteSelecionadoId && (
                     <button
                       type="button"
                       onClick={() => carregarMensalidades(clienteSelecionadoId)}
-                      className="text-[9px] font-bold text-[#d4af37] hover:underline cursor-pointer"
+                      className="text-xs font-bold text-[#d4af37] hover:underline cursor-pointer"
                     >
                       🔄 Recarregar
                     </button>
@@ -1622,7 +1624,7 @@ NÃO utilize termos genéricos de contratos cíveis comuns. Use jargões técnic
                 </h4>
 
                 {!clienteSelecionadoId ? (
-                  <div className="h-44 bg-slate-50 dark:bg-slate-900/35 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center justify-center p-4 text-center text-xs font-light text-slate-400 italic">
+                  <div className="h-44 bg-slate-50 dark:bg-slate-900/35 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center justify-center p-4 text-center text-sm font-light text-slate-400 italic">
                     Selecione um cliente para ver o histórico de faturamento recorrente.
                   </div>
                 ) : loadingMensalidades ? (
@@ -1632,59 +1634,60 @@ NÃO utilize termos genéricos de contratos cíveis comuns. Use jargões técnic
                     ))}
                   </div>
                 ) : mensalidades.length === 0 ? (
-                  <div className="h-44 bg-slate-50 dark:bg-slate-900/35 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center justify-center p-4 text-center text-xs font-light text-slate-400 italic">
+                  <div className="h-44 bg-slate-50 dark:bg-slate-900/35 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center justify-center p-4 text-center text-sm font-light text-slate-400 italic">
                     Nenhum faturamento recorrente encontrado para este cliente.
                   </div>
                 ) : (
                   <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-900/10">
-                    <table className="w-full text-[10px] text-left border-collapse">
+                    <table className="w-full text-xs sm:text-sm text-left border-collapse">
                       <thead>
                         <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 text-slate-500 uppercase tracking-wider font-bold">
-                          <th className="px-3 py-2">Competência</th>
-                          <th className="px-3 py-2 text-right">Valor</th>
-                          <th className="px-3 py-2 text-center">Status</th>
-                          <th className="px-3 py-2 text-center">Ações</th>
+                          <th className="px-4 py-3">Competência</th>
+                          <th className="px-4 py-3 text-right">Valor</th>
+                          <th className="px-4 py-3 text-center">Status</th>
+                          <th className="px-4 py-3 text-center">Ações</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                         {mensalidades.map((m, i) => (
                           <tr key={i} className="hover:bg-slate-100/50 dark:hover:bg-slate-800/30 transition-colors">
-                            <td className="px-3 py-2.5 font-medium text-slate-700 dark:text-slate-300">
+                            <td className="px-4 py-3 font-medium text-slate-700 dark:text-slate-300">
                               {m.competencia}
-                              <span className="block text-[8px] font-normal text-slate-400">Venc. {m.vencimento}</span>
+                              <span className="block text-xs font-normal text-slate-400">Venc. {m.vencimento}</span>
                             </td>
-                            <td className="px-3 py-2.5 text-right font-mono font-bold text-slate-800 dark:text-slate-200">
+                            <td className="px-4 py-3 text-right font-mono font-bold text-slate-800 dark:text-slate-200">
                               {m.valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                             </td>
-                            <td className="px-3 py-2.5 text-center">
+                            <td className="px-4 py-3 text-center">
                               {m.status === "pago" && (
-                                <span className="inline-block px-2 py-0.5 rounded-full text-[8px] font-extrabold uppercase bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                                <span className="inline-block px-2.5 py-1 rounded-full text-xs font-bold uppercase bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
                                   Pago
                                 </span>
                               )}
                               {m.status === "pendente" && (
-                                <span className="inline-block px-2 py-0.5 rounded-full text-[8px] font-extrabold uppercase bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-600 dark:text-amber-400">
+                                <span className="inline-block px-2.5 py-1 rounded-full text-xs font-bold uppercase bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-600 dark:text-amber-400">
                                   Pendente
                                 </span>
                               )}
                               {m.status === "atrasado" && (
-                                <span className="inline-block px-2 py-0.5 rounded-full text-[8px] font-extrabold uppercase bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400">
+                                <span className="inline-block px-2.5 py-1 rounded-full text-xs font-bold uppercase bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 animate-pulse">
                                   Atrasado
                                 </span>
                               )}
                             </td>
-                            <td className="px-3 py-2.5 text-center">
-                              <div className="flex items-center justify-center gap-1.5">
+                            <td className="px-4 py-3 text-center">
+                              <div className="flex items-center justify-center gap-2">
                                 <button
                                   type="button"
                                   onClick={() => {
                                     setMensalidadeSelecionada(m);
                                     setModalBoletoAberto(true);
                                   }}
-                                  className="bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#0f1e36] dark:text-slate-200 px-2 py-1 rounded text-[8px] font-bold uppercase transition-colors cursor-pointer"
+                                  className="bg-slate-200 hover:bg-slate-300 dark:bg-slate-850 dark:hover:bg-slate-800 text-[#0f1e36] dark:text-slate-200 px-3 py-1.5 rounded-lg text-xs font-bold uppercase transition-all cursor-pointer flex items-center gap-1 shadow-sm border border-slate-300 dark:border-slate-700/50"
                                   title="Gerar Boleto de Cobrança"
                                 >
-                                  💵 Boleto
+                                  <span>💵</span>
+                                  <span>Boleto</span>
                                 </button>
                                 <button
                                   type="button"
@@ -1692,10 +1695,11 @@ NÃO utilize termos genéricos de contratos cíveis comuns. Use jargões técnic
                                     setMensalidadeSelecionada(m);
                                     setModalPixAberto(true);
                                   }}
-                                  className="bg-[#0f1e36] hover:bg-slate-800 text-white dark:bg-[#d4af37]/20 dark:hover:bg-[#d4af37]/30 dark:text-[#d4af37] px-2 py-1 rounded text-[8px] font-bold uppercase transition-colors cursor-pointer"
+                                  className="bg-[#c5a85c]/10 hover:bg-[#c5a85c]/25 dark:bg-[#d4af37]/10 dark:hover:bg-[#d4af37]/20 text-[#a38545] dark:text-[#d4af37] border border-[#c5a85c] dark:border-[#d4af37] px-3 py-1.5 rounded-lg text-xs font-bold uppercase transition-all cursor-pointer flex items-center gap-1 shadow-sm"
                                   title="Cobrar via PIX Imediato"
                                 >
-                                  ⚡ PIX
+                                  <span>⚡</span>
+                                  <span>PIX</span>
                                 </button>
                               </div>
                             </td>
