@@ -2149,6 +2149,7 @@
                 <button type="button" class="profile-tab-btn" data-tab="edit-qualificacao">2. Qualificação</button>
                 <button type="button" class="profile-tab-btn" data-tab="edit-juridico">3. Dados Jurídicos</button>
                 <button type="button" class="profile-tab-btn" data-tab="edit-financeiro">4. Financeiro</button>
+                <button type="button" class="profile-tab-btn" data-tab="edit-documentos">5. Documentação</button>
               </div>
 
               <form id="edit-cliente-form">
@@ -2387,6 +2388,38 @@
                     <div id="fin-lancamentos-list" class="documentos-list" style="display:none; display:flex; flex-direction:column; gap:12px;">
                       <!-- Lançamentos criados via JS -->
                     </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ABA 5: DOCUMENTOS -->
+              <div class="profile-tab-content" id="tab-edit-documentos" style="display: none; padding: 20px 0;">
+                <div class="financial-section">
+                  <h3 style="font-size:16px; font-weight:600; color:var(--gold); margin-bottom:8px; display:flex; align-items:center; gap:8px; text-transform: uppercase; font-family: 'Playfair Display', serif;">
+                    📂 Auditoria de Documentação
+                  </h3>
+                  <p style="font-size:11px; color:var(--text-secondary); margin-bottom:16px;">
+                    Controle de pendências de documentação por área de interesse do prontuário.
+                  </p>
+                  
+                  <!-- Barra de Progresso sutil -->
+                  <div style="margin-bottom: 20px; background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 8px; padding: 16px;">
+                    <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:6px;">
+                      <span style="font-weight:650; color:var(--text-secondary);">Progresso da documentação:</span>
+                      <span id="vanilla-checklist-progress-text" style="font-family: monospace; font-weight:700; color:var(--gold);">0 de 0 (0%)</span>
+                    </div>
+                    <div style="width:100%; border-radius:9999px; height:8px; overflow:hidden; background:var(--panel-border);">
+                      <div id="vanilla-checklist-progress-bar" style="background:linear-gradient(to right, #b8962e, #d4af37); height:8px; border-radius:9999px; width:0%; transition: width 0.3s ease;"></div>
+                    </div>
+                  </div>
+
+                  <div id="vanilla-checklist-loading" style="display:flex; justify-content:center; align-items:center; padding:16px; gap:8px;">
+                    <div class="spinner-mini" style="border: 2px solid var(--panel-border); border-top-color: var(--gold); border-radius: 50%; width: 14px; height: 14px; animation: spin 1s linear infinite;"></div>
+                    <span style="font-size:12px; color:var(--text-secondary);">Sincronizando checklist...</span>
+                  </div>
+
+                  <div id="vanilla-checklist-container" style="display:flex; flex-direction:column; gap:10px;">
+                    <!-- Checklist gerado dinamicamente via JS -->
                   </div>
                 </div>
               </div>

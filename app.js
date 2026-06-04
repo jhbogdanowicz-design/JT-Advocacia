@@ -1654,6 +1654,8 @@ profileTabButtons.forEach(btn => {
 
     if (tabId === "edit-financeiro") {
       loadClientFinancialData();
+    } else if (tabId === "edit-documentos") {
+      loadClientDocumentChecklist();
     }
   });
 });
@@ -1796,6 +1798,176 @@ function openClientDetails(c, activeTab = null) {
     }
   } else {
     profileTabButtons[0].click();
+  }
+}
+
+// =========================================================================
+// 📂 AUDITORIA JURÍDICA: CHECKLIST DINÂMICO DE DOCUMENTOS
+// =========================================================================
+async function loadClientDocumentChecklist() {
+  const container = document.getElementById("vanilla-checklist-container");
+  const loading = document.getElementById("vanilla-checklist-loading");
+  const progressText = document.getElementById("vanilla-checklist-progress-text");
+  const progressBar = document.getElementById("vanilla-checklist-progress-bar");
+
+  if (!container || !activeClientId) return;
+
+  container.innerHTML = "";
+  loading.style.display = "flex";
+
+  try {
+    const areaInteresse = activeClientObject?.areas_interesse || "";
+    const area = areaInteresse.toLowerCase();
+    
+    const DOCS_PADRAO = {
+      consumidor: [
+        { id: "doc_id", nome: "RG / CPF do Titular", obrigatorio: true },
+        { id: "doc_residencia", nome: "Comprovante de Residência (atualizado)", obrigatorio: true },
+        { id: "doc_prova", nome: "Notas Fiscais, Prints de Conversas ou Protocolos", obrigatorio: true },
+      ],
+      trabalhista: [
+        { id: "doc_id", nome: "RG / CPF do Reclamante", obrigatorio: true },
+        { id: "doc_ctps", nome: "CTPS (Páginas de contrato e opção de FGTS)", obrigatorio: true },
+        { id: "doc_trct", nome: "Termo de Rescisão (TRCT) ou 3 Últimos Holerites", obrigatorio: false },
+        { id: "doc_fgts", nome: "Extrato do FGTS Atualizado", obrigatorio: true },
+      ],
+      medico: [
+        { id: "doc_id", nome: "RG / CPF do Paciente/Titular", obrigatorio: true },
+        { id: "doc_laudos", nome: "Laudos Médicos, Exames e Relatórios Clínicos", obrigatorio: true },
+        { id: "doc_prontuario", nome: "Cópia Integral do Prontuário Médico", obrigatorio: true },
+        { id: "doc_financeiro", nome: "Orçamentos, Notas Fiscais ou Comprovantes de Gastos", obrigatorio: false },
+      ],
+      general: [
+        { id: "doc_id", nome: "RG / CPF do Requerente", obrigatorio: true },
+        { id: "doc_residencia", nome: "Comprovante de Residência", obrigatorio: true },
+        { id: "doc_procuracao", nome: "Procuração / Declaração de Hipossuficiência", obrigatorio: true },
+        { id: "doc_provas_gerais", nome: "Documentos e Provas Gerais do Caso", obrigatorio: false },
+      ]
+    };
+
+    let docsNecessarios = DOCS_PADRAO.general;
+    if (area.includes("consumidor") || area.includes("consumo")) {
+      docsNecessarios = DOCS_PADRAO.consumidor;
+    } else if (area.includes("trabalhista") || area.includes("trabalho")) {
+      docsNecessarios = DOCS_PADRAO.trabalhista;
+    } else if (area.includes("médico") || area.includes("medico") || area.includes("saúde") || area.includes("saude")) {
+      docsNecessarios = DOCS_PADRAO.medico;
+    }
+
+    // Buscar no Supabase
+    const { data, error } = await supabase
+      .from("checklist_documentos")
+      .select("doc_id, status")
+      .eq("cliente_id", activeClientId);
+
+    if (error) throw error;
+
+    const statusMap = {};
+    (data || []).forEach(item => {
+      statusMap[item.doc_id] = item.status;
+    });
+
+    function atualizarBarraProgresso() {
+      const total = docsNecessarios.length;
+      const concluidos = docsNecessarios.filter(doc => statusMap[doc.id] === "recebido").length;
+      const percentual = total > 0 ? Math.round((concluidos / total) * 100) : 0;
+      
+      progressText.innerText = `${concluidos} de ${total} (${percentual}%)`;
+      progressBar.style.width = `${percentual}%`;
+    }
+
+    docsNecessarios.forEach(doc => {
+      const estaOk = statusMap[doc.id] === "recebido";
+
+      const itemDiv = document.createElement("div");
+      itemDiv.className = "checklist-item-row";
+      itemDiv.style.display = "flex";
+      itemDiv.style.alignItems = "center";
+      itemDiv.style.justifyContent = "space-between";
+      itemDiv.style.padding = "12px";
+      itemDiv.style.borderRadius = "8px";
+      itemDiv.style.border = "1px solid var(--panel-border)";
+      itemDiv.style.background = estaOk ? "rgba(16, 185, 129, 0.04)" : "rgba(255,255,255,0.005)";
+      itemDiv.style.transition = "all 0.2s";
+
+      const leftDiv = document.createElement("div");
+      leftDiv.style.display = "flex";
+      leftDiv.style.alignItems = "center";
+      leftDiv.style.gap = "10px";
+
+      const chk = document.createElement("input");
+      chk.type = "checkbox";
+      chk.checked = estaOk;
+      chk.style.cursor = "pointer";
+      chk.style.width = "16px";
+      chk.style.height = "16px";
+      chk.addEventListener("change", async (e) => {
+        const isChecked = e.target.checked;
+        const novoStatus = isChecked ? "recebido" : "pendente";
+        statusMap[doc.id] = novoStatus;
+        
+        // Atualização visual otimista
+        itemDiv.style.background = isChecked ? "rgba(16, 185, 129, 0.04)" : "rgba(255,255,255,0.005)";
+        badge.innerText = isChecked ? "✓ OK" : "Pendente";
+        badge.style.background = isChecked ? "rgba(16, 185, 129, 0.1)" : "rgba(245, 158, 11, 0.1)";
+        badge.style.color = isChecked ? "var(--success-color)" : "var(--warning-color)";
+        atualizarBarraProgresso();
+
+        try {
+          const { error: upsertError } = await supabase
+            .from("checklist_documentos")
+            .upsert({
+              cliente_id: activeClientId,
+              doc_id: doc.id,
+              status: novoStatus
+            }, {
+              onConflict: "cliente_id,doc_id"
+            });
+          if (upsertError) throw upsertError;
+        } catch (err) {
+          console.error("Erro ao salvar status do checklist:", err.message);
+          alert("Falha ao salvar status no banco de dados. Tente novamente.");
+          // Reverter
+          chk.checked = !isChecked;
+          statusMap[doc.id] = !isChecked ? "recebido" : "pendente";
+          atualizarBarraProgresso();
+        }
+      });
+
+      const label = document.createElement("span");
+      label.style.fontSize = "13px";
+      label.style.fontWeight = "550";
+      label.style.color = "var(--text-primary)";
+      label.innerHTML = `${doc.nome} ${doc.obrigatorio ? '<span style="color:var(--danger-color); margin-left: 2px;">*</span>' : ""}`;
+
+      leftDiv.appendChild(chk);
+      leftDiv.appendChild(label);
+
+      const badge = document.createElement("span");
+      badge.style.fontSize = "10px";
+      badge.style.fontWeight = "700";
+      badge.style.padding = "4px 10px";
+      badge.style.borderRadius = "9999px";
+      badge.style.textTransform = "uppercase";
+      badge.style.border = "1px solid transparent";
+      
+      badge.innerText = estaOk ? "✓ OK" : "Pendente";
+      badge.style.background = estaOk ? "rgba(16, 185, 129, 0.1)" : "rgba(245, 158, 11, 0.1)";
+      badge.style.color = estaOk ? "var(--success-color)" : "var(--warning-color)";
+      badge.style.borderColor = estaOk ? "rgba(16, 185, 129, 0.2)" : "rgba(245, 158, 11, 0.2)";
+
+      itemDiv.appendChild(leftDiv);
+      itemDiv.appendChild(badge);
+      container.appendChild(itemDiv);
+    });
+
+    atualizarBarraProgresso();
+
+  } catch (err) {
+    console.error("Erro ao carregar checklist:", err.message);
+    container.innerHTML = `<div style="text-align:center; font-size:12px; color:var(--danger-color); padding:16px;">⚠️ Erro ao carregar documentação.</div>`;
+  } finally {
+    loading.style.display = "none";
   }
 }
 

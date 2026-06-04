@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { supabase } from "../lib/supabase";
 import { PremiumIALoader } from "./PremiumIALoader";
+import ChecklistDocumentos from "./ChecklistDocumentos";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 type AIEngine = "gemini" | "chatgpt" | "jus_ia";
@@ -1418,8 +1419,17 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
                 ) : (
                   <span className="text-slate-400 font-light">Selecione ou clique em um processo para mesclar dados processuais com prontuários de clientes na geração por IA.</span>
                 )}
-              </p>
             </div>
+          </div>
+        )}
+
+        {/* Checklist de Documentos do Cliente */}
+        {clienteSelecionadoId && (
+          <div className="mb-4 print:hidden">
+            <ChecklistDocumentos
+              clienteId={clienteSelecionadoId}
+              areaInteresse={clienteSelecionado?.areas_interesse || ""}
+            />
           </div>
         )}
 
