@@ -1,0 +1,70 @@
+import React from "react";
+
+export const QuemSomos: React.FC = () => {
+  return (
+    <section className="w-full bg-white dark:bg-[#0c1424] py-16 px-6 md:px-16 border-t border-slate-200 dark:border-[#d4af37]/15 z-10 transition-colors duration-350">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        
+        {/* COLUNA ESQUERDA: NARRATIVA INSTITUCIONAL */}
+        <div className="space-y-6 flex flex-col justify-center">
+          <div className="space-y-2">
+            <span className="text-[10px] font-bold text-[#d4af37] uppercase tracking-widest block">
+              Fundação &amp; Propósito
+            </span>
+            <h2 className="font-playfair text-[#0f1e36] dark:text-white text-2xl md:text-3xl font-extrabold uppercase tracking-wider">
+              Trajetória Estratégica
+            </h2>
+          </div>
+          
+          <p className="font-serif text-[#334155] dark:text-slate-350 text-sm md:text-base leading-relaxed text-justify">
+            Fundada pela Dra. Janaina Tarabauca do Prado (OAB/SP 501.070), bacharel em Direito e Administração pela 
+            Universidade São Judas Tadeu, com especialização em Direito do Trabalho. A banca consolida uma vivência 
+            executiva de mais de duas décadas na gestão de operações de alta complexidade, governança de contratos 
+            e mitigação de passivos. Essa sólida bagagem operacional confere à Janaina Tarabauca Advocacia uma visão 
+            estritamente preventiva e focada na viabilidade de negócios, unindo a precisão técnica do ecossistema 
+            jurídico à realidade prática corporativa de seus clientes.
+          </p>
+
+          <div className="flex flex-wrap gap-4 pt-2">
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#d4af37]" />
+              <span className="text-[10px] font-bold text-[#0f1e36] dark:text-slate-400 uppercase tracking-widest">
+                Gestão de Riscos
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#d4af37]" />
+              <span className="text-[10px] font-bold text-[#0f1e36] dark:text-slate-400 uppercase tracking-widest">
+                Compliance Trabalhista
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#d4af37]" />
+              <span className="text-[10px] font-bold text-[#0f1e36] dark:text-slate-400 uppercase tracking-widest">
+                Governança Corporativa
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* COLUNA DIREITA: MONOGRAMA OFICIAL "JT" */}
+        <div className="flex justify-center items-center">
+          <div className="w-full max-w-sm aspect-[3/2] bg-white dark:bg-white rounded-xl border border-slate-200 dark:border-slate-100 p-6 flex items-center justify-center shadow-sm relative overflow-hidden transition-all hover:shadow-md duration-350">
+            {/* Linhas decorativas sutis que lembram papel timbrado tradicional */}
+            <div className="absolute inset-2 border border-slate-100 pointer-events-none" />
+            
+            <img 
+              src="/og-logo-jt.jpg" 
+              alt="Monograma JT" 
+              className="w-full h-full object-contain filter dark:brightness-95 transition-all duration-350"
+              loading="lazy"
+            />
+          </div>
+        </div>
+
+      </div>
+    </section>
+  );
+};
+
+export default QuemSomos;

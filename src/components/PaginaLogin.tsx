@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
+import { QuemSomos } from "./QuemSomos";
 
 const legalQuotes = [
   { text: "A justiça é a constante e firme vontade de dar a cada um o que é seu.", author: "Ulpiano" },
@@ -464,8 +465,10 @@ export const PaginaLogin: React.FC<PaginaLoginProps> = ({ onAuthSuccess }) => {
           </div>
         </div>
       </div>
-
       </div>
+
+      {/* ── SEÇÃO: QUEM SOMOS / TRAJETÓRIA ESTRATÉGICA ── */}
+      <QuemSomos />
 
       {/* ── SEÇÃO: CANAIS DE ATENDIMENTO E TRIAGEM JURÍDICA ── */}
       <div className="w-full bg-[#fafafc] dark:bg-[#090e18] py-16 px-6 md:px-16 border-t border-slate-200 dark:border-[#d4af37]/15 z-10">
