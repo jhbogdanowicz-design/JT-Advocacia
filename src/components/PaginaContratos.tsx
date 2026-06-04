@@ -25,6 +25,22 @@ export const PaginaContratos: React.FC = () => {
   const [areaSelecionada, setAreaSelecionada] = useState<"civil" | "empresarial" | "trabalhista" | "administrativo">("civil");
   const [fatosNarrados, setFatosNarrados] = useState<string>("");
 
+  // Interface para o perfil do advogado logado
+  interface AdvogadoProfile {
+    id: string;
+    nome: string;
+    email: string;
+    oab?: string;
+    tratamento?: string;
+    telefone?: string;
+    assinatura_digital_url?: string | null;
+    cpf_cnpj?: string;
+    endereco_profissional?: string;
+  }
+
+  const [advogado, setAdvogado] = useState<AdvogadoProfile | null>(null);
+  const [loadingAdvogado, setLoadingAdvogado] = useState<boolean>(false);
+
   const contextoDoContrato = useMemo(() => {
     return `Área Jurídica: ${areaSelecionada} | Fatos e Contexto do Cliente: ${fatosNarrados}`;
   }, [areaSelecionada, fatosNarrados]);
@@ -130,6 +146,52 @@ export const PaginaContratos: React.FC = () => {
       }
     } catch (err: any) {
       console.warn("Erro ao carregar assinatura da advogada:", err.message);
+  };
+
+  // Carrega dinamicamente os dados do advogado logado (perfil)
+  const carregarDadosAdvogado = async () => {
+    try {
+      setLoadingAdvogado(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        // Busca todas as colunas da tabela public.advogados
+        const { data, error } = await supabase
+          .from("advogados")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+
+        if (!error && data) {
+          setAdvogado({
+            id: user.id,
+            email: user.email || "",
+            nome: data.nome || user.user_metadata?.nome || "Dra. Janaina Tarabauca",
+            oab: data.oab || user.user_metadata?.oab || "123.456",
+            tratamento: data.tratamento || user.user_metadata?.tratamento || "Dra.",
+            telefone: data.telefone || "",
+            assinatura_digital_url: data.assinatura_digital_url || user.user_metadata?.assinatura_digital_url || null,
+            cpf_cnpj: data.cpf_cnpj || "12.345.678/0001-90",
+            endereco_profissional: data.endereco_profissional || "Av. Paulista, 1000, 16º andar, São Paulo/SP",
+          });
+        } else {
+          // Fallback caso não ache registro estendido
+          setAdvogado({
+            id: user.id,
+            email: user.email || "",
+            nome: user.user_metadata?.nome || "Dra. Janaina Tarabauca",
+            oab: user.user_metadata?.oab || "123.456",
+            tratamento: user.user_metadata?.tratamento || "Dra.",
+            telefone: user.user_metadata?.telefone || "",
+            assinatura_digital_url: user.user_metadata?.assinatura_digital_url || null,
+            cpf_cnpj: "12.345.678/0001-90",
+            endereco_profissional: "Av. Paulista, 1000, 16º andar, São Paulo/SP",
+          });
+        }
+      }
+    } catch (err: any) {
+      console.warn("Erro ao carregar credenciais do advogado:", err.message);
+    } finally {
+      setLoadingAdvogado(false);
     }
   };
 
@@ -295,6 +357,7 @@ export const PaginaContratos: React.FC = () => {
   useEffect(() => {
     carregarClientes();
     carregarAssinaturaAdvogada();
+    carregarDadosAdvogado();
   }, []);
 
   // Obter dados do cliente ativo selecionado
@@ -410,8 +473,13 @@ export const PaginaContratos: React.FC = () => {
       clausulaObjeto = `O presente instrumento tem como objeto a prestação de serviços advocatícios para representação e patrocínio dos interesses civis da parte Contratante, judicial ou extrajudicialmente, baseando-se nos fatos narrados: ${fatosParte || "Nenhuma observação cadastrada."}`;
     }
 
+    const nomeAdvogada = advogado?.nome || "Dra. Janaina Tarabauca";
+    const oabAdvogada = advogado?.oab || "123.456";
+    const tratamentoAdvogada = advogado?.tratamento || "Dra.";
+    const enderecoAdvogada = advogado?.endereco_profissional || "no escritório JT Advocacia";
+
     const definicaoContratante = `CONTRATANTE: ${nomeCliente.toUpperCase()}, na qualidade de ${qualificacaoContratante}, portador(a) do CPF/CNPJ sob o nº ${cnpjCpf}, residente, domiciliado(a) ou sediado(a) no endereço cadastrado.`;
-    const definicaoContratada = `CONTRATADA: DRA. JANAINA TARABAUCA, inscrita na OAB/SP sob o nº 123.456, com endereço profissional no escritório JT Advocacia.`;
+    const definicaoContratada = `CONTRATADA: ${nomeAdvogada.toUpperCase()}, inscrita na OAB sob o nº ${oabAdvogada}, com endereço profissional ${enderecoAdvogada.startsWith("em ") || enderecoAdvogada.startsWith("no ") ? "" : "em "}${enderecoAdvogada}.`;
 
     return `${tituloContrato}
 
@@ -439,7 +507,7 @@ Pelos serviços preventivos contratados, o CONTRATANTE pagará à CONTRATADA o v
     ${nomeCliente} (Contratante)
 
     __________________________________
-    Dra. Janaina Tarabauca (Contratada)`;
+    ${tratamentoAdvogada} ${nomeAdvogada} (Contratada)`;
   };
 
   // Teste de validação cruzada para garantir ausência de vazamento de contexto
@@ -976,10 +1044,10 @@ Pelos serviços preventivos contratados, o CONTRATANTE pagará à CONTRATADA o v
             <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
               <button
                 onClick={handleGerarMinuta}
-                disabled={loadingMinuta || !clienteSelecionadoId}
+                disabled={loadingMinuta || loadingAdvogado || !clienteSelecionadoId}
                 className="bg-[#0f1e36] text-white px-6 py-3 rounded text-sm md:text-base font-bold uppercase tracking-wide border-b border-[#d4af37] hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-[#0f1e36] transition-all cursor-pointer"
               >
-                {loadingMinuta ? "Processando..." : "Gerar Minuta por IA"}
+                {loadingAdvogado ? "Buscando credenciais..." : loadingMinuta ? "Processando..." : "Gerar Minuta por IA"}
               </button>
 
               <button
@@ -1085,13 +1153,19 @@ Pelos serviços preventivos contratados, o CONTRATANTE pagará à CONTRATADA o v
                       <div className="flex flex-col items-center gap-2 text-center p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 print:bg-white print:p-0 print:border-none">
                         <span className="text-[9px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest">CONTRATADA</span>
                         <div className="border-b border-slate-300 dark:border-slate-700 print:border-black w-full h-24 flex items-center justify-center bg-white dark:bg-slate-950 p-2 rounded-lg print:bg-white print:p-0">
-                          {lawyerSignatureImgUrl ? (
-                            <img src={lawyerSignatureImgUrl} alt="Assinatura Dra. Janaina" className="max-h-[80px] max-w-[220px] object-contain" />
+                          {advogado?.assinatura_digital_url || lawyerSignatureImgUrl ? (
+                            <img
+                              src={advogado?.assinatura_digital_url || lawyerSignatureImgUrl || ""}
+                              alt={`Assinatura ${advogado?.nome || "Advogada"}`}
+                              className="h-12 w-auto object-contain mx-auto mix-blend-multiply"
+                            />
                           ) : (
                             <span className="text-xs text-slate-400 dark:text-slate-500 italic select-none">Aguardando assinatura cadastrada...</span>
                           )}
                         </div>
-                        <span className="text-xs font-bold text-slate-800 dark:text-slate-100 print:text-black uppercase mt-1">DRA. JANAINA TARABAUCA</span>
+                        <span className="text-xs font-bold text-slate-800 dark:text-slate-100 print:text-black uppercase mt-1">
+                          {((advogado?.tratamento || "Dra.") + " " + (advogado?.nome || "Janaina Tarabauca")).toUpperCase()}
+                        </span>
                         <span className="text-[9px] text-[#10b981] font-black tracking-wider uppercase mt-0.5 flex items-center gap-1">● ASSINADO DIGITALMENTE</span>
                       </div>
 
