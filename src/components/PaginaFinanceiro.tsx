@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { supabase } from "../lib/supabase";
 import { ModalLancamentoFinanceiro } from "./ModalLancamentoFinanceiro";
+import AnexarComprovante from "./AnexarComprovante";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 interface ClienteInfo {
@@ -28,6 +29,7 @@ interface LancamentoGeral {
   status_pagamento: string;
   data_vencimento: string;
   created_at: string;
+  url_comprovante?: string | null;
   clientes?: ClienteInfo | null;
   processos?: ProcessoInfo | null;
 }
@@ -249,6 +251,7 @@ export const PaginaFinanceiro: React.FC<PaginaFinanceiroProps> = ({ onNavigateTo
           status_pagamento,
           data_vencimento,
           created_at,
+          url_comprovante,
           clientes ( id, nome, whatsapp, email ),
           processos ( id, numero_processo, titulo, status )
         `)
@@ -1023,7 +1026,27 @@ export const PaginaFinanceiro: React.FC<PaginaFinanceiroProps> = ({ onNavigateTo
 
                           {/* Ações */}
                           <td className="py-4 px-4 text-right">
-                            <div className="inline-flex items-center gap-3">
+                            <div className="inline-flex items-center gap-3 justify-end">
+                              {item.url_comprovante ? (
+                                <a
+                                  href={item.url_comprovante}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1.5 rounded-lg border text-[#a38545] dark:text-[#d4af37] bg-[#c5a85c]/5 hover:bg-[#c5a85c]/10 border-[#c5a85c]/25 hover:border-[#c5a85c]/45 cursor-pointer"
+                                  title="Visualizar Comprovante"
+                                >
+                                  📎 Comprovante
+                                </a>
+                              ) : (
+                                <AnexarComprovante
+                                  transacaoId={item.id}
+                                  onSucesso={(url) => {
+                                    setLancamentos(prev =>
+                                      prev.map(l => (l.id === item.id ? { ...l, url_comprovante: url } : l))
+                                    );
+                                  }}
+                                />
+                              )}
                               {item.status_pagamento.toLowerCase() !== "pago" && (
                                 <button
                                   onClick={() => handleLiquidado(item.id)}

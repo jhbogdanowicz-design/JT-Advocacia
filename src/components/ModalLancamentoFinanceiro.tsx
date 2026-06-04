@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { supabase } from "../lib/supabase";
+import PixQrCode from "./PixQrCode";
 
 interface ClienteInfo {
   id: string;
@@ -78,6 +79,14 @@ export const ModalLancamentoFinanceiro: React.FC<ModalLancamentoFinanceiroProps>
     const repasseCliente = bruto * (1 - taxa);
     return { retencao, repasseCliente };
   }, [valorBrutoInput, porcentagemBanca]);
+
+  // Valor dinâmico da transação para o QR Code do Pix
+  const valorDinamico = useMemo(() => {
+    if (categoriaVerba === "indenizacao") {
+      return calculoRetencao.retencao;
+    }
+    return obterValorFloat(valorTotalInput);
+  }, [categoriaVerba, valorTotalInput, calculoRetencao.retencao]);
 
   // Carregar dados de Clientes e Processos do Supabase
   useEffect(() => {
@@ -339,7 +348,7 @@ export const ModalLancamentoFinanceiro: React.FC<ModalLancamentoFinanceiroProps>
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">
-                      Valor Cobrado *
+                      Definir Valor dos Honorários *
                     </label>
                     <input
                       type="text"
@@ -349,6 +358,9 @@ export const ModalLancamentoFinanceiro: React.FC<ModalLancamentoFinanceiroProps>
                       onChange={handleValorTotalChange}
                       className="w-full bg-slate-100 dark:bg-[#070a13] border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-2.5 text-xs text-[#0f1e36] dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-550 focus:outline-none focus:border-[#d4af37] font-mono"
                     />
+                    <p className="text-[10px] text-slate-400 mt-1.5">
+                      O QR Code Pix e a cópia do token serão recalculados instantaneamente com base neste valor.
+                    </p>
                   </div>
                 </div>
               )}
@@ -427,6 +439,9 @@ export const ModalLancamentoFinanceiro: React.FC<ModalLancamentoFinanceiroProps>
                       onChange={handleValorTotalChange}
                       className="w-full bg-slate-100 dark:bg-[#070a13] border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-2.5 text-xs text-[#0f1e36] dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-550 focus:outline-none focus:border-[#d4af37] font-mono"
                     />
+                    <p className="text-[10px] text-slate-400 mt-1.5">
+                      O QR Code Pix e a cópia do token serão recalculados instantaneamente com base neste valor.
+                    </p>
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">
@@ -472,6 +487,14 @@ export const ModalLancamentoFinanceiro: React.FC<ModalLancamentoFinanceiroProps>
                   </select>
                 </div>
               </div>
+
+              {/* Pix QR Code dinâmico reativo */}
+              {valorDinamico > 0 && (
+                <PixQrCode
+                  valorTransacao={valorDinamico}
+                  nomeCliente={clientes.find(c => c.id === clienteSelecionadoId)?.nome}
+                />
+              )}
             </div>
 
             {/* Fixed Footer */}
