@@ -198,7 +198,7 @@ export const AbaFinanceiro: React.FC<AbaFinanceiroProps> = ({ clienteId }) => {
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 bg-[#0a192f] hover:bg-[#0f2444] text-[#d4af37] border border-[#d4af37]/60 hover:border-[#d4af37] px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer focus:outline-none"
+            className="flex items-center gap-2 bg-[#c5a85c]/5 hover:bg-[#c5a85c]/10 dark:bg-[#d4af37]/5 dark:hover:bg-[#d4af37]/15 text-[#a38545] dark:text-[#d4af37] border border-[#c5a85c] dark:border-[#d4af37] px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer focus:outline-none"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -341,7 +341,7 @@ export const AbaFinanceiro: React.FC<AbaFinanceiroProps> = ({ clienteId }) => {
               type="button"
               onClick={handleLoadMore}
               disabled={loadingMore}
-              className="inline-flex items-center gap-2 bg-[#0a192f] hover:bg-[#0f2444] text-[#d4af37] border border-[#d4af37]/60 hover:border-[#d4af37] px-5 py-2.5 rounded-xl text-xs font-extrabold tracking-wide transition-all shadow-lg cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-2 bg-[#c5a85c]/5 hover:bg-[#c5a85c]/10 dark:bg-[#d4af37]/5 dark:hover:bg-[#d4af37]/15 text-[#a38545] dark:text-[#d4af37] border border-[#c5a85c] dark:border-[#d4af37] px-5 py-2.5 rounded-xl text-xs font-extrabold tracking-wide transition-all shadow-lg cursor-pointer disabled:opacity-50"
             >
               {loadingMore ? (
                 <>

@@ -3050,3 +3050,58 @@ input:checked + .slider:before {
   background: rgba(0, 0, 0, 0.03);
 }
 
+/* =========================================================================
+   💼 OUTLINE GOLD BUTTONS (LIGHT & DARK THEMES COEXISTENCE)
+   ========================================================================= */
+.btn-outline-gold {
+  width: auto;
+  height: 48px;
+  background: rgba(197, 168, 92, 0.04);
+  color: var(--gold-hover);
+  border: 1px solid var(--gold);
+  font-weight: 700;
+  border-radius: 8px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-gold:hover {
+  background: rgba(197, 168, 92, 0.12);
+  transform: translateY(-1px);
+}
+
+.btn-outline-gold svg {
+  color: var(--gold-hover);
+  transition: all 0.3s ease;
+}
+
+/* Small size version */
+.btn-outline-gold.btn-sm {
+  height: 38px;
+  font-size: 12px;
+  padding: 0 14px;
+}
+
+/* Dark mode overrides */
+[data-theme="dark"] .btn-outline-gold {
+  background: rgba(212, 175, 55, 0.04) !important;
+  color: var(--gold) !important;
+  border-color: var(--gold) !important;
+}
+
+[data-theme="dark"] .btn-outline-gold:hover {
+  background: rgba(212, 175, 55, 0.12) !important;
+}
+
+[data-theme="dark"] .btn-outline-gold svg {
+  color: var(--gold) !important;
+}
+
+
