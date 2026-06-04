@@ -524,6 +524,8 @@ function switchPrivateView(viewId) {
 
   if (viewId === "dashboard") {
     loadDashboardData();
+  } else if (viewId === "contratos") {
+    setTimeout(resizeContractsCanvas, 150);
   }
 }
 
@@ -2824,9 +2826,12 @@ function initLawyerSignatureCanvas() {
       clientX = e.clientX;
       clientY = e.clientY;
     }
+    // Mapeamento proporcional de coordenadas para anular distorções físicas vs lógicas no canvas da advogada
+    const scaleX = rect.width > 0 ? (lawyerSignatureCanvas.width / rect.width) : 1;
+    const scaleY = rect.height > 0 ? (lawyerSignatureCanvas.height / rect.height) : 1;
     return {
-      x: clientX - rect.left,
-      y: clientY - rect.top
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY
     };
   };
 
@@ -6662,7 +6667,7 @@ let contratosMensalidadesList = [];
 
 function resizeContractsCanvas() {
   if (contratosCanvasPad) {
-    contratosCanvasPad.width = contratosCanvasPad.parentElement.clientWidth;
+    contratosCanvasPad.width = contratosCanvasPad.getBoundingClientRect().width || contratosCanvasPad.parentElement?.clientWidth || 500;
     contratosCanvasPad.height = 160;
     const ctx = contratosCanvasPad.getContext("2d");
     if (ctx) {
@@ -7254,7 +7259,8 @@ ${tratamentoAdv} ${nomeAdv} (Contratada)`;
       if (ctx) ctx.clearRect(0, 0, contratosCanvasPad.width, contratosCanvasPad.height);
     }
     signaturePadHasDrawing = false;
-    setTimeout(resizeContractsCanvas, 100);
+    resizeContractsCanvas(); // Ajusta tamanho imediatamente
+    setTimeout(resizeContractsCanvas, 150); // E atualiza em fallback após a transição de renderização do flex container
   } catch (err) {
     console.error("Erro ao gerar minuta:", err);
     alert("Erro ao esboçar minuta com a IA: " + err.message);
@@ -7491,9 +7497,10 @@ function initContratosModule() {
   // Configurações do Quadro de Assinatura Eletrônica (Canvas)
   if (contratosCanvasPad) {
     const signaturePadCtx = contratosCanvasPad.getContext("2d");
+    let activeCanvasRect = null; // Cache do bounding rect para evitar reflow lag durante o desenho
 
     const getCoordinates = (e) => {
-      const rect = contratosCanvasPad.getBoundingClientRect();
+      const rect = activeCanvasRect || contratosCanvasPad.getBoundingClientRect();
       let clientX, clientY;
       if (e.touches && e.touches.length > 0) {
         clientX = e.touches[0].clientX;
@@ -7502,9 +7509,12 @@ function initContratosModule() {
         clientX = e.clientX;
         clientY = e.clientY;
       }
+      // Mapeamento proporcional de coordenadas para anular distorções físicas vs lógicas no canvas
+      const scaleX = rect.width > 0 ? (contratosCanvasPad.width / rect.width) : 1;
+      const scaleY = rect.height > 0 ? (contratosCanvasPad.height / rect.height) : 1;
       return {
-        x: clientX - rect.left,
-        y: clientY - rect.top
+        x: (clientX - rect.left) * scaleX,
+        y: (clientY - rect.top) * scaleY
       };
     };
 
@@ -7512,6 +7522,7 @@ function initContratosModule() {
       e.preventDefault();
       signaturePadIsDrawing = true;
       signaturePadHasDrawing = true;
+      activeCanvasRect = contratosCanvasPad.getBoundingClientRect(); // Caching rect no início do desenho!
       const coords = getCoordinates(e);
       if (signaturePadCtx) {
         signaturePadCtx.strokeStyle = document.documentElement.getAttribute("data-theme") === "dark" ? "#d4af37" : "#0f1e36";
@@ -7535,6 +7546,7 @@ function initContratosModule() {
 
     const endDraw = () => {
       signaturePadIsDrawing = false;
+      activeCanvasRect = null; // Limpa o cache ao terminar
     };
 
     contratosCanvasPad.addEventListener("mousedown", startDraw);
@@ -7542,9 +7554,16 @@ function initContratosModule() {
     contratosCanvasPad.addEventListener("mouseup", endDraw);
     contratosCanvasPad.addEventListener("mouseleave", endDraw);
 
-    contratosCanvasPad.addEventListener("touchstart", startDraw);
-    contratosCanvasPad.addEventListener("touchmove", drawLine);
+    contratosCanvasPad.addEventListener("touchstart", startDraw, { passive: false });
+    contratosCanvasPad.addEventListener("touchmove", drawLine, { passive: false });
     contratosCanvasPad.addEventListener("touchend", endDraw);
+
+    // Escuta redimensionamentos globais de janela para reajustar o canvas de contratos
+    window.addEventListener("resize", () => {
+      if (contratosAssinaturaContainer && contratosAssinaturaContainer.style.display !== "none") {
+        resizeContractsCanvas();
+      }
+    });
   }
 
   if (btnContratosLimpar) {

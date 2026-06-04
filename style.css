@@ -2697,7 +2697,7 @@ input:checked + .slider:before {
   }
   
   /* Mostrar apenas a view de contratos se ativa */
-  #view-contratos {
+  #view-contratos.active {
     display: block !important;
     background: #fff !important;
     border: none !important;
@@ -2706,12 +2706,12 @@ input:checked + .slider:before {
   }
   
   /* Ocultar todos os painéis e elementos interativos da view de contratos */
-  #view-contratos > * {
+  #view-contratos.active > * {
     display: none !important;
   }
   
   /* Forçar a exibição exclusiva e formatação elegante do bloco de impressão de contratos */
-  #view-contratos > #contratos-print-area {
+  #view-contratos.active > #contratos-print-area {
     display: block !important;
     width: 100% !important;
     max-width: 100% !important;
@@ -2722,7 +2722,7 @@ input:checked + .slider:before {
   }
 
   /* Mostrar apenas a view de processos se ativa */
-  #view-processos {
+  #view-processos.active {
     display: block !important;
     background: #fff !important;
     border: none !important;
@@ -2731,12 +2731,12 @@ input:checked + .slider:before {
   }
   
   /* Ocultar todos os painéis e elementos interativos da view de processos */
-  #view-processos > * {
+  #view-processos.active > * {
     display: none !important;
   }
   
   /* Forçar a exibição exclusiva e formatação elegante do bloco de impressão de processos */
-  #view-processos > #processos-print-area {
+  #view-processos.active > #processos-print-area {
     display: block !important;
     width: 100% !important;
     max-width: 100% !important;
