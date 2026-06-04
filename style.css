@@ -2874,3 +2874,179 @@ input:checked + .slider:before {
   color: #475569 !important; /* Slate-500 equivalent */
   font-size: 12px !important; /* Garantir no mínimo text-xs */
 }
+
+/* =========================================================================
+   🌐 LANDING PAGE RESPONSIVE MOBILE MENU
+   ========================================================================= */
+.landing-menu-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--gold);
+  cursor: pointer;
+  padding: 8px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.landing-menu-toggle:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.landing-mobile-menu {
+  display: none;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+  background: rgba(5, 8, 20, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  width: 100%;
+}
+
+.landing-mobile-menu.open {
+  max-height: 320px;
+  opacity: 1;
+}
+
+.landing-mobile-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 20px 24px;
+  gap: 16px;
+}
+
+.landing-mobile-link {
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 550;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  transition: all 0.25s ease;
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.landing-mobile-link:hover {
+  color: #ffffff;
+  padding-left: 6px;
+}
+
+.btn-landing-restricted-mobile {
+  background: #c5a85c;
+  border: 1px solid #c5a85c;
+  color: #050814;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  text-align: center;
+  margin-top: 8px;
+  box-shadow: 0 4px 12px rgba(197, 168, 92, 0.15);
+}
+
+.btn-landing-restricted-mobile:hover {
+  background: #d4b875;
+  box-shadow: 0 6px 18px rgba(197, 168, 92, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Responsive Rules for Landing Header */
+@media (max-width: 992px) {
+  .landing-nav {
+    display: none !important;
+  }
+  
+  .btn-landing-restricted {
+    display: none !important;
+  }
+  
+  .landing-menu-toggle {
+    display: flex !important;
+  }
+  
+  .landing-mobile-menu {
+    display: block;
+  }
+  
+  .theme-toggle-btn {
+    padding: 8px 10px !important;
+    gap: 0 !important;
+    border-radius: 50% !important;
+    width: 38px !important;
+    height: 38px !important;
+    justify-content: center !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+  }
+  
+  #theme-text-landing {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .landing-logo-text {
+    font-size: 16px !important;
+  }
+  
+  .landing-logo-img {
+    height: 32px !important;
+  }
+  
+  .landing-nav-wrapper {
+    padding: 12px 18px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .landing-logo-text {
+    font-size: 13px !important;
+    max-width: 150px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+}
+
+/* Light Mode overrides for Landing Mobile Menu */
+[data-theme="light"] .landing-mobile-menu {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-top-color: rgba(15, 23, 42, 0.06) !important;
+  border-bottom-color: rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .landing-mobile-link {
+  color: var(--text-secondary) !important;
+  border-bottom-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme="light"] .landing-mobile-link:hover {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .btn-landing-restricted-mobile {
+  background: #0f1e36 !important;
+  border-color: #0f1e36 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(15, 30, 54, 0.15);
+}
+
+[data-theme="light"] .btn-landing-restricted-mobile:hover {
+  background: #1b335c !important;
+  box-shadow: 0 6px 18px rgba(15, 30, 54, 0.25);
+}
+
+[data-theme="light"] .landing-menu-toggle:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
