@@ -107,6 +107,7 @@ export const PaginaContratos: React.FC = () => {
   const [lawyerSigBase64, setLawyerSigBase64] = useState<string | null>(null);
   const [clientSigBase64, setClientSigBase64] = useState<string | null>(null);
   const [preparingPrint, setPreparingPrint] = useState<boolean>(false);
+  const [estaEditando, setEstaEditando] = useState<boolean>(false);
 
   // Converte qualquer URL de imagem para Base64 via fetch (resolve CORS do Supabase)
   const carregarImagemBase64 = async (url: string): Promise<string | null> => {
@@ -1272,50 +1273,83 @@ NÃO utilize termos genéricos de contratos cíveis comuns. Use jargões técnic
               </button>
             </div>
 
-            {/* Área de Texto da Minuta Editável */}
-            <div className="space-y-2">
-              <div className="flex justify-between items-center print:hidden">
-                <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-                  Minuta do Contrato (Editável)
-                </label>
-                <div className="flex items-center gap-3">
-                  {minutaTexto && (
-                    <>
+            {/* Bloco de Esboço da Minuta Contratual */}
+            <div className="border border-slate-200 dark:border-slate-800 rounded-xl p-6 bg-white dark:bg-slate-950 shadow-sm mt-6 print:hidden">
+              {/* Cabeçalho do Bloco do Esboço */}
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 mb-4 border-b border-slate-100 dark:border-slate-800 gap-4">
+                <div>
+                  <h3 className="text-base md:text-lg lg:text-xl font-extrabold text-[#0f1e36] dark:text-slate-100 tracking-wide">
+                    Esboço da Minuta Contratual
+                  </h3>
+                  <p className="text-xs md:text-sm text-slate-500">
+                    Gerado automaticamente pela <span className="text-[#d4af37] font-semibold">JUS IA</span>
+                  </p>
+                </div>
+
+                {/* Botões de Ação Dinâmicos (Edição, Cópia, PDF) */}
+                {minutaTexto && !loadingMinuta && (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={preparingPrint}
+                      onClick={() => handleGerarPDF(false)}
+                      className="bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-[#0f1e36] dark:text-[#d4af37] border border-slate-300 dark:border-slate-800 font-bold text-xs uppercase tracking-wide px-3 py-1.5 rounded flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+                    >
+                      {preparingPrint ? "Gerando..." : "📄 Exportar Prévia (PDF)"}
+                    </button>
+                    {isSigned && (
                       <button
                         type="button"
                         disabled={preparingPrint}
-                        onClick={() => handleGerarPDF(false)}
-                        className="bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-[#0f1e36] dark:text-[#d4af37] border border-slate-300 dark:border-slate-800 font-bold text-xs uppercase tracking-wide px-3 py-1.5 rounded flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+                        onClick={() => handleGerarPDF(true)}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wide px-3 py-1.5 rounded flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
                       >
-                        {preparingPrint ? "Gerando..." : "📄 Exportar Prévia (PDF)"}
+                        {preparingPrint ? "Gerando..." : "✍️ Exportar Assinado (PDF)"}
                       </button>
-                      {isSigned && (
-                        <button
-                          type="button"
-                          disabled={preparingPrint}
-                          onClick={() => handleGerarPDF(true)}
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wide px-3 py-1.5 rounded flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
-                        >
-                          {preparingPrint ? "Gerando..." : "✍️ Exportar Assinado (PDF)"}
-                        </button>
-                      )}
-                    </>
-                  )}
-                  {minutaTexto && (
+                    )}
                     <button
+                      type="button"
                       onClick={handleCopiarMinuta}
-                      className="text-xs text-[#d4af37] hover:underline font-bold"
+                      className="text-xs text-[#d4af37] hover:underline font-bold px-2 cursor-pointer"
                     >
                       Copiar Minuta
                     </button>
-                  )}
-                </div>
+                    <button
+                      type="button"
+                      onClick={() => setEstaEditando(!estaEditando)}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm cursor-pointer ${
+                        estaEditando
+                          ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                          : "bg-[#0f1e36] hover:bg-[#162a4a] text-white border border-[#d4af37]/30"
+                      }`}
+                    >
+                      {estaEditando ? (
+                        <>
+                          {/* Ícone de Check/Salvar */}
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          Concluir Edição
+                        </>
+                      ) : (
+                        <>
+                          {/* Ícone de Lápis/Editar */}
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                          </svg>
+                          Editar Texto
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
               </div>
 
+              {/* Área de Conteúdo */}
               {loadingMinuta ? (
                 <PremiumIALoader />
               ) : minutaTexto ? (
-                <>
+                <div id="contrato-impressao" className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm mt-4">
                   {/* CABEÇALHO TIMBRADO JURÍDICO - VISÍVEL NA UI */}
                   <div className="flex items-center gap-4 mb-4 border-b-2 border-[#d4af37] pb-4">
                     <div>
@@ -1341,19 +1375,27 @@ NÃO utilize termos genéricos de contratos cíveis comuns. Use jargões técnic
                     </span>
                   </div>
 
-                  <div className="w-full p-6 bg-white dark:bg-slate-900 border rounded shadow-sm h-[500px] overflow-y-auto prose dark:prose-invert max-w-none">
-                    <textarea
-                      value={minutaTexto}
-                      onChange={(e) => setMinutaTexto(e.target.value)}
-                      className="prose dark:prose-invert w-full h-full bg-transparent border-none outline-none resize-none focus:ring-0 text-xs font-mono leading-relaxed text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500/70"
-                      placeholder="O documento gerado aparecerá aqui..."
-                    />
+                  {/* Texto do Contrato */}
+                  <div className="w-full min-h-[400px] overflow-y-auto">
+                    {estaEditando ? (
+                      <textarea
+                        value={minutaTexto}
+                        onChange={(e) => setMinutaTexto(e.target.value)}
+                        rows={18}
+                        className="w-full p-4 text-sm md:text-base font-mono text-slate-800 bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d4af37] focus:border-transparent leading-relaxed resize-y"
+                        placeholder="Modifique as cláusulas contratuais aqui..."
+                      />
+                    ) : (
+                      // Modo de Leitura/Visualização: Preserva a formatação para o html2canvas capturar o PDF
+                      <div className="prose max-w-none text-sm md:text-base text-slate-800 dark:text-slate-100 leading-relaxed whitespace-pre-line font-serif">
+                        {minutaTexto}
+                      </div>
+                    )}
                   </div>
 
                   {/* BLOCO DE ASSINATURAS E TIMESTAMP - VISÍVEL NO PREVIEW */}
                   <div className="mt-8 border-t border-slate-200 dark:border-slate-800 pt-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      
                       {/* Coluna Esquerda (CONTRATADA) */}
                       <div className="flex flex-col items-center gap-2 text-center p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 print:bg-white print:p-0 print:border-none">
                         <span className="text-[9px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest">CONTRATADA</span>
@@ -1361,7 +1403,6 @@ NÃO utilize termos genéricos de contratos cíveis comuns. Use jargões técnic
                           {((advogado?.tratamento || "Dra.") + " " + (advogado?.nome || "Janaina Tarabauca")).toUpperCase()}
                         </span>
                         <div className="border-b border-slate-300 dark:border-slate-700 print:border-black w-full h-24 flex items-center justify-center bg-white dark:bg-slate-950 p-2 rounded-lg print:bg-white print:p-0">
-                          {/* Usa Base64 no print para evitar CORS; URL normal na tela */}
                           {(lawyerSigBase64 || advogado?.assinatura_digital_url || lawyerSignatureImgUrl) ? (
                             <img
                               src={lawyerSigBase64 || advogado?.assinatura_digital_url || lawyerSignatureImgUrl || ""}
@@ -1398,8 +1439,6 @@ NÃO utilize termos genéricos de contratos cíveis comuns. Use jargões técnic
                           </span>
                         )}
                       </div>
-
-
                     </div>
 
                     {/* Rodapé Oficial da Folha */}
@@ -1412,10 +1451,10 @@ NÃO utilize termos genéricos de contratos cíveis comuns. Use jargões técnic
                       </p>
                     </div>
                   </div>
-                </>
+                </div>
               ) : (
-                <div className="w-full bg-slate-50 dark:bg-[#070a13] border border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 rounded-xl p-20 text-center text-xs font-light italic print:hidden">
-                  Nenhuma minuta gerada. Selecione um cliente e clique no botão "Gerar Minuta por IA" acima.
+                <div className="text-center py-8 text-slate-400 text-sm md:text-base">
+                  Nenhum esboço gerado ainda. Selecione a área, narre os fatos e clique em "Esboçar cláusulas contratuais".
                 </div>
               )}
             </div>
