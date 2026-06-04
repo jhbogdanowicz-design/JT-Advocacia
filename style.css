@@ -2696,7 +2696,7 @@ input:checked + .slider:before {
   }
   
   /* Forçar a exibição exclusiva e formatação elegante do bloco de impressão de contratos */
-  #contratos-print-area {
+  #view-contratos > #contratos-print-area {
     display: block !important;
     width: 100% !important;
     max-width: 100% !important;
@@ -2721,7 +2721,7 @@ input:checked + .slider:before {
   }
   
   /* Forçar a exibição exclusiva e formatação elegante do bloco de impressão de processos */
-  #processos-print-area {
+  #view-processos > #processos-print-area {
     display: block !important;
     width: 100% !important;
     max-width: 100% !important;

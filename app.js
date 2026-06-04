@@ -7593,6 +7593,25 @@ function initContratosModule() {
         contratosPrintWatermarkText.style.color = "var(--gold)";
       }
       
+      // Configurar assinatura do advogado na prévia
+      if (activeLawyerProfile && activeLawyerProfile.assinatura_digital_url) {
+        if (contratosPrintLawyerSigImg) {
+          contratosPrintLawyerSigImg.src = activeLawyerProfile.assinatura_digital_url;
+          contratosPrintLawyerSigImg.style.display = "block";
+        }
+        if (contratosPrintLawyerSigFallback) {
+          contratosPrintLawyerSigFallback.style.display = "none";
+        }
+      } else {
+        if (contratosPrintLawyerSigImg) {
+          contratosPrintLawyerSigImg.style.display = "none";
+        }
+        if (contratosPrintLawyerSigFallback) {
+          contratosPrintLawyerSigFallback.style.display = "block";
+          contratosPrintLawyerSigFallback.textContent = "(Assinatura Pendente de Cadastro)";
+        }
+      }
+
       if (contratosPrintSigImgContainer) contratosPrintSigImgContainer.style.display = "none";
       if (contratosPrintSigBlank) contratosPrintSigBlank.style.display = "block";
       if (contratosPrintSigTimestamp) contratosPrintSigTimestamp.style.display = "none";
@@ -7621,6 +7640,25 @@ function initContratosModule() {
         contratosPrintWatermarkText.style.color = "var(--success-color)";
       }
       
+      // Configurar assinatura do advogado no assinado
+      if (activeLawyerProfile && activeLawyerProfile.assinatura_digital_url) {
+        if (contratosPrintLawyerSigImg) {
+          contratosPrintLawyerSigImg.src = activeLawyerProfile.assinatura_digital_url;
+          contratosPrintLawyerSigImg.style.display = "block";
+        }
+        if (contratosPrintLawyerSigFallback) {
+          contratosPrintLawyerSigFallback.style.display = "none";
+        }
+      } else {
+        if (contratosPrintLawyerSigImg) {
+          contratosPrintLawyerSigImg.style.display = "none";
+        }
+        if (contratosPrintLawyerSigFallback) {
+          contratosPrintLawyerSigFallback.style.display = "block";
+          contratosPrintLawyerSigFallback.textContent = "(Assinatura Pendente de Cadastro)";
+        }
+      }
+
       if (contratosPrintSigImgContainer) contratosPrintSigImgContainer.style.display = "flex";
       if (contratosPrintSigImg && contratosSignatureDataUrl) {
         contratosPrintSigImg.src = contratosSignatureDataUrl;
