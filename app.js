@@ -7111,22 +7111,72 @@ async function executeEsbocarContrato() {
     
     let minutaGerada = "";
     
-    if (client.tipo_pessoa === "PJ") {
-      minutaGerada = `CONTRATO DE ASSESSORIA JURÍDICA PREVENTIVA EM DIREITO MÉDICO
+    const area = (client.areas_interesse || "civil").toLowerCase();
+    const fatosParte = client.observacoes || "Nenhum relato de fatos registrado no prontuário.";
+    const nomeCliente = client.nome;
+    const cnpjCpf = client.cpf_cnpj || "000.000.000-00";
 
-CONTRATANTE: ${client.nome.toUpperCase()}, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº ${client.cpf_cnpj || "00.000.000/0001-00"}, com sede no endereço cadastrado em prontuário.
+    // 1. MAPEAMENTO DE TEMPLATES (Dicionário de Escopos)
+    let tituloContrato = "";
+    let qualificacaoContratante = "";
+    let clausulaObjeto = "";
+    let clausulaEspecifica = "";
 
-CONTRATADA: DRA. JANAINA TARABAUCA, inscrita na OAB/SP sob o nº 123.456, com endereço profissional no escritório JT Advocacia.
+    if (area.includes("trabalhista") || area.includes("trabalho")) {
+      tituloContrato = "CONTRATO DE PRESTAÇÃO DE SERVIÇOS ADVOCATÍCIOS E CONSULTORIA TRABALHISTA";
+      qualificacaoContratante = "trabalhador(a) / reclamante";
+      clausulaObjeto = `O presente instrumento tem como objeto o patrocínio, representação judicial e defesa dos direitos trabalhistas da parte Contratante em face de seus antigos empregadores, incluindo reclamações trabalhistas e pedidos de verbas rescisórias, fundamentando-se especialmente nos fatos a seguir: ${fatosParte}`;
+      
+      // Extrair salário/valores e verbas dinamicamente sem usar valores fixos
+      const matchSalario = fatosParte.match(/(salário|salario|R\$)\s*(\d+[\d\.,]*)/i);
+      const matchVerbas = fatosParte.match(/(décimo|ferias|rescisórias|rescisao|fgts|horas extras)/i);
+      const salario = matchSalario ? `com remuneração baseada em ${matchSalario[0]} ${matchSalario[2]}` : "com remuneração acordada na ficha funcional";
+      const verbas = matchVerbas ? `abrangendo direitos de ${matchVerbas[0]}` : "abrangendo as verbas rescisórias e trabalhistas legais cabíveis";
+      clausulaEspecifica = `\n\nCLÁUSULA ADICIONAL - DOS DIREITOS LABORAIS AVALIADOS:\nA contratada prestará assessoria técnica minuciosa para o cálculo e homologação das verbas contratuais informadas pelo cliente, ${salario}, ${verbas}, conforme os fatos narrados no cadastro.`;
+    } else if (area.includes("empresarial") || area.includes("societário") || area.includes("societario")) {
+      tituloContrato = "CONTRATO DE ASSESSORIA JURÍDICA E CONSULTORIA EMPRESARIAL";
+      qualificacaoContratante = "sociedade empresária / contratante";
+      clausulaObjeto = `O presente instrumento tem como objeto a prestação de serviços de consultoria jurídica empresarial, elaboração de contratos societários, proteção patrimonial e governança corporativa, baseando-se nos seguintes fatos: ${fatosParte}`;
+      
+      // Extrair sócios e cotas dinamicamente sem usar valores fixos (hardcoded)
+      const matchSocios = fatosParte.match(/sócio[s]?\s+([^,\.\n]+)/i);
+      const matchCotas = fatosParte.match(/(\d+[\d\.,]*%|\d+\s+cotas)/i);
+      const socios = matchSocios ? matchSocios[1] : "qualificados em anexo";
+      const cotas = matchCotas ? matchCotas[1] : "conforme participação societária";
+      clausulaEspecifica = `\n\nCLÁUSULA ADICIONAL - DA ESTRUTURA SOCIETÁRIA:\nAs partes pactuam que o planejamento empresarial levará em conta a divisão de cotas no percentual aproximado de ${cotas}, sob responsabilidade e gestão dos sócios definidos como ${socios}, conforme delineado no contexto fático informado.`;
+    } else if (area.includes("administrativo")) {
+      tituloContrato = "CONTRATO DE PRESTAÇÃO DE SERVIÇOS JURÍDICOS EM DIREITO ADMINISTRATIVO";
+      qualificacaoContratante = "Contratante";
+      clausulaObjeto = `O presente instrumento tem como objeto a prestação de serviços de assessoria em Direito Administrativo, com foco em análise jurídica de editais de licitação, recursos e impugnações administrativas, e defesa técnica baseada nos fatos descritos: ${fatosParte}`;
+    } else if (area.includes("médico") || area.includes("medico") || area.includes("saúde") || area.includes("saude")) {
+      tituloContrato = client.tipo_pessoa === "PJ"
+        ? "CONTRATO DE ASSESSORIA JURÍDICA PREVENTIVA EM DIREITO MÉDICO"
+        : "CONTRATO DE PRESTAÇÃO DE SERVIÇOS ADVOCATÍCIOS DE DEFESA MÉDICA";
+      qualificacaoContratante = client.tipo_pessoa === "PJ" ? "Contratante" : "profissional da saúde";
+      clausulaObjeto = client.tipo_pessoa === "PJ"
+        ? `O presente instrumento tem como objeto a prestação de serviços de consultoria preventiva e auditoria em Direito Médico, abrangendo especificamente: auditoria de prontuários, relatórios de compliance regulatório com base no CFM e ANVISA, treinamento de corpo clínico e análise de riscos baseada nos fatos: ${fatosParte}`
+        : `O presente instrumento tem como objeto o patrocínio e representação judicial da parte Contratante em ações de indenização por erro médico e processos administrativo-disciplinares junto ao CRM, fundamentando-se nos fatos: ${fatosParte}`;
+    } else {
+      // Civil / Padrão
+      tituloContrato = "CONTRATO DE PRESTAÇÃO DE SERVIÇOS ADVOCATÍCIOS";
+      qualificacaoContratante = "Contratante";
+      clausulaObjeto = `O presente instrumento tem como objeto a prestação de serviços advocatícios para representação e patrocínio dos interesses civis da parte Contratante, judicial ou extrajudicialmente, baseando-se nos fatos narrados: ${fatosParte}`;
+    }
+
+    const definicaoContratante = `CONTRATANTE: ${nomeCliente.toUpperCase()}, na qualidade de ${qualificacaoContratante}, portador(a) do CPF/CNPJ sob o nº ${cnpjCpf}, residente, domiciliado(a) ou sediado(a) no endereço cadastrado.`;
+    const definicaoContratada = `CONTRATADA: DRA. JANAINA TARABAUCA, inscrita na OAB/SP sob o nº 123.456, com endereço profissional no escritório JT Advocacia.`;
+
+    minutaGerada = `${tituloContrato}
+
+${definicaoContratante}
+
+${definicaoContratada}
 
 CLÁUSULA PRIMEIRA - DO OBJETO:
-O presente instrumento tem como objeto a prestação de serviços de consultoria preventiva e auditoria em Direito Médico, abrangendo especificamente:
-a) Auditoria detalhada de prontuários médicos e fichas de consentimento informado.
-b) Elaboração de relatórios de compliance regulatório com base nas diretrizes do Conselho Federal de Medicina (CFM) e ANVISA.
-c) Treinamento preventivo de corpo clínico para mitigação de riscos de erro médico.
-d) Análise jurídica preventiva baseada no relato de fatos: "${client.observacoes || "Sem notas de fatos no prontuário"}".
+${clausulaObjeto}${clausulaEspecifica}
 
 CLÁUSULA SEGUNDA - DA CONFIDENCIALIDADE:
-As partes se comprometem a manter sigilo absoluto sobre todas as informações médicas, operacionais ou técnicas de que venham a ter conhecimento em virtude deste contrato, sob pena de responsabilização civil e criminal.
+As partes se comprometem a manter sigilo absoluto sobre todas as informações comerciais, operacionais ou técnicas de que venham a ter conhecimento em virtude deste contrato, sob pena de responsabilização civil e contratual.
 
 CLÁUSULA TERCEIRA - DA VIGÊNCIA E RESCISÃO:
 O contrato terá vigência de 12 (doze) meses a contar da data de início acordada, com renovação automática. A rescisão imotivada exigirá aviso prévio por escrito de 30 dias.
@@ -7134,42 +7184,15 @@ O contrato terá vigência de 12 (doze) meses a contar da data de início acorda
 CLÁUSULA QUARTA - DOS HONORÁRIOS:
 Pelos serviços preventivos contratados, o CONTRATANTE pagará à CONTRATADA o valor de R$ ${docValor} em caráter recorrente, via boleto bancário ou transferência, com vencimento todo dia ${docRenovacao} de cada mês.
 
-E por estarem justos e contratados, assinam o presente instrumento.
-
-São Paulo, ${dataHoje}.
-
-__________________________________
-${client.nome} (Contratante)
-
-__________________________________
-Dra. Janaina Tarabauca (Contratada)`;
-    } else {
-      minutaGerada = `CONTRATO DE PRESTAÇÃO DE SERVIÇOS ADVOCATÍCIOS DE DEFESA MÉDICA
-
-CONTRATANTE: ${client.nome.toUpperCase()}, profissional da saúde, portador do CPF sob o nº ${client.cpf_cnpj || "000.000.000-00"}, residente e domiciliado no endereço cadastrado em prontuário.
-
-CONTRATADA: DRA. JANAINA TARABAUCA, inscrita na OAB/SP sob o nº 123.456, com endereço profissional no escritório JT Advocacia.
-
-CLÁUSULA PRIMEIRA - DO OBJETO:
-O presente instrumento tem como objeto o patrocínio e representação judicial da parte Contratante em ações de indenização por erro médico e processos administrativo-disciplinares junto ao CRM, fundamentando-se especialmente nos fatos e defesas técnicas a seguir:
-"${client.observacoes || "Nenhuma observação cadastrada no prontuário."}"
-
-CLÁUSULA SEGUNDA - DAS OBRIGAÇÕES DA CONTRATADA:
-A Contratada obriga-se a prestar seus serviços profissionais com o devido zelo técnico e de acordo com as normas éticas contidas no Estatuto da Advocacia e da OAB, acompanhando todas as fases processuais judiciais ou administrativas.
-
-CLÁUSULA TERCEIRA - DOS HONORÁRIOS CONTRATUAIS:
-Pelos serviços contenciosos prestados, o CONTRATANTE pagará à CONTRATADA o valor de R$ ${docValor}, com vencimento conforme acordado e liquidado diretamente pelo sistema.
-
 Foro de Eleição: Fica eleito o foro da Comarca de São Paulo/SP para dirimir eventuais dúvidas.
 
 São Paulo, ${dataHoje}.
 
 __________________________________
-${client.nome} (Contratante)
+${nomeCliente} (Contratante)
 
 __________________________________
 Dra. Janaina Tarabauca (Contratada)`;
-    }
     
     contratosMinutaTextarea.value = minutaGerada;
     contratosMinutaTextarea.style.display = "block";
