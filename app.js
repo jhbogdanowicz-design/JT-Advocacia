@@ -301,6 +301,9 @@ const btnContratosCopiar = document.getElementById("btn-contratos-copiar");
 const contratosMinutaLoading = document.getElementById("contratos-minuta-loading");
 const contratosMinutaLoadingStatus = document.getElementById("contratos-minuta-loading-status");
 const contratosMinutaTextarea = document.getElementById("contratos-minuta-textarea");
+const btnContratosEditar = document.getElementById("btn-contratos-editar");
+const contratosMinutaVisualizacao = document.getElementById("contratos-minuta-visualizacao");
+let contractsIsEditing = false;
 
 const contratosViewMinuta = document.getElementById("contratos-view-minuta");
 const contratosViewPlanos = document.getElementById("contratos-view-planos");
@@ -7056,7 +7059,16 @@ function triggerContratoClientSelected() {
     loadContratosMensalidades(cId);
 
     // Limpa o rascunho anterior, botões de PDF e canvas de assinatura
-    if (contratosMinutaTextarea) contratosMinutaTextarea.value = "";
+    if (contratosMinutaTextarea) {
+      contratosMinutaTextarea.value = "";
+      contratosMinutaTextarea.style.display = "none";
+    }
+    if (contratosMinutaVisualizacao) {
+      contratosMinutaVisualizacao.textContent = "";
+      contratosMinutaVisualizacao.style.display = "none";
+    }
+    if (btnContratosEditar) btnContratosEditar.style.display = "none";
+    contractsIsEditing = false;
     if (btnContratosPrintPreview) btnContratosPrintPreview.style.display = "none";
     if (btnContratosPrintSigned) btnContratosPrintSigned.style.display = "none";
     contratosSignatureDataUrl = null;
@@ -7088,7 +7100,16 @@ function resetContratosPreview() {
   if (btnContratosPrintPreview) btnContratosPrintPreview.style.display = "none";
   if (btnContratosPrintSigned) btnContratosPrintSigned.style.display = "none";
   contratosSignatureDataUrl = null;
-  if (contratosMinutaTextarea) contratosMinutaTextarea.value = "";
+  if (contratosMinutaTextarea) {
+    contratosMinutaTextarea.value = "";
+    contratosMinutaTextarea.style.display = "none";
+  }
+  if (contratosMinutaVisualizacao) {
+    contratosMinutaVisualizacao.textContent = "";
+    contratosMinutaVisualizacao.style.display = "none";
+  }
+  if (btnContratosEditar) btnContratosEditar.style.display = "none";
+  contractsIsEditing = false;
   
   if (contratosAssinaturaContainer) contratosAssinaturaContainer.style.display = "none";
   if (contratosCanvasSuccess) contratosCanvasSuccess.style.display = "none";
@@ -7137,6 +7158,9 @@ async function executeEsbocarContrato() {
   try {
     btnContratosEsbocar.setAttribute("disabled", "true");
     contratosMinutaTextarea.style.display = "none";
+    if (contratosMinutaVisualizacao) contratosMinutaVisualizacao.style.display = "none";
+    if (btnContratosEditar) btnContratosEditar.style.display = "none";
+    contractsIsEditing = false;
     contratosMinutaLoading.style.display = "flex";
     btnContratosCopiar.style.display = "none";
     
@@ -7275,7 +7299,19 @@ __________________________________
 ${tratamentoAdv} ${nomeAdv} (Contratada)`;
     
     contratosMinutaTextarea.value = minutaGerada;
-    contratosMinutaTextarea.style.display = "block";
+    if (contratosMinutaVisualizacao) {
+      contratosMinutaVisualizacao.textContent = minutaGerada;
+      contratosMinutaVisualizacao.style.display = "block";
+    }
+    contratosMinutaTextarea.style.display = "none";
+    if (btnContratosEditar) {
+      btnContratosEditar.style.display = "inline-block";
+      btnContratosEditar.innerHTML = "✏️ Editar Texto";
+      btnContratosEditar.style.background = "var(--navy)";
+      btnContratosEditar.style.color = "#fff";
+      btnContratosEditar.style.borderColor = "rgba(197, 168, 92, 0.3)";
+    }
+    contractsIsEditing = false;
     btnContratosCopiar.style.display = "inline-block";
     
     // Exibir botões de impressão condicionalmente
@@ -7484,6 +7520,37 @@ function initContratosModule() {
       }).catch(err => {
         console.error("Erro ao copiar:", err);
       });
+    });
+  }
+
+  if (btnContratosEditar) {
+    btnContratosEditar.addEventListener("click", () => {
+      if (contractsIsEditing) {
+        // Concluir Edição: muda para modo de visualização
+        const newText = contratosMinutaTextarea.value;
+        if (contratosMinutaVisualizacao) {
+          contratosMinutaVisualizacao.textContent = newText;
+          contratosMinutaVisualizacao.style.display = "block";
+        }
+        contratosMinutaTextarea.style.display = "none";
+        btnContratosEditar.innerHTML = "✏️ Editar Texto";
+        btnContratosEditar.style.background = "var(--navy)";
+        btnContratosEditar.style.color = "#fff";
+        btnContratosEditar.style.borderColor = "rgba(197, 168, 92, 0.3)";
+        contractsIsEditing = false;
+      } else {
+        // Editar Texto: muda para modo textarea
+        if (contratosMinutaVisualizacao) {
+          contratosMinutaVisualizacao.style.display = "none";
+        }
+        contratosMinutaTextarea.style.display = "block";
+        contratosMinutaTextarea.focus();
+        btnContratosEditar.innerHTML = "✅ Concluir Edição";
+        btnContratosEditar.style.background = "var(--success-color)";
+        btnContratosEditar.style.color = "#fff";
+        btnContratosEditar.style.borderColor = "transparent";
+        contractsIsEditing = true;
+      }
     });
   }
   

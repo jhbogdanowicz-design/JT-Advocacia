@@ -2766,6 +2766,9 @@
                   <label class="form-label" style="margin-bottom: 0;">Estrutura da Minuta Gerada (Editável)</label>
                   <div style="display: flex; gap: 10px; align-items: center;">
                     <button type="button" id="btn-contratos-copiar" style="background: none; border: none; color: var(--gold); font-size: 12px; font-weight: 700; cursor: pointer; display: none; margin-right: 8px;">📋 Copiar Minuta</button>
+                    <button type="button" id="btn-contratos-editar" class="btn-primary" style="display: none; width: auto; margin: 0; padding: 6px 14px; font-size: 11px; background: var(--navy); border: 1px solid rgba(197, 168, 92, 0.3); color: #fff; font-weight: 600; cursor: pointer;">
+                      ✏️ Editar Texto
+                    </button>
                     <button type="button" id="btn-contratos-print-preview" class="btn-primary" style="display: none; width: auto; margin: 0; padding: 6px 14px; font-size: 11px; background: rgba(197, 168, 92, 0.08); border: 1px solid var(--gold); color: var(--gold); font-weight: 600;">
                       📄 Exportar Prévia (PDF)
                     </button>
@@ -2781,6 +2784,8 @@
                 </div>
 
                 <textarea id="contratos-minuta-textarea" class="form-textarea-premium" rows="22" placeholder="O documento gerado aparecerá aqui para refinamento e assinatura..." style="font-family: monospace; font-size: 12px; line-height: 1.6; background: rgba(0,0,0,0.1); border-color: var(--panel-border); display: block;"></textarea>
+                
+                <div id="contratos-minuta-visualizacao" class="prose font-serif" style="display: none; font-family: Georgia, 'Times New Roman', serif; font-size: 14px; line-height: 1.7; color: var(--text-primary); background: rgba(255, 255, 255, 0.03); border: 1px solid var(--panel-border); border-radius: 8px; padding: 24px; white-space: pre-wrap; word-break: break-word; max-height: 500px; overflow-y: auto;"></div>
               
                 <!-- Quadro de Assinatura Digital (Canvas) -->
                 <div id="contratos-assinatura-container" style="display: none; flex-direction: column; gap: 12px; margin-top: 16px; border-top: 1px solid var(--panel-border); padding-top: 16px;">
