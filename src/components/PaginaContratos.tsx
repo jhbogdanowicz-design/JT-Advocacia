@@ -97,6 +97,7 @@ export const PaginaContratos: React.FC = () => {
   // Estados do Canvas de Assinatura
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const isDrawingRef = useRef<boolean>(false);
+  const assinaturaImediataRef = useRef<string | null>(null);
   const [signatureExists, setSignatureExists] = useState<boolean>(false);
   const [isSigned, setIsSigned] = useState<boolean>(false);
   const [signatureImgUrl, setSignatureImgUrl] = useState<string | null>(null);
@@ -875,9 +876,11 @@ NÃO utilize termos genéricos de contratos cíveis comuns. Use jargões técnic
     if (canvas) {
       const imgUrl = canvas.toDataURL("image/png");
       setSignatureImgUrl(imgUrl);
+      assinaturaImediataRef.current = imgUrl; // Síncrono imediato para evitar assincronia no PDF
+      setClientSigBase64(imgUrl); // Força vinculação rápida no estado do preview off-screen
     }
     setIsSigned(true);
-    showToast("Assinatura salva com sucesso!");
+    showToast("Assinatura vinculada com sucesso de primeira!");
   };
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -916,14 +919,15 @@ NÃO utilize termos genéricos de contratos cíveis comuns. Use jargões técnic
 
       // ── ETAPA 2: Converter assinatura do CONTRATANTE (cliente) para Base64 ──
       let resolvedClientB64: string | null = null;
+      const urlAssinaturaCliente = assinaturaImediataRef.current || signatureImgUrl;
 
-      if (incluirAssinaturaCliente && signatureImgUrl) {
-        if (signatureImgUrl.startsWith("data:image/")) {
-          resolvedClientB64 = signatureImgUrl;
-          console.log("[PDF] ✅ Assinatura do cliente: já é Base64 válido (canvas).");
+      if (incluirAssinaturaCliente && urlAssinaturaCliente) {
+        if (urlAssinaturaCliente.startsWith("data:image/")) {
+          resolvedClientB64 = urlAssinaturaCliente;
+          console.log("[PDF] ✅ Assinatura do cliente: já é Base64 síncrono imediato.");
         } else {
           console.log("[PDF] ⏳ Convertendo assinatura do cliente para Base64...");
-          resolvedClientB64 = await carregarImagemBase64(signatureImgUrl);
+          resolvedClientB64 = await carregarImagemBase64(urlAssinaturaCliente);
           if (!resolvedClientB64 || !resolvedClientB64.startsWith("data:image/")) {
             console.error("[PDF] ❌ FALHA na conversão Base64 da assinatura do cliente.");
             resolvedClientB64 = null;
@@ -936,6 +940,27 @@ NÃO utilize termos genéricos de contratos cíveis comuns. Use jargões técnic
       // ── ETAPA 3: Atualizar estados com os Base64 resolvidos ──
       setLawyerSigBase64(resolvedLawyerB64);
       setClientSigBase64(resolvedClientB64);
+
+      // Pré-carregamento síncrono das imagens na memória do navegador para evitar renderização em branco no html2canvas
+      if (resolvedClientB64) {
+        const imgPreload = new Image();
+        imgPreload.crossOrigin = "anonymous";
+        await new Promise((resolve) => {
+          imgPreload.onload = () => resolve(true);
+          imgPreload.onerror = () => resolve(true); // Continua mesmo se falhar para não travar o PDF
+          imgPreload.src = resolvedClientB64!;
+        });
+      }
+
+      if (resolvedLawyerB64) {
+        const imgPreload = new Image();
+        imgPreload.crossOrigin = "anonymous";
+        await new Promise((resolve) => {
+          imgPreload.onload = () => resolve(true);
+          imgPreload.onerror = () => resolve(true);
+          imgPreload.src = resolvedLawyerB64!;
+        });
+      }
 
       // ── ETAPA 4: Timeout de segurança (500ms) para o React re-renderizar a div off-screen ──
       // Sem este delay, o html2canvas captura o DOM antes das <img> carregarem os Base64.
