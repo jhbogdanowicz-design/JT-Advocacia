@@ -337,8 +337,7 @@ export const PaginaContratos: React.FC = () => {
     }
   }, [minutaTexto]);
 
-  // Limpar formulário e começar novo contrato
-  const handleNovoContrato = () => {
+  // Limpar formulário e começ  const handleNovoContrato = () => {
     setClienteSelecionadoId("");
     setMinutaTexto("");
     setTipoPlano("mensal");
@@ -346,7 +345,10 @@ export const PaginaContratos: React.FC = () => {
     setDiaRenovacao(5);
     setValorRecorrencia(formatBRL(1500));
     setSignatureImgUrl(null);
-    handleClearSigna  // Helper para gerar o texto da minuta com base na área  // Helper para gerar o texto da minuta com base na área e tipo de pessoa
+    handleClearSignature();
+  };
+
+  // Helper para gerar o texto da minuta com base na área e tipo de pessoa
   const gerarTextoMinuta = (
     area: "civil" | "empresarial" | "trabalhista" | "administrativo",
     tipoPessoa: "PF" | "PJ",
@@ -369,67 +371,49 @@ export const PaginaContratos: React.FC = () => {
       ? contextoContratoStr.split("Fatos e Contexto do Cliente: ")[1]
       : contextoContratoStr;
 
-    // Áreas do Direito Titles
-    const titulos = {
-      civil: tipoPessoa === "PJ" 
-        ? "CONTRATO DE PRESTAÇÃO DE SERVIÇOS DE CONSULTORIA CÍVEL PREVENTIVA"
-        : "CONTRATO DE PRESTAÇÃO DE SERVIÇOS ADVOCATÍCIOS EM DIREITO CIVIL",
-      empresarial: tipoPessoa === "PJ"
-        ? "ACORDO DE PRESTAÇÃO DE SERVIÇOS EM DIREITO EMPRESARIAL E SOCIETÁRIO"
-        : "CONTRATO DE CONSULTORIA SOCIETÁRIA E CONFIDENCIALIDADE (NDA)",
-      trabalhista: tipoPessoa === "PJ"
-        ? "CONTRATO DE ASSESSORIA TRABALHISTA PREVENTIVA E COMPLIANCE"
-        : "CONTRATO DE PRESTAÇÃO DE SERVIÇOS ADVOCATÍCIOS TRABALHISTAS",
-      administrativo: tipoPessoa === "PJ"
-        ? "CONTRATO DE ASSESSORIA EM DIREITO ADMINISTRATIVO E LICITAÇÕES"
-        : "CONTRATO DE PRESTAÇÃO DE SERVIÇOS JURÍDICOS EM DIREITO ADMINISTRATIVO",
-    };
-
-    const definicaoContratante = tipoPessoa === "PJ"
-      ? `CONTRATANTE: ${nomeCliente.toUpperCase()}, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº ${cnpjCpf}, com sede no endereço cadastrado.`
-      : `CONTRATANTE: ${nomeCliente.toUpperCase()}, portador(a) do CPF sob o nº ${cnpjCpf}, residente e domiciliado(a) no endereço cadastrado.`;
-
-    const definicaoContratada = `CONTRATADA: DRA. JANAINA TARABAUCA, inscrita na OAB/SP sob o nº 123.456, com endereço profissional no escritório JT Advocacia.`;
-
-    // Cláusulas e variáveis dinâmicas baseadas nos fatos narrados
+    // 1. MAPEAMENTO DE TEMPLATES (Dicionário de Escopos)
+    let tituloContrato = "";
+    let qualificacaoContratante = "";
     let clausulaObjeto = "";
     let clausulaEspecifica = "";
 
-    if (area === "civil") {
-      clausulaObjeto = tipoPessoa === "PJ"
-        ? `O presente instrumento tem como objeto a prestação de serviços de consultoria cível preventiva, incluindo elaboração e revisão de contratos de prestação de serviços, locação, compra e venda, bem como análise de riscos baseada no relato de fatos: "${fatosParte || "Sem notas de fatos no prontuário"}".`
-        : `O presente instrumento tem como objeto o patrocínio e representação judicial da parte Contratante em ações de natureza cível, incluindo obrigações, contratos, responsabilidade civil e direitos reais, fundamentando-se especialmente nos fatos e defesas técnicas a seguir: "${fatosParte || "Nenhuma observação cadastrada."}".`;
-    } else if (area === "empresarial") {
-      // Extrair sócios e cotas dinamicamente sem usar valores fixos (hardcoded)
-      const matchSocios = fatosParte.match(/sócio[s]?\s+([^,\.\n]+)/i);
-      const matchCotas = fatosParte.match(/(\d+[\d\.,]*%|\d+\s+cotas)/i);
-      const socios = matchSocios ? matchSocios[1] : "qualificados em anexo";
-      const cotas = matchCotas ? matchCotas[1] : "conforme participação societária";
-
-      clausulaObjeto = tipoPessoa === "PJ"
-        ? `O presente instrumento tem como objeto a prestação de serviços de assessoria empresarial e societária, abrangendo a elaboração de acordos de sócios, termos de confidencialidade (NDA), estruturação de estatuto social e mitigação de passivos societários, baseada nos fatos descritos: "${fatosParte || "Sem notas de fatos no prontuário"}".`
-        : `O presente instrumento tem como objeto a assessoria jurídica preventiva individual em direito empresarial, regulando obrigações de confidencialidade (NDA), estruturação societária inicial de sócios ou parceiros comerciais, e análise jurídica dos fatos a seguir: "${fatosParte || "Nenhuma observação cadastrada."}".`;
-
-      clausulaEspecifica = `\n\nCLÁUSULA ADICIONAL - DA ESTRUTURA SOCIETÁRIA:\nAs partes pactuam que o planejamento empresarial levará em conta a divisão de cotas no percentual aproximado de ${cotas}, sob responsabilidade e gestão dos sócios definidos como ${socios}, conforme delineado no contexto fático informado.`;
-    } else if (area === "trabalhista") {
+    if (area === "trabalhista") {
+      tituloContrato = "CONTRATO DE PRESTAÇÃO DE SERVIÇOS ADVOCATÍCIOS E CONSULTORIA TRABALHISTA";
+      qualificacaoContratante = "trabalhador(a) / reclamante";
+      clausulaObjeto = `O presente instrumento tem como objeto o patrocínio, representação judicial e defesa dos direitos trabalhistas da parte Contratante em face de seus antigos empregadores, incluindo reclamações trabalhistas e pedidos de verbas rescisórias, fundamentando-se especialmente nos fatos a seguir: ${fatosParte || "Nenhuma observação cadastrada."}`;
+      
       // Extrair salário/valores e verbas dinamicamente sem usar valores fixos
       const matchSalario = fatosParte.match(/(salário|salario|R\$)\s*(\d+[\d\.,]*)/i);
       const matchVerbas = fatosParte.match(/(décimo|ferias|rescisórias|rescisao|fgts|horas extras)/i);
       const salario = matchSalario ? `com remuneração baseada em ${matchSalario[0]} ${matchSalario[2]}` : "com remuneração acordada na ficha funcional";
       const verbas = matchVerbas ? `abrangendo direitos de ${matchVerbas[0]}` : "abrangendo as verbas rescisórias e trabalhistas legais cabíveis";
-
-      clausulaObjeto = tipoPessoa === "PJ"
-        ? `O presente instrumento tem como objeto a prestação de serviços de consultoria trabalhista preventiva, incluindo auditoria de contratos de trabalho, acordos de rescisão contratual e elaboração de pareceres de prevenção de passivo trabalhista, baseada nos fatos descritos: "${fatosParte || "Sem notas de fatos no prontuário"}".`
-        : `O presente instrumento tem como objeto a representação e patrocínio dos interesses do Contratante em reclamações trabalhistas e consultoria individual de direitos de trabalho, fundamentando-se especialmente nos fatos e defesas técnicas a seguir: "${fatosParte || "Nenhuma observação cadastrada."}".`;
-
       clausulaEspecifica = `\n\nCLÁUSULA ADICIONAL - DOS DIREITOS LABORAIS AVALIADOS:\nA contratada prestará assessoria técnica minuciosa para o cálculo e homologação das verbas contratuais informadas pelo cliente, ${salario}, ${verbas}, conforme os fatos narrados no cadastro.`;
+    } else if (area === "empresarial") {
+      tituloContrato = "CONTRATO DE ASSESSORIA JURÍDICA E CONSULTORIA EMPRESARIAL";
+      qualificacaoContratante = "sociedade empresária / contratante";
+      clausulaObjeto = `O presente instrumento tem como objeto a prestação de serviços de consultoria jurídica empresarial, elaboração de contratos societários, proteção patrimonial e governança corporativa, baseando-se nos seguintes fatos: ${fatosParte || "Sem notas de fatos no prontuário"}`;
+      
+      // Extrair sócios e cotas dinamicamente sem usar valores fixos (hardcoded)
+      const matchSocios = fatosParte.match(/sócio[s]?\s+([^,\.\n]+)/i);
+      const matchCotas = fatosParte.match(/(\d+[\d\.,]*%|\d+\s+cotas)/i);
+      const socios = matchSocios ? matchSocios[1] : "qualificados em anexo";
+      const cotas = matchCotas ? matchCotas[1] : "conforme participação societária";
+      clausulaEspecifica = `\n\nCLÁUSULA ADICIONAL - DA ESTRUTURA SOCIETÁRIA:\nAs partes pactuam que o planejamento empresarial levará em conta a divisão de cotas no percentual aproximado de ${cotas}, sob responsabilidade e gestão dos sócios definidos como ${socios}, conforme delineado no contexto fático informado.`;
     } else if (area === "administrativo") {
-      clausulaObjeto = tipoPessoa === "PJ"
-        ? `O presente instrumento tem como objeto a prestação de serviços de assessoria em Direito Administrativo, com foco em análise jurídica de editais de licitação, elaboração de recursos e impugnações administrativas, e defesa técnica baseada nos fatos descritos: "${fatosParte || "Sem notas de fatos no prontuário"}".`
-        : `O presente instrumento tem como objeto o patrocínio e representação judicial ou administrativa do Contratante em face de órgãos públicos, concursos públicos, processos disciplinares ou recursos correlatos, fundamentando-se nos fatos descritos: "${fatosParte || "Nenhuma observação cadastrada."}".`;
+      tituloContrato = "CONTRATO DE PRESTAÇÃO DE SERVIÇOS JURÍDICOS EM DIREITO ADMINISTRATIVO";
+      qualificacaoContratante = "Contratante";
+      clausulaObjeto = `O presente instrumento tem como objeto a prestação de serviços de assessoria em Direito Administrativo, com foco em análise jurídica de editais de licitação, elaboração de recursos e impugnações administrativas, e defesa técnica baseada nos fatos descritos: ${fatosParte || "Sem notas de fatos no prontuário"}`;
+    } else {
+      // Civil / Padrão
+      tituloContrato = "CONTRATO DE PRESTAÇÃO DE SERVIÇOS ADVOCATÍCIOS";
+      qualificacaoContratante = "Contratante";
+      clausulaObjeto = `O presente instrumento tem como objeto a prestação de serviços advocatícios para representação e patrocínio dos interesses civis da parte Contratante, judicial ou extrajudicialmente, baseando-se nos fatos narrados: ${fatosParte || "Nenhuma observação cadastrada."}`;
     }
 
-    return `${titulos[area]}
+    const definicaoContratante = `CONTRATANTE: ${nomeCliente.toUpperCase()}, na qualidade de ${qualificacaoContratante}, portador(a) do CPF/CNPJ sob o nº ${cnpjCpf}, residente, domiciliado(a) ou sediado(a) no endereço cadastrado.`;
+    const definicaoContratada = `CONTRATADA: DRA. JANAINA TARABAUCA, inscrita na OAB/SP sob o nº 123.456, com endereço profissional no escritório JT Advocacia.`;
+
+    return `${tituloContrato}
 
 ${definicaoContratante}
 
@@ -447,15 +431,15 @@ O contrato terá vigência de 12 (doze) meses a contar da data de início acorda
 CLÁUSULA QUARTA - DOS HONORÁRIOS:
 Pelos serviços preventivos contratados, o CONTRATANTE pagará à CONTRATADA o valor de ${valorFormatado} em caráter recorrente, via boleto bancário ou transferência, com vencimento todo dia ${diaRenovacao} de cada mês.
 
-Foro de Eleição: Fica eleito o foro da Comarca de São Paulo/SP para dirimir eventuais dúvidas.
+    Foro de Eleição: Fica eleito o foro da Comarca de São Paulo/SP para dirimir eventuais dúvidas.
 
-São Paulo, ${dataHoje}.
+    São Paulo, ${dataHoje}.
 
-__________________________________
-${nomeCliente} (Contratante)
+    __________________________________
+    ${nomeCliente} (Contratante)
 
-__________________________________
-Dra. Janaina Tarabauca (Contratada)`;
+    __________________________________
+    Dra. Janaina Tarabauca (Contratada)`;
   };
 
   // Teste de validação cruzada para garantir ausência de vazamento de contexto
