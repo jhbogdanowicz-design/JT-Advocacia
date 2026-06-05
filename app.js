@@ -8218,6 +8218,50 @@ function initBibliotecaModule() {
   }
 }
 
+// Toggle e scroll para a seção Quem Somos na Landing Page
+function initQuemSomosLanding() {
+  const linkQuemSomosDesktop = document.querySelector('a[href="#quem-somos"].landing-nav-link');
+  const linkQuemSomosMobile = document.querySelector('a[href="#quem-somos"].landing-mobile-link');
+  const secaoQuemSomos = document.getElementById('quem-somos');
+
+  if (!secaoQuemSomos) return;
+
+  function abrirQuemSomosEScroll(e) {
+    e.preventDefault();
+    
+    // Tocar a classe "aberto" para expandir a seção
+    secaoQuemSomos.classList.toggle('aberto');
+    const estaAberto = secaoQuemSomos.classList.contains('aberto');
+    
+    // Fechar menu mobile se estiver aberto
+    const mobileMenu = document.getElementById('landing-mobile-menu');
+    const menuToggle = document.getElementById('landing-menu-toggle');
+    if (mobileMenu && mobileMenu.classList.contains('active')) {
+      mobileMenu.classList.remove('active');
+      const closeIcon = menuToggle.querySelector('.close-icon');
+      const hamburgerIcon = menuToggle.querySelector('.hamburger-icon');
+      if (closeIcon && hamburgerIcon) {
+        closeIcon.style.display = 'none';
+        hamburgerIcon.style.display = 'block';
+      }
+    }
+
+    if (estaAberto) {
+      // Scroll suave até a seção após a expansão iniciar
+      setTimeout(() => {
+        secaoQuemSomos.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 150);
+    }
+  }
+
+  if (linkQuemSomosDesktop) {
+    linkQuemSomosDesktop.addEventListener('click', abrirQuemSomosEScroll);
+  }
+  if (linkQuemSomosMobile) {
+    linkQuemSomosMobile.addEventListener('click', abrirQuemSomosEScroll);
+  }
+}
+
 // Chamar a inicialização ao carregar a página
 let appInitialized = false;
 function initAllModules() {
@@ -8229,6 +8273,7 @@ function initAllModules() {
   initLawyerSignatureCanvas();
   initDocumentacaoModule();
   initBibliotecaModule();
+  initQuemSomosLanding();
 }
 
 // Chamar a inicialização ao carregar a página
