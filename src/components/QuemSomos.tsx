@@ -63,16 +63,13 @@ export const QuemSomos: React.FC = () => {
           </div>
         </div>
 
-        {/* COLUNA DIREITA: MONOGRAMA OFICIAL "JT" */}
+        {/* COLUNA DIREITA: FOTO PROFISSIONAL DA DRA. JANAINA */}
         <div className="flex justify-center items-center">
-          <div className="w-full max-w-sm aspect-[3/2] bg-white dark:bg-white rounded-xl border border-slate-200 dark:border-slate-100 p-6 flex items-center justify-center shadow-sm relative overflow-hidden transition-all hover:shadow-md duration-350">
-            {/* Linhas decorativas sutis que lembram papel timbrado tradicional */}
-            <div className="absolute inset-2 border border-slate-100 pointer-events-none" />
-            
+          <div className="w-full max-w-sm aspect-square rounded-2xl border border-slate-200 dark:border-slate-800/80 overflow-hidden shadow-md relative group transition-all hover:shadow-xl duration-350 bg-slate-50 dark:bg-[#070a13]">
             <img 
-              src="/og-logo-jt.jpg" 
-              alt="Monograma JT" 
-              className="w-full h-full object-contain filter dark:brightness-95 transition-all duration-350"
+              src="/dra-janaina.png" 
+              alt="Dra. Janaina Tarabauca" 
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
               loading="lazy"
             />
           </div>
