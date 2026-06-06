@@ -42,10 +42,10 @@ export const EspecialidadesHome: React.FC = () => {
     },
     {
       id: 2,
-      titulo: "Compliance",
-      foco: "Segurança corporativa e conformidade legal",
+      titulo: "Direito do Consumidor",
+      foco: "Conformidade com o CDC e transparência contratual",
       descricao:
-        "Implementação de programas de compliance robustos, adequação preventiva à LGPD, auditorias internas de conformidade regulatória, estruturação de canais de ética e integridade, e gestão estratégica de riscos operacionais e reputacionais.",
+        "Defesa e assessoria especializada nas relações de consumo. Atuação focada na conformidade com o Código de Defesa do Consumidor (CDC), elaboração e auditoria de contratos de adesão, termos de uso, políticas de reembolso e mitigação de riscos operacionais e de reputação.",
       icone: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -58,7 +58,7 @@ export const EspecialidadesHome: React.FC = () => {
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25"
+            d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
           />
         </svg>
       ),

@@ -15,6 +15,9 @@ erDiagram
     CLIENTES ||--o{ PROCESSOS : "possui"
     CLIENTES ||--o{ COMPROMISSOS : "participa"
     PROCESSOS ||--o{ COMPROMISSOS : "vincula"
+    CLIENTES ||--o{ FINANCEIRO : "paga"
+    CLIENTES ||--o{ SUPORTE_SAC : "abre"
+    CLIENTES ||--|| ACEITES_CONTRATOS : "assina"
 
     ADVOGADOS {
         uuid id PK
@@ -73,6 +76,38 @@ erDiagram
         text local_link
         text status
         text anotacoes_pos_evento
+        timestamptz created_at
+    }
+
+    FINANCEIRO {
+        uuid id PK
+        uuid cliente_id FK
+        uuid processo_id FK
+        numeric valor_total
+        text tipo_honorario
+        text status_pagamento
+        date data_vencimento
+        timestamptz created_at
+    }
+
+    SUPORTE_SAC {
+        uuid id PK
+        uuid cliente_id FK
+        text titulo
+        text descricao
+        text status
+        text prioridade
+        timestamptz created_at
+    }
+
+    ACEITES_CONTRATOS {
+        uuid id PK
+        uuid cliente_id FK
+        boolean aceite_termos
+        timestamptz aceite_termos_data
+        boolean aceite_reembolso
+        timestamptz aceite_reembolso_data
+        text ip_address
         timestamptz created_at
     }
 ```
@@ -177,6 +212,37 @@ Lançamento de honorários cobrados, acompanhamento de status de vencimento e va
 
 ---
 
+### 6. Tabela `suporte_sac`
+Armazena os chamados de suporte ao consumidor (SAC) abertos pelos clientes.
+
+| Nome do Campo | Tipo de Dado | Restrições | Descrição |
+| :--- | :--- | :--- | :--- |
+| `id` | `UUID` | `PRIMARY KEY`, `DEFAULT gen_random_uuid()` | Identificador único do chamado. |
+| `cliente_id` | `UUID` | `NOT NULL`, `REFERENCES clientes(id) ON DELETE CASCADE` | Cliente solicitante do chamado de suporte. |
+| `titulo` | `TEXT` | `NOT NULL` | Título ou assunto do chamado. |
+| `descricao` | `TEXT` | `NOT NULL` | Detalhamento da solicitação do consumidor. |
+| `status` | `TEXT` | `DEFAULT 'aberto'`, `CHECK (status IN ('aberto', 'em_andamento', 'concluido'))` | Status atual do chamado. |
+| `prioridade` | `TEXT` | `DEFAULT 'media'`, `CHECK (prioridade IN ('baixa', 'media', 'alta'))` | Nível de prioridade do chamado. |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL`, `DEFAULT now()` | Data de abertura do chamado de suporte. |
+
+---
+
+### 7. Tabela `aceites_contratos`
+Auditoria de aceites eletrônicos de Termos de Uso e Políticas de Reembolso pelos clientes.
+
+| Nome do Campo | Tipo de Dado | Restrições | Descrição |
+| :--- | :--- | :--- | :--- |
+| `id` | `UUID` | `PRIMARY KEY`, `DEFAULT gen_random_uuid()` | Identificador único do registro de aceite. |
+| `cliente_id` | `UUID` | `UNIQUE`, `NOT NULL`, `REFERENCES clientes(id) ON DELETE CASCADE` | Cliente que efetuou os aceites. |
+| `aceite_termos` | `BOOLEAN` | `NOT NULL`, `DEFAULT false` | Indica se aceitou os Termos de Uso. |
+| `aceite_termos_data` | `TIMESTAMPTZ` | - | Data e hora em que ocorreu o aceite dos Termos de Uso. |
+| `aceite_reembolso` | `BOOLEAN` | `NOT NULL`, `DEFAULT false` | Indica se aceitou a Política de Reembolso. |
+| `aceite_reembolso_data` | `TIMESTAMPTZ` | - | Data e hora em que ocorreu o aceite da Política de Reembolso. |
+| `ip_address` | `TEXT` | - | Endereço IP de onde o aceite foi registrado. |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL`, `DEFAULT now()` | Data de criação do registro de conformidade. |
+
+---
+
 ## 🔒 Segurança em Nível de Linha (Row Level Security - RLS)
 
 Para garantir o estrito cumprimento do segredo de justiça e do dever ético de sigilo do advogado, o banco possui políticas de **RLS** ativadas em todas as tabelas.
@@ -234,6 +300,28 @@ $$ LANGUAGE sql SECURITY DEFINER;
      EXISTS (
          SELECT 1 FROM public.clientes
          WHERE clientes.id = financeiro.cliente_id
+         AND clientes.advogado_id = public.get_current_advogado_id()
+     )
+     ```
+
+6. **Políticas para a tabela `suporte_sac`**:
+   * **Segurança**: Restringe o acesso aos chamados de SAC associados aos clientes gerenciados pelo advogado logado.
+   * **Fórmula SQL**:
+     ```sql
+     EXISTS (
+         SELECT 1 FROM public.clientes
+         WHERE clientes.id = suporte_sac.cliente_id
+         AND clientes.advogado_id = public.get_current_advogado_id()
+     )
+     ```
+
+7. **Políticas para a tabela `aceites_contratos`**:
+   * **Segurança**: Restringe o acesso aos registros de aceite de contrato associados aos clientes gerenciados pelo advogado logado.
+   * **Fórmula SQL**:
+     ```sql
+     EXISTS (
+         SELECT 1 FROM public.clientes
+         WHERE clientes.id = aceites_contratos.cliente_id
          AND clientes.advogado_id = public.get_current_advogado_id()
      )
      ```

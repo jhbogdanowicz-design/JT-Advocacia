@@ -69,7 +69,7 @@ export const QuemSomos: React.FC = () => {
               <div className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#d4af37]" />
                 <span className="text-[10px] font-bold text-[#0f1e36] dark:text-slate-400 uppercase tracking-widest">
-                  Compliance Trabalhista
+                  Direito do Consumidor
                 </span>
               </div>
               <div className="flex items-center gap-2">
