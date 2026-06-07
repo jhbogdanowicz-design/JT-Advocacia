@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { supabase } from "../lib/supabase";
 import { PremiumIALoader } from "./PremiumIALoader";
 import ChecklistDocumentos from "./ChecklistDocumentos";
+import { ProcessoEditor } from "./ProcessoEditor";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 type AIEngine = "gemini" | "chatgpt" | "jus_ia";
@@ -1778,146 +1779,34 @@ Responda redigindo a petição ou tese de defesa completa, com qualificações e
             )}
           </div>
 
-          {/* PDF upload */}
-          <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-3">
-            <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-              Ou Anexar Documento de Suporte (PDF ou TXT)
-            </label>
-
-            <div
-              onDragOver={e => e.preventDefault()}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
-              className={`relative border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${
-                file
-                  ? "border-emerald-400/60 dark:border-emerald-500/40 bg-emerald-50 dark:bg-emerald-500/5"
-                  : "border-slate-300 dark:border-slate-700 hover:border-[#d4af37]/50 hover:bg-amber-50/30 dark:hover:bg-[#d4af37]/5"
-              }`}
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".pdf,.txt"
-                onChange={handleFileChange}
-                className="hidden"
-              />
-              {file ? (
-                <div className="space-y-1">
-                  <span className="text-2xl">📄</span>
-                  <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 truncate max-w-[200px] mx-auto">
-                    {file.name}
-                  </p>
-                  <p className="text-[10px] text-slate-500">
-                    {(file.size / 1024 / 1024).toFixed(2)} MB
-                  </p>
-                  <button
-                    type="button"
-                    onClick={e => {
-                      e.stopPropagation();
-                      setFile(null);
-                      setFileError(null);
-                      setResultData(null);
-                      if (fileInputRef.current) fileInputRef.current.value = "";
-                    }}
-                    className="text-[10px] text-red-500 hover:text-red-400 underline font-medium"
-                  >
-                    Remover arquivo
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <span className="text-3xl opacity-40">📂</span>
-                  <p className="text-xs text-slate-500 dark:text-slate-500">
-                    Arraste ou clique para selecionar um <strong>PDF ou TXT</strong>
-                  </p>
-                  <p className="text-[10px] text-slate-400 dark:text-slate-600">Máximo 10 MB</p>
-                </div>
-              )}
-            </div>
-
-            {fileError && (
-              <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/25 rounded-xl p-3 text-xs text-red-600 dark:text-red-400 font-medium">
-                ⚠️ {fileError}
-              </div>
-            )}
-          </div>
-
-          {/* Quota bar */}
-          {!loadingConfig && !hasUserKeys && (
-            <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                  Cota Gratuita (Analisador)
-                </span>
-                <span className={`text-xs font-bold ${
-                  quotaExhausted
-                    ? "text-red-600 dark:text-red-400"
-                    : "text-[#0f1e36] dark:text-slate-200"
-                }`}>
-                  {quotaUsed} / {quotaMax} utilizadas
-                </span>
-              </div>
-              <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all duration-500 ${
-                    quotaExhausted
-                      ? "bg-red-500"
-                      : quotaUsed / quotaMax > 0.6
-                      ? "bg-amber-500"
-                      : "bg-emerald-500"
-                  }`}
-                  style={{ width: `${Math.min((quotaUsed / quotaMax) * 100, 100)}%` }}
-                />
-              </div>
-              {quotaExhausted ? (
-                <p className="text-[10px] text-red-600 dark:text-red-400 font-medium">
-                  🔒 Cota esgotada. Insira sua chave API para análises ilimitadas.
-                </p>
-              ) : (
-                <p className="text-[10px] text-slate-500 dark:text-slate-500">
-                  Você possui <strong className="text-[#0f1e36] dark:text-slate-300">{quotaRemaining}</strong> análise
-                  {quotaRemaining !== 1 ? "s gratuitas restantes." : " gratuita restante."}
-                  <button
-                    type="button"
-                    onClick={() => setShowByok(v => !v)}
-                    className="ml-1.5 text-[#b8962e] dark:text-[#d4af37] underline font-semibold hover:text-amber-600"
-                  >
-                    Adicionar chave API
-                  </button>
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* Analyze button */}
-          <button
-            type="button"
-            onClick={handleAnalyze}
-            disabled={analyzing || quotaExhausted || (!file && !selectedProcessoId)}
-            className={`w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl text-sm font-extrabold tracking-wide transition-all shadow-lg ${
-              quotaExhausted
-                ? "bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed"
-                : analyzing
-                ? "bg-[#b8962e] dark:bg-[#b8962e]/80 text-[#070a13] cursor-not-allowed"
-                : "bg-[#d4af37] hover:bg-[#f3e5ab] text-[#070a13] cursor-pointer shadow-[#d4af37]/20 hover:shadow-[#d4af37]/30"
-            } disabled:opacity-60`}
-          >
-            {analyzing ? (
-              <>
-                <Spinner className="w-4 h-4" />
-                Analisando documento...
-              </>
-            ) : quotaExhausted ? (
-              "🔒 Cota Esgotada — Adicione sua Chave API"
-            ) : (
-              <>
-                <span className={ENGINE_META[selectedEngine].color}>
-                  {ENGINE_META[selectedEngine].emoji}
-                </span>
-                Analisar com {ENGINE_META[selectedEngine].label}
-              </>
-            )}
-          </button>
+          {/* ── Novo Editor de Processo com Extração de PDF em tempo real ── */}
+          <ProcessoEditor
+            onAnalysisStart={() => {
+              setAnalyzing(true);
+              setAnalysisError(null);
+              setResultData(null);
+              setFromCache(false);
+            }}
+            onAnalysisComplete={(result) => {
+              setAnalyzing(false);
+              setResultData({
+                resumo: result.resumo_executivo || "",
+                estagio: result.classificacao?.estagio || "",
+                prioridade: result.classificacao?.prioridade || "",
+                tese: result.tese_sugerida || "",
+                risco:
+                  result.classificacao?.prioridade === "Urgente" ||
+                  result.classificacao?.prioridade === "Alta"
+                    ? "Risco Alto - Requer Atenção"
+                    : "Risco Controlado",
+                pedidos: result.minuta_inicial_rascunho || ""
+              });
+            }}
+            onAnalysisError={(errorMsg) => {
+              setAnalyzing(false);
+              setAnalysisError(errorMsg);
+            }}
+          />
         </div>
 
         {/* Right: Result panel */}
