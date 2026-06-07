@@ -145,6 +145,36 @@ export const PortalCliente: React.FC<PortalClienteProps> = () => {
     }
   }, [mensagensChat, abaAtiva]);
 
+  // 4. Escuta novas mensagens no chat em tempo real
+  useEffect(() => {
+    if (!clienteLogado || clienteLogado.id === "mock-cliente-123") return;
+
+    const channel = supabase
+      .channel(`chat:${clienteLogado.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "mensagens_portal",
+          filter: `cliente_id=eq.${clienteLogado.id}`
+        },
+        (payload) => {
+          const newMsg = payload.new as MensagemChat;
+          setMensagensChat((prev) => {
+            // Evita duplicados
+            if (prev.some((m) => m.id === newMsg.id)) return prev;
+            return [...prev, newMsg];
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [clienteLogado]);
+
   // Busca o cliente correspondente na tabela "clientes" pelo e-mail
   const buscarClienteEPrefetch = async (email: string) => {
     setLoadingDados(true);

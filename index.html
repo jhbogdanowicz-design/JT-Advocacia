@@ -2658,6 +2658,7 @@
                 <button type="button" class="profile-tab-btn" data-tab="edit-juridico">3. Dados Jurídicos</button>
                 <button type="button" class="profile-tab-btn" data-tab="edit-financeiro">4. Financeiro</button>
                 <button type="button" class="profile-tab-btn" data-tab="edit-documentos">5. Documentação</button>
+                <button type="button" class="profile-tab-btn" data-tab="edit-comunicacao">6. Comunicação</button>
               </div>
 
               <form id="edit-cliente-form">
@@ -2939,6 +2940,37 @@
 
                   <div id="vanilla-checklist-container" style="display:flex; flex-direction:column; gap:10px;">
                     <!-- Checklist gerado dinamicamente via JS -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- ABA 6: COMUNICAÇÃO -->
+              <div class="profile-tab-content" id="tab-edit-comunicacao" style="display: none; padding: 20px 0;">
+                <div class="financial-section">
+                  <h3 style="font-size:16px; font-weight:600; color:var(--gold); margin-bottom:8px; display:flex; align-items:center; gap:8px; text-transform: uppercase; font-family: 'Playfair Display', serif;">
+                    💬 Central de Atendimento / Comunicação
+                  </h3>
+                  <p style="font-size:11px; color:var(--text-secondary); margin-bottom:16px;">
+                    Canal direto e seguro para envio de mensagens e respostas ao portal do cliente.
+                  </p>
+                  
+                  <!-- Container do Chat -->
+                  <div id="admin-chat-box" style="display: flex; flex-direction: column; height: 350px; background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; overflow: hidden; margin-bottom: 16px;">
+                    <!-- Mensagens -->
+                    <div id="admin-chat-messages" style="flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; box-sizing: border-box;">
+                      <!-- Mensagens renderizadas dinamicamente via JS -->
+                      <p style="font-size: 12px; color: var(--text-secondary); text-align: center; font-style: italic; margin: auto;">Nenhuma mensagem enviada.</p>
+                    </div>
+                  </div>
+
+                  <!-- Área de Input para Responder -->
+                  <div style="display: flex; gap: 10px; align-items: flex-end;">
+                    <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
+                      <textarea id="admin-chat-input" placeholder="Digite uma resposta jurídica formal para o cliente..." rows="2" style="width: 100%; box-sizing: border-box; padding: 10px; font-size: 13px; border: 1px solid var(--panel-border); border-radius: 8px; background: var(--card-bg); color: var(--text-primary); outline: none; resize: none;"></textarea>
+                    </div>
+                    <button type="button" class="btn-primary" id="btn-admin-chat-send" style="width: auto; margin-top: 0; padding: 10px 20px; font-size: 13px; font-weight: 700; height: 40px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                      <span>Enviar</span>
+                    </button>
                   </div>
                 </div>
               </div>

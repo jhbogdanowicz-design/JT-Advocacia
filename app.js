@@ -199,6 +199,11 @@ const editInTipoAssistencia = document.getElementById("edit-client-tipo-assisten
 const editInRenda = document.getElementById("edit-client-renda");
 const editInObservacoes = document.getElementById("edit-client-observacoes");
 
+// Atendimento / Comunicação no Chat do Perfil
+const adminChatMessages = document.getElementById("admin-chat-messages");
+const adminChatInput = document.getElementById("admin-chat-input");
+const btnAdminChatSend = document.getElementById("btn-admin-chat-send");
+
 // Labels Dinâmicos do Formulário de Edição
 const editLblCpfCnpj = document.getElementById("edit-lbl-cpf-cnpj");
 const editLblDataNasc = document.getElementById("edit-lbl-data-nasc");
@@ -1137,7 +1142,13 @@ function showClientesPanel(panelType) {
 
 btnNovoCliente.addEventListener("click", () => showClientesPanel("form"));
 btnCancelarCadastro.addEventListener("click", () => showClientesPanel("list"));
-btnVoltarListagemDetail.addEventListener("click", () => showClientesPanel("list"));
+btnVoltarListagemDetail.addEventListener("click", () => {
+  if (adminChatChannel) {
+    supabase.removeChannel(adminChatChannel);
+    adminChatChannel = null;
+  }
+  showClientesPanel("list");
+});
 
 // Controle das Abas do Formulário de Cadastro
 function switchFormTab(tabId) {
@@ -1656,6 +1667,8 @@ profileTabButtons.forEach(btn => {
       loadClientFinancialData();
     } else if (tabId === "edit-documentos") {
       loadClientDocumentChecklist();
+    } else if (tabId === "edit-comunicacao") {
+      loadClientChatMessages();
     }
   });
 });
@@ -1970,6 +1983,127 @@ async function loadClientDocumentChecklist() {
     loading.style.display = "none";
   }
 }
+
+// =========================================================================
+// 💬 CONTROLADOR: CENTRAL DE ATENDIMENTO / COMUNICAÇÃO (CHAT ADMIN)
+// =========================================================================
+let adminChatChannel = null;
+
+async function loadClientChatMessages() {
+  if (!activeClientId) return;
+  adminChatMessages.innerHTML = `<div style="text-align:center; padding: 20px; font-size: 12px; color: var(--text-secondary);">Carregando mensagens...</div>`;
+  
+  try {
+    const { data: messages, error } = await supabase
+      .from("mensagens_portal")
+      .select("*")
+      .eq("cliente_id", activeClientId)
+      .order("created_at", { ascending: true });
+
+    if (error) throw error;
+
+    adminChatMessages.innerHTML = "";
+    if (!messages || messages.length === 0) {
+      adminChatMessages.innerHTML = `<p style="font-size: 12px; color: var(--text-secondary); text-align: center; font-style: italic; margin: auto;">Nenhuma mensagem enviada.</p>`;
+    } else {
+      messages.forEach(msg => {
+        appendMessageToAdminChat(msg);
+      });
+    }
+
+    // Subscreve ao chat em tempo real
+    subscribeToAdminChat(activeClientId);
+
+  } catch (err) {
+    console.error("Erro ao carregar mensagens:", err.message);
+    adminChatMessages.innerHTML = `<div style="text-align:center; padding: 20px; font-size: 12px; color: #ef4444;">Erro ao carregar o histórico de conversas.</div>`;
+  }
+}
+
+function appendMessageToAdminChat(msg) {
+  // Evita duplicados verificando por ID na tela
+  const msgExists = document.getElementById(`msg-item-${msg.id}`);
+  if (msgExists) return;
+
+  // Remove a mensagem de "Nenhuma mensagem enviada" se ela existir
+  const emptyMsg = adminChatMessages.querySelector("p");
+  if (emptyMsg && emptyMsg.innerText.includes("Nenhuma mensagem")) {
+    emptyMsg.remove();
+  }
+
+  const isClient = msg.enviado_por === "Cliente";
+  const align = isClient ? "flex-start" : "flex-end";
+  const bg = isClient ? "var(--panel-bg)" : "rgba(212, 175, 55, 0.1)";
+  const textCol = "var(--text-primary)";
+  const border = isClient ? "1px solid var(--panel-border)" : "1px solid rgba(212, 175, 55, 0.3)";
+  const label = isClient ? "Cliente" : "Dra. Janaina";
+  const labelColor = isClient ? "var(--text-secondary)" : "var(--gold)";
+
+  const msgHtml = `
+    <div id="msg-item-${msg.id}" style="display: flex; flex-direction: column; align-items: ${align}; max-width: 80%; align-self: ${isClient ? 'flex-start' : 'flex-end'}; margin-bottom: 8px;">
+      <span style="font-size: 9px; font-weight: bold; color: ${labelColor}; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.05em;">${label}</span>
+      <div style="background: ${bg}; color: ${textCol}; border: ${border}; border-radius: 12px; padding: 10px 14px; font-size: 13px; line-height: 1.5; word-break: break-word; white-space: pre-wrap;">${msg.conteudo}</div>
+      <span style="font-size: 8px; color: var(--text-secondary); margin-top: 2px; align-self: ${isClient ? 'flex-start' : 'flex-end'}; font-family: monospace;">${new Date(msg.created_at).toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' })}</span>
+    </div>
+  `;
+  adminChatMessages.insertAdjacentHTML("beforeend", msgHtml);
+  adminChatMessages.scrollTop = adminChatMessages.scrollHeight;
+}
+
+function subscribeToAdminChat(clientId) {
+  if (adminChatChannel) {
+    supabase.removeChannel(adminChatChannel);
+  }
+
+  adminChatChannel = supabase
+    .channel(`admin-chat:${clientId}`)
+    .on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "mensagens_portal",
+        filter: `cliente_id=eq.${clientId}`
+      },
+      (payload) => {
+        appendMessageToAdminChat(payload.new);
+      }
+    )
+    .subscribe();
+}
+
+// Evento de envio do chat da Dra. Janaina
+btnAdminChatSend.addEventListener("click", async (e) => {
+  e.preventDefault();
+  const text = adminChatInput.value.trim();
+  if (!text || !activeClientId) return;
+
+  btnAdminChatSend.disabled = true;
+  const originalText = btnAdminChatSend.innerHTML;
+  btnAdminChatSend.innerHTML = "<span>Enviando...</span>";
+
+  try {
+    const { error } = await supabase
+      .from("mensagens_portal")
+      .insert([
+        {
+          cliente_id: activeClientId,
+          enviado_por: "Advogado",
+          conteudo: text
+        }
+      ]);
+
+    if (error) throw error;
+    adminChatInput.value = "";
+  } catch (err) {
+    console.error("Erro ao enviar mensagem pelo admin:", err.message);
+    alert("Erro ao enviar resposta. Verifique a conexão com o banco de dados.");
+  } finally {
+    btnAdminChatSend.disabled = false;
+    btnAdminChatSend.innerHTML = originalText;
+  }
+});
+
 
 // Alternador de labels de edição
 function adjustEditFormLabels(tipoPessoa) {
