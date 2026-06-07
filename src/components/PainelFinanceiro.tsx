@@ -188,8 +188,17 @@ export default function PainelFinanceiro({
                 </p>
               </div>
             </div>
-            <div className="mt-6 md:mt-0 flex justify-center p-8 bg-slate-50 dark:bg-slate-800/20 rounded-lg">
-              <img src="/og-logo-jt.jpg" alt="Monograma JT" className="h-44 w-auto object-contain" />
+            {/* 
+              FATOR DE CORREÇÃO DE RESPONSIVIDADE DA IMAGEM:
+              Removemos a altura fixa restrita h-44 no mobile e aplicamos w-full com h-auto.
+              O preenchimento e enquadramento agora se adaptam dinamicamente em qualquer tela.
+            */}
+            <div className="mt-6 md:mt-0 flex justify-center p-4 sm:p-6 bg-slate-50 dark:bg-slate-800/20 rounded-lg w-full">
+              <img 
+                src="/og-logo-jt.jpg" 
+                alt="Monograma JT" 
+                className="w-full max-w-[280px] h-auto md:h-48 object-contain object-center transition-all duration-200" 
+              />
             </div>
           </div>
         </div>
