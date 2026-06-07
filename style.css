@@ -1240,6 +1240,39 @@ body {
   box-shadow: var(--shadow);
 }
 
+/* Abas de Navegação do Perfil do Cliente */
+.profile-tab-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  padding: 12px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.25s ease;
+}
+
+.profile-tab-btn:hover {
+  color: var(--text-primary);
+}
+
+.profile-tab-btn.active {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
+
+/* Conteúdo das Abas do Perfil */
+.profile-tab-content {
+  display: none;
+  animation: fadeIn 0.4s ease;
+}
+
+.profile-tab-content.active {
+  display: block;
+}
+
 .detail-card-header {
   border-bottom: 1px solid var(--panel-border);
   padding-bottom: 16px;
