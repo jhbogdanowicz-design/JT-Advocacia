@@ -344,6 +344,7 @@ export const PaginaDocumento: React.FC = () => {
                     <button type="button" className="flex-1 bg-[#d4af37] hover:bg-[#ebd074] text-[#070a13] py-2 rounded font-sans font-bold text-xs sm:text-sm transition-colors">Importar Imagem (PNG)</button>
                   </div>
                 </div>
+              </div>
             )}
 
           </section>

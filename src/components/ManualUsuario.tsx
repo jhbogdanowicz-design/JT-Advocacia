@@ -6,7 +6,8 @@ export const ManualUsuario: React.FC = () => {
       
       {/* ── Pano de Fundo Suavizado — Gradiente Radial Difuso ── */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(212,175,55,0.04)_0%,rgba(15,30,54,0.0)_60%)] pointer-events-none print:hidden" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_80%,rgba(15,30,54,0.15)_0%,rgba(7,10,19,0)_65%)] pointer-events-none print:hidden"       {/* ── CABEÇALHO DO MANUAL (Estilo Papel Timbrado - print:relative) ── */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_80%,rgba(15,30,54,0.15)_0%,rgba(7,10,19,0)_65%)] pointer-events-none print:hidden" />
+      {/* ── CABEÇALHO DO MANUAL (Estilo Papel Timbrado - print:relative) ── */}
       <header className="sticky top-0 z-50 bg-white/95 dark:bg-slate-900/95 border-b border-slate-200 dark:border-slate-800/80 backdrop-blur-md px-6 py-4 flex items-center justify-between shadow-sm print:relative print:border-none print:shadow-none print:bg-white">
         <div className="flex items-center gap-3">
           <img src="/logo-jt.png" alt="Janaina Tarabauca Advocacia" className="h-10 w-10 object-contain" onError={(e) => e.currentTarget.style.display = 'none'} />

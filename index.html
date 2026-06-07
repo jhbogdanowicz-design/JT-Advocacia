@@ -3,6 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    window.addEventListener('error', function(e) {
+      alert('ERRO DE EXECUÇÃO: ' + e.message + '\nArquivo: ' + e.filename + '\nLinha: ' + e.lineno);
+    });
+    window.addEventListener('unhandledrejection', function(e) {
+      alert('PROMESSA REJEITADA: ' + e.reason);
+    });
+  </script>
   
   <!-- ═══════════════════════════════════════════════════════════════════════════
        SEO TÉCNICO — JANAINA TARABAUCA ADVOCACIA
@@ -103,7 +111,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/src/tailwind.css?direct">
   
   <script>
     (function() {
@@ -382,6 +391,13 @@
     .pillar-card:hover::before { opacity: 1; }
     .pillar-icon {
       font-size: 28px;
+      margin-bottom: 14px;
+      display: block;
+    }
+    .pillar-svg {
+      width: 28px;
+      height: 28px;
+      stroke: #d4af37;
       margin-bottom: 14px;
       display: block;
     }
@@ -1042,11 +1058,294 @@
     .canal-btn-submit:active {
       transform: scale(0.98);
     }
+
+    /* Botão Flutuante do WhatsApp */
+    .btn-whatsapp-flutuante {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 60px;
+      height: 60px;
+      background-color: #10B981;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+      z-index: 1999;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      text-decoration: none;
+      animation: pulse-green 2s infinite;
+    }
+    .btn-whatsapp-flutuante:hover {
+      background-color: #059669;
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.6);
+    }
+    .btn-whatsapp-flutuante:active {
+      transform: translateY(-2px) scale(0.98);
+    }
+    .btn-whatsapp-flutuante svg {
+      width: 28px;
+      height: 28px;
+      fill: #ffffff;
+    }
+    @keyframes pulse-green {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+      70% { box-shadow: 0 0 0 12px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    /* Links do WhatsApp nas Especialidades */
+    .specialty-whatsapp-link {
+      border-top: 1px solid rgba(212, 175, 55, 0.15) !important;
+      color: #10B981 !important;
+      font-weight: 700;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .specialty-whatsapp-link:hover {
+      color: #34D399 !important;
+      text-shadow: 0 0 8px rgba(52, 211, 153, 0.2);
+    }
+    .specialty-whatsapp-link svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+    .specialty-card:hover .specialty-whatsapp-link {
+      color: #10B981 !important;
+    }
+    .specialty-card:hover .specialty-whatsapp-link:hover {
+      color: #34D399 !important;
+    }
+
+    /* ── SEÇÃO: COMO FUNCIONA ── */
+    .como-funciona-sec {
+      padding: 80px 40px;
+      border-top: 1px solid var(--panel-border);
+      background: var(--bg-color);
+      display: flex;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+    .como-funciona-wrapper {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+    }
+    .como-funciona-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+    @media (min-width: 768px) {
+      .como-funciona-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    .como-funciona-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+      box-shadow: var(--shadow);
+      box-sizing: border-box;
+      transition: border-color 0.25s, background 0.25s, transform 0.25s;
+    }
+    .como-funciona-card:hover {
+      border-color: rgba(197, 168, 92, 0.4);
+      background: rgba(197, 168, 92, 0.04);
+      transform: translateY(-4px);
+    }
+    .como-funciona-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 48px;
+      font-weight: 700;
+      color: rgba(197, 168, 92, 0.15);
+      line-height: 1;
+    }
+    [data-theme="dark"] .como-funciona-num {
+      color: rgba(212, 175, 55, 0.15);
+    }
+    .como-funciona-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .como-funciona-desc {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+
+
+    /* ── SEÇÃO: FAQ ── */
+    .faq-sec {
+      padding: 80px 40px;
+      border-top: 1px solid var(--panel-border);
+      background: var(--bg-color);
+      display: flex;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+    .faq-wrapper {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+    }
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .faq-item {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    .faq-trigger {
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-align: left;
+      outline: none;
+    }
+    .faq-icon {
+      font-size: 18px;
+      color: var(--gold);
+      transition: transform 0.3s ease;
+    }
+    .faq-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+      padding: 0 24px;
+      font-size: 14.5px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .faq-item.active .faq-icon {
+      transform: rotate(45deg);
+    }
+    .faq-item.active .faq-content {
+      padding-bottom: 20px;
+    }
+
+    /* ── SEÇÃO: CTA FINAL ── */
+    .cta-final-sec {
+      padding: 100px 40px;
+      border-top: 1px solid var(--panel-border);
+      background: var(--panel-bg);
+      display: flex;
+      justify-content: center;
+      box-sizing: border-box;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-final-sec::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(197, 168, 92, 0.04) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .cta-final-wrapper {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      position: relative;
+      z-index: 1;
+    }
+    .cta-final-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.2;
+      margin: 0;
+    }
+    [data-theme="light"] .cta-final-title {
+      color: #0f1e36;
+    }
+    .cta-final-subtitle {
+      font-size: 18px;
+      color: var(--text-secondary);
+      max-width: 600px;
+      line-height: 1.6;
+      margin: 0;
+    }
+    .cta-final-btn {
+      background: #10B981;
+      color: white !important;
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 16px 36px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+      transition: background 0.3s, transform 0.2s;
+      animation: pulse-green 2s infinite;
+      box-sizing: border-box;
+      margin-top: 16px;
+    }
+    .cta-final-btn:hover {
+      background: #059669;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.5);
+    }
+    .cta-final-btn:active {
+      transform: scale(0.98);
+    }
+    .cta-final-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
   </style>
   <!-- Proteção Anti-Bot: Cloudflare Turnstile -->
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body data-theme="light"> <!-- Inicia no modo claro por padrão, alternável via botão -->
+
+  <!-- Container de Montagem para o Portal do Cliente (React) -->
+  <div id="react-app-root"></div>
 
   <!-- =========================================================================
        ÁREA PÚBLICA: APRESENTAÇÃO / LANDING PAGE (MOSTRADA QUANDO DESLOGADO POR PADRÃO)
@@ -1065,6 +1364,7 @@
           <a href="#diferenciais" class="landing-nav-link">Pilares</a>
           <a href="#atuacao" class="landing-nav-link">Especialidades</a>
           <a href="#quem-somos" class="landing-nav-link">Quem Somos</a>
+          <a href="#faq" class="landing-nav-link">FAQ</a>
         </nav>
         <div class="landing-nav-actions">
           <button class="theme-toggle-btn" id="theme-toggle-landing" aria-label="Alternar esquema de cores">
@@ -1079,6 +1379,7 @@
             </svg>
             <span id="theme-text-landing">Modo Claro</span>
           </button>
+          <a href="/portal" class="btn-landing-client" id="btn-go-client-portal-landing" onclick="event.preventDefault(); window.history.pushState({}, '', '/portal'); document.documentElement.classList.add('route-portal'); const mm = document.getElementById('landing-mobile-menu'); if (mm) mm.classList.remove('open'); const hb = document.querySelector('.hamburger-icon'); const cl = document.querySelector('.close-icon'); if (hb) hb.style.display = 'block'; if (cl) cl.style.display = 'none'; window.dispatchEvent(new PopStateEvent('popstate'));">Portal do Cliente</a>
           <button class="btn-landing-restricted" id="btn-go-restricted">Portal Restrito</button>
           
           <!-- Botão Hamburger (Mobile) -->
@@ -1100,6 +1401,8 @@
           <a href="#diferenciais" class="landing-mobile-link">Pilares</a>
           <a href="#atuacao" class="landing-mobile-link">Especialidades</a>
           <a href="#quem-somos" class="landing-mobile-link">Quem Somos</a>
+          <a href="#faq" class="landing-mobile-link">FAQ</a>
+          <a href="/portal" class="btn-landing-client-mobile" id="btn-go-client-portal-landing-mobile" onclick="event.preventDefault(); window.history.pushState({}, '', '/portal'); document.documentElement.classList.add('route-portal'); const mm = document.getElementById('landing-mobile-menu'); if (mm) mm.classList.remove('open'); const hb = document.querySelector('.hamburger-icon'); const cl = document.querySelector('.close-icon'); if (hb) hb.style.display = 'block'; if (cl) cl.style.display = 'none'; window.dispatchEvent(new PopStateEvent('popstate'));">Portal do Cliente</a>
           <button class="btn-landing-restricted-mobile" id="btn-go-restricted-mobile">Portal Restrito</button>
         </nav>
       </div>
@@ -1117,18 +1420,21 @@
           </span>
 
           <h1 class="hero-headline">
-            Soluções Jurídicas de <em>Alto Impacto</em><br>para Pessoas e Empresas
+            Orientação Jurídica <em>Segura</em><br>Quando Você Mais Precisa
           </h1>
 
           <p class="hero-subheadline">
-            Gestão jurídica estratégica com transparência em tempo real.
-            Defesa técnica qualificada nas áreas cível, trabalhista, empresarial, da saúde e muito mais.
+            Fale diretamente com um especialista e entenda seus direitos de forma clara, humanizada e sem burocracia.
           </p>
 
           <div class="hero-actions">
-            <a href="#canais-atendimento" class="hero-btn-secondary">
+            <a href="https://wa.me/5511947534587?text=Ol%C3%A1%2C%20Gostaria%20de%20falar%20com%20um%20especialista%20sobre%20uma%20consulta%20jur%C3%ADdica." target="_blank" rel="noopener noreferrer" class="hero-btn-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+              Iniciar Consulta no WhatsApp
+            </a>
+            <a href="#atuacao" class="hero-btn-secondary">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-              Falar com Especialista
+              Ver Especialidades
             </a>
           </div>
 
@@ -1178,69 +1484,64 @@
 
 
 
-    <!-- ── TRÊS PILARES DE SEGURANÇA ────────────────────────────────────────── -->
-    <section class="pillars-section" aria-label="Diferenciais do Escritório">
+    <!-- ── PILARES E DIFERENCIAIS DE ATUAÇÃO ────────────────────────────────── -->
+    <section class="pillars-section" id="diferenciais" aria-label="Pilares e Diferenciais do Escritório">
+      <div class="landing-section-header">
+        <span class="landing-section-tag">COMPROMISSO COM A EXCELÊNCIA</span>
+        <h2 class="landing-section-title">Pilares de Atuação e Tecnologia</h2>
+        <p class="landing-section-subtitle">Aliamos segurança jurídica, tecnologia preditiva e processos otimizados para garantir alta performance.</p>
+      </div>
+
       <div class="pillars-inner">
 
+        <!-- Card 1 -->
         <div class="pillar-card">
           <span class="pillar-num">01</span>
-          <span class="pillar-icon">🔒</span>
+          <svg class="pillar-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
           <h3 class="pillar-title">Confidencialidade Absoluta</h3>
           <p class="pillar-desc">Gestão de dados sensíveis sob rígidos protocolos de segurança digital, em conformidade com a LGPD e as melhores práticas de privacidade jurídica.</p>
         </div>
 
+        <!-- Card 2 -->
         <div class="pillar-card">
           <span class="pillar-num">02</span>
-          <span class="pillar-icon">🤖</span>
-          <h3 class="pillar-title">Inteligência Jurídica Especializada</h3>
-          <p class="pillar-desc">Uso nativo da Jus IA para análise preditiva de teses, jurisprudência e risco processual — tecnologia exclusiva a serviço de cada área de atuação.</p>
-        </div>
-
-        <div class="pillar-card">
-          <span class="pillar-num">03</span>
-          <span class="pillar-icon">💼</span>
-          <h3 class="pillar-title">Blindagem Contratual & Patrimonial</h3>
-          <p class="pillar-desc">Análise proativa de riscos, estruturação de contratos de alta governança e compliance para proteger o patrimônio pessoal e empresarial.</p>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- DIFFERENTIALS / FEATURES SECTION -->
-    <section class="landing-differentials" id="diferenciais">
-      <div class="landing-section-header">
-        <span class="landing-section-tag">COMPROMISSO COM A QUALIDADE</span>
-        <h2 class="landing-section-title">Nossos Pilares de Atuação</h2>
-        <p class="landing-section-subtitle">Aliamos rigor acadêmico, processos otimizados e tecnologia integrada para entregar soluções eficientes.</p>
-      </div>
-
-      <div class="landing-features-grid">
-        <!-- Card 1 -->
-        <div class="landing-feature-card">
-          <div class="landing-card-icon-wrapper">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          </div>
-          <h3 class="landing-card-title">Transparência em Tempo Real</h3>
-          <p class="landing-card-text">Nossos clientes acompanham andamentos processuais, prazos e compromissos diretamente pela nossa área restrita de forma ágil e segura.</p>
-        </div>
-
-        <!-- Card 2 -->
-        <div class="landing-feature-card">
-          <div class="landing-card-icon-wrapper">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-          </div>
-          <h3 class="landing-card-title">Rigor e Pontualidade</h3>
-          <p class="landing-card-text">Contamos com fluxos rigorosos de controle para garantir o cumprimento preciso de prazos fatais e a prontidão em todas as audiências.</p>
+          <svg class="pillar-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M17.66 6.34l-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg>
+          <h3 class="pillar-title">Inteligência Preditiva (Jus IA)</h3>
+          <p class="pillar-desc">Uso nativo de Inteligência Artificial para análise estatística de teses, jurisprudência e risco processual, maximizando as chances de êxito.</p>
         </div>
 
         <!-- Card 3 -->
-        <div class="landing-feature-card">
-          <div class="landing-card-icon-wrapper">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><path d="M12 11v6"/><path d="M9 14h6"/></svg>
-          </div>
-          <h3 class="landing-card-title">Gestão Digital de Ativos</h3>
-          <p class="landing-card-text">Todos os históricos de andamentos, notas de reuniões e documentos de qualificações estruturados e centralizados em nuvem.</p>
+        <div class="pillar-card">
+          <span class="pillar-num">03</span>
+          <svg class="pillar-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          <h3 class="pillar-title">Blindagem Contratual & Patrimonial</h3>
+          <p class="pillar-desc">Análise proativa de riscos e estruturação de contratos de alta governança para proteger o patrimônio pessoal e empresarial de nossos parceiros.</p>
         </div>
+
+        <!-- Card 4 -->
+        <div class="pillar-card">
+          <span class="pillar-num">04</span>
+          <svg class="pillar-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          <h3 class="pillar-title">Transparência em Tempo Real</h3>
+          <p class="pillar-desc">Acompanhamento ágil e seguro de prazos, andamentos e compromissos diretamente pela nossa área restrita digital, sem burocracia.</p>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="pillar-card">
+          <span class="pillar-num">05</span>
+          <svg class="pillar-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <h3 class="pillar-title">Rigor e Pontualidade</h3>
+          <p class="pillar-desc">Fluxos internos rígidos de controladoria jurídica para garantir o cumprimento milimétrico de prazos fatais e prontidão absoluta.</p>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="pillar-card">
+          <span class="pillar-num">06</span>
+          <svg class="pillar-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-.01c-.11-4.38-3.71-7.89-8.15-7.79a7.99 7.99 0 0 0-7.73 7.02c-2.48.56-4.14 3-3.69 5.53.4 2.27 2.37 3.96 4.67 3.96h14.92c2.73 0 4.95-2.2 4.95-4.92 0-2.49-1.87-4.57-4.32-4.8z"/></svg>
+          <h3 class="pillar-title">Gestão Digital de Ativos</h3>
+          <p class="pillar-desc">Históricos de atendimentos, documentos de qualificações e notas de reuniões centralizados em ambiente seguro em nuvem com criptografia.</p>
+        </div>
+
       </div>
     </section>
 
@@ -1268,9 +1569,9 @@
             <span class="specialty-foco">Elaboração estratégica e assessoria preventiva</span>
             <p class="specialty-desc">Elaboração e análise de contratos de alta complexidade. Assessoria em direito de propriedade, direitos reais, renegociações de dívidas, prevenção de litígios e auditoria prévia para mitigar passivos em transações civis e comerciais.</p>
           </div>
-          <a href="https://wa.me/5511947534587?text=Ol%C3%A1%2C%20Gostaria%20de%20falar%20com%20um%20especialista%20sobre%20uma%20consulta%20jur%C3%ADdica%20referente%20a%20Direito%20Civil%20e%20Contratos." target="_blank" rel="noopener noreferrer" class="specialty-footer">
-            <span>Consulta Jurídica</span>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="arrow-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" /></svg>
+          <a href="https://wa.me/5511947534587?text=Ol%C3%A1%2C%20Gostaria%20de%20falar%20com%20um%20especialista%20sobre%20uma%20consulta%20jur%C3%ADdica%20referente%20a%20Direito%20Civil%20e%20Contratos." target="_blank" rel="noopener noreferrer" class="specialty-footer specialty-whatsapp-link">
+            <svg viewBox="0 0 24 24" class="whatsapp-small-icon" fill="currentColor"><path d="M12.031 2c-5.523 0-10 4.477-10 10 0 1.776.467 3.518 1.355 5.06l-1.385 5.053 5.176-1.357c1.5 1.002 3.256 1.536 5.061 1.537 5.522 0 10-4.478 10-10s-4.478-10-10-10zm6.91 14.549c-.279.789-1.386 1.455-1.922 1.517-.464.053-.984.076-1.636-.134-.739-.238-1.579-.607-2.394-1.013-2.607-1.3-4.298-3.953-4.428-4.126-.13-.173-1.05-1.396-1.05-2.663 0-1.267.662-1.89.897-2.134.234-.244.512-.305.682-.305.17 0 .341.002.489.009.153.007.359-.059.562.433.208.504.712 1.733.774 1.859.062.126.104.272.02.439-.083.167-.126.272-.25.418-.124.146-.26.326-.372.439-.126.126-.258.263-.111.516.147.253.655 1.077 1.403 1.743.966.86 1.777 1.127 2.029 1.253.253.126.401.104.55-.067.149-.172.641-.747.811-1.001.17-.253.34-.212.573-.125.234.088 1.488.701 1.743.829.255.128.425.192.488.301.063.109.063.633-.216 1.422z"/></svg>
+            <span>Consultar pelo WhatsApp</span>
           </a>
         </div>
 
@@ -1287,9 +1588,9 @@
             <span class="specialty-foco">Conformidade com o CDC e transparência contratual</span>
             <p class="specialty-desc">Defesa e assessoria especializada nas relações de consumo. Atuação focada na conformidade com o Código de Defesa do Consumidor (CDC), elaboração e auditoria de contratos de adesão, termos de uso, políticas de reembolso e mitigação de riscos operacionais e de reputação.</p>
           </div>
-          <a href="https://wa.me/5511947534587?text=Ol%C3%A1%2C%20Gostaria%20de%20falar%20com%20um%20especialista%20sobre%20uma%20consulta%20jur%C3%ADdica%20referente%20a%20Direito%20do%20Consumidor." target="_blank" rel="noopener noreferrer" class="specialty-footer">
-            <span>Consulta Jurídica</span>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="arrow-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" /></svg>
+          <a href="https://wa.me/5511947534587?text=Ol%C3%A1%2C%20Gostaria%20de%20falar%20com%20um%20especialista%20sobre%20uma%20consulta%20jur%C3%ADdica%20referente%20a%20Direito%20do%20Consumidor." target="_blank" rel="noopener noreferrer" class="specialty-footer specialty-whatsapp-link">
+            <svg viewBox="0 0 24 24" class="whatsapp-small-icon" fill="currentColor"><path d="M12.031 2c-5.523 0-10 4.477-10 10 0 1.776.467 3.518 1.355 5.06l-1.385 5.053 5.176-1.357c1.5 1.002 3.256 1.536 5.061 1.537 5.522 0 10-4.478 10-10s-4.478-10-10-10zm6.91 14.549c-.279.789-1.386 1.455-1.922 1.517-.464.053-.984.076-1.636-.134-.739-.238-1.579-.607-2.394-1.013-2.607-1.3-4.298-3.953-4.428-4.126-.13-.173-1.05-1.396-1.05-2.663 0-1.267.662-1.89.897-2.134.234-.244.512-.305.682-.305.17 0 .341.002.489.009.153.007.359-.059.562.433.208.504.712 1.733.774 1.859.062.126.104.272.02.439-.083.167-.126.272-.25.418-.124.146-.26.326-.372.439-.126.126-.258.263-.111.516.147.253.655 1.077 1.403 1.743.966.86 1.777 1.127 2.029 1.253.253.126.401.104.55-.067.149-.172.641-.747.811-1.001.17-.253.34-.212.573-.125.234.088 1.488.701 1.743.829.255.128.425.192.488.301.063.109.063.633-.216 1.422z"/></svg>
+            <span>Consultar pelo WhatsApp</span>
           </a>
         </div>
 
@@ -1306,9 +1607,9 @@
             <span class="specialty-foco">Cálculos complexos e regimes de alta governança</span>
             <p class="specialty-desc">Defesa integral dos direitos trabalhistas de executivos e profissionais. Atuação em rescisões complexas, cálculos de passivos ocultos, estabilidades e assessoria em transição de carreira para regimes de alta governança corporativa.</p>
           </div>
-          <a href="https://wa.me/5511947534587?text=Ol%C3%A1%2C%20Gostaria%20de%20falar%20com%20um%20especialista%20sobre%20uma%20consulta%20jur%C3%ADdica%20referente%20a%20Direito%20do%20Trabalho%20e%20Previdenci%C3%A1rio." target="_blank" rel="noopener noreferrer" class="specialty-footer">
-            <span>Consulta Jurídica</span>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="arrow-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" /></svg>
+          <a href="https://wa.me/5511947534587?text=Ol%C3%A1%2C%20Gostaria%20de%20falar%20com%20um%20especialista%20sobre%20uma%20consulta%20jur%C3%ADdica%20referente%20a%20Direito%20do%20Trabalho%20e%20Previdenci%C3%A1rio." target="_blank" rel="noopener noreferrer" class="specialty-footer specialty-whatsapp-link">
+            <svg viewBox="0 0 24 24" class="whatsapp-small-icon" fill="currentColor"><path d="M12.031 2c-5.523 0-10 4.477-10 10 0 1.776.467 3.518 1.355 5.06l-1.385 5.053 5.176-1.357c1.5 1.002 3.256 1.536 5.061 1.537 5.522 0 10-4.478 10-10s-4.478-10-10-10zm6.91 14.549c-.279.789-1.386 1.455-1.922 1.517-.464.053-.984.076-1.636-.134-.739-.238-1.579-.607-2.394-1.013-2.607-1.3-4.298-3.953-4.428-4.126-.13-.173-1.05-1.396-1.05-2.663 0-1.267.662-1.89.897-2.134.234-.244.512-.305.682-.305.17 0 .341.002.489.009.153.007.359-.059.562.433.208.504.712 1.733.774 1.859.062.126.104.272.02.439-.083.167-.126.272-.25.418-.124.146-.26.326-.372.439-.126.126-.258.263-.111.516.147.253.655 1.077 1.403 1.743.966.86 1.777 1.127 2.029 1.253.253.126.401.104.55-.067.149-.172.641-.747.811-1.001.17-.253.34-.212.573-.125.234.088 1.488.701 1.743.829.255.128.425.192.488.301.063.109.063.633-.216 1.422z"/></svg>
+            <span>Consultar pelo WhatsApp</span>
           </a>
         </div>
 
@@ -1325,9 +1626,9 @@
             <span class="specialty-foco">Defesa médica, regulação de clínicas e planos de saúde</span>
             <p class="specialty-desc">Defesa de profissionais da saúde em processos ético-disciplinares e erro médico. Atuação em glosas hospitalares, regulação de clínicas e ações contra abusos de planos de saúde, garantindo a liberação de cirurgias e tratamentos vitais.</p>
           </div>
-          <a href="https://wa.me/5511947534587?text=Ol%C3%A1%2C%20Gostaria%20de%20falar%20com%20um%20especialista%20sobre%20uma%20consulta%20jur%C3%ADdica%20referente%20a%20Direito%20M%C3%A9dico%20e%20da%20Sa%C3%BAde." target="_blank" rel="noopener noreferrer" class="specialty-footer">
-            <span>Consulta Jurídica</span>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="arrow-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" /></svg>
+          <a href="https://wa.me/5511947534587?text=Ol%C3%A1%2C%20Gostaria%20de%20falar%20com%20um%20especialista%20sobre%20uma%20consulta%20jur%C3%ADdica%20referente%20a%20Direito%20M%C3%A9dico%20e%20da%20Sa%C3%BAde." target="_blank" rel="noopener noreferrer" class="specialty-footer specialty-whatsapp-link">
+            <svg viewBox="0 0 24 24" class="whatsapp-small-icon" fill="currentColor"><path d="M12.031 2c-5.523 0-10 4.477-10 10 0 1.776.467 3.518 1.355 5.06l-1.385 5.053 5.176-1.357c1.5 1.002 3.256 1.536 5.061 1.537 5.522 0 10-4.478 10-10s-4.478-10-10-10zm6.91 14.549c-.279.789-1.386 1.455-1.922 1.517-.464.053-.984.076-1.636-.134-.739-.238-1.579-.607-2.394-1.013-2.607-1.3-4.298-3.953-4.428-4.126-.13-.173-1.05-1.396-1.05-2.663 0-1.267.662-1.89.897-2.134.234-.244.512-.305.682-.305.17 0 .341.002.489.009.153.007.359-.059.562.433.208.504.712 1.733.774 1.859.062.126.104.272.02.439-.083.167-.126.272-.25.418-.124.146-.26.326-.372.439-.126.126-.258.263-.111.516.147.253.655 1.077 1.403 1.743.966.86 1.777 1.127 2.029 1.253.253.126.401.104.55-.067.149-.172.641-.747.811-1.001.17-.253.34-.212.573-.125.234.088 1.488.701 1.743.829.255.128.425.192.488.301.063.109.063.633-.216 1.422z"/></svg>
+            <span>Consultar pelo WhatsApp</span>
           </a>
         </div>
       </div>
@@ -1336,50 +1637,79 @@
     <!-- ── SEÇÃO: QUEM SOMOS / TRAJETÓRIA ESTRATÉGICA ── -->
     <section class="landing-quem-somos" id="quem-somos" aria-label="Quem Somos e Trajetória Acadêmica">
       <div class="landing-section-header">
-        <span class="landing-section-tag">FUNDAÇÃO &amp; PROPÓSITO</span>
+        <span class="landing-section-tag">RIGOR TÉCNICO &amp; EXPERIÊNCIA</span>
         <h2 class="landing-section-title">Trajetória Estratégica</h2>
       </div>
 
       <div class="quem-somos-grid">
-        <!-- Coluna Esquerda: Texto -->
+        <!-- Coluna Esquerda: Texto e Timeline -->
         <div style="display: flex; flex-direction: column; gap: 20px;">
           <p class="quem-somos-text">
-            Fundada pela Dra. Janaina Tarabauca do Prado (OAB/SP 501.070), bacharel em Direito e Administração pela Universidade São Judas Tadeu, com especialização em Direito do Trabalho. A banca consolida uma vivência executiva de mais de duas décadas na gestão de operações de alta complexidade, governança de contratos e mitigação de passivos. Essa sólida bagagem operacional confere à Janaina Tarabauca Advocacia uma visão estritamente preventiva e focada na viabilidade de negócios, unindo a precisão técnica do ecossistema jurídico à realidade prática corporativa de seus clientes. Sua produção intelectual e acadêmica destaca-se pela pesquisa voltada à tutela do direito à saúde e à vida, com ênfase na tese sobre o direito do nascituro e na responsabilidade do Estado e de operadoras no fornecimento de tratamentos médicos essenciais.
+            A advocacia de alta performance exige mais do que o conhecimento das leis; demanda a compreensão profunda do cenário prático em que os direitos são defendidos. Fundado pela <strong>Dra. Janaina Tarabauca do Prado (OAB/SP 501.070)</strong>, o escritório une rigor científico e acolhimento humano para oferecer soluções eficientes de governança de riscos e proteção de patrimônio.
           </p>
 
-          <!-- Badges de Diferenciais -->
-          <div class="quem-somos-badges">
-            <div class="quem-somos-badge-item">
-              <span class="quem-somos-badge-dot"></span>
-              <span class="quem-somos-badge-text">Gestão de Riscos</span>
+          <!-- Timeline Visual -->
+          <div class="quem-somos-timeline">
+            <!-- Timeline Item 1 -->
+            <div class="timeline-item">
+              <span class="timeline-dot"></span>
+              <h3 class="timeline-title">20+ Anos de Gestão e Governança</h3>
+              <p class="timeline-desc">Vasta bagagem executiva na administração de riscos corporativos, controle de passivos e modelagem estratégica de contratos operacionais.</p>
             </div>
-            <div class="quem-somos-badge-item">
-              <span class="quem-somos-badge-dot"></span>
-              <span class="quem-somos-badge-text">Direito do Consumidor</span>
+            <!-- Timeline Item 2 -->
+            <div class="timeline-item">
+              <span class="timeline-dot"></span>
+              <h3 class="timeline-title">Formação Interdisciplinar</h3>
+              <p class="timeline-desc">Bacharel em Direito e Administração de Empresas pela Universidade São Judas Tadeu (USJT), conferindo visão gerencial estratégica ao direito.</p>
             </div>
-            <div class="quem-somos-badge-item">
-              <span class="quem-somos-badge-dot"></span>
-              <span class="quem-somos-badge-text">Direito da Saúde &amp; SUS</span>
+            <!-- Timeline Item 3 -->
+            <div class="timeline-item">
+              <span class="timeline-dot"></span>
+              <h3 class="timeline-title">Especialização Trabalhista e de Saúde</h3>
+              <p class="timeline-desc">Foco analítico na mitigação de passivos trabalhistas corporativos e na garantia de direitos fundamentais à saúde e à vida.</p>
             </div>
           </div>
 
-          <!-- Produção Intelectual Box -->
+          <!-- Produção Acadêmica Box -->
           <div class="quem-somos-academic">
             <span class="quem-somos-academic-title">PRODUÇÃO ACADÊMICA &amp; PESQUISA</span>
             <div class="quem-somos-academic-item">
               <span class="quem-somos-academic-bullet">•</span>
               <p class="quem-somos-academic-desc">
-                <strong>O Direito do Nascituro à Chance de Nascer com Vida</strong> – Monografia de Graduação com foco em Direito Constitucional à Saúde, Planejamento Familiar e Teoria da Perda de uma Chance (USJT, 2021).
+                <strong>O Direito do Nascituro à Chance de Nascer com Vida</strong> – Pesquisa com foco em Direito Constitucional à Saúde, Planejamento Familiar e Teoria da Perda de uma Chance (USJT, 2021). Análise da responsabilidade de operadoras e do Estado no custeio de procedimentos vitais.
               </p>
             </div>
           </div>
         </div>
 
-        <!-- Coluna Direita: Foto Profissional -->
+        <!-- Coluna Direita: Foto Profissional com Overlay Glassmorphism -->
         <div class="quem-somos-monogram-wrapper">
           <div class="quem-somos-monogram-container">
             <img src="dra-janaina.png" alt="Dra. Janaina Tarabauca" class="quem-somos-monogram-img" loading="lazy" />
+            
+            <!-- Glassmorphism Badge -->
+            <div class="quem-somos-badge-overlay">
+              <span class="badge-overlay-title">Dra. Janaina Tarabauca</span>
+              <span class="badge-overlay-sub">OAB/SP 501.070</span>
+              <span class="badge-overlay-text">✦ Rigor Científico e Empatia</span>
+            </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Credentials Footer Row -->
+      <div class="quem-somos-footer-badges">
+        <div class="quem-somos-footer-badge">
+          <svg class="badge-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Confidencialidade OAB
+        </div>
+        <div class="quem-somos-footer-badge">
+          <svg class="badge-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Mapeamento de Passivos
+        </div>
+        <div class="quem-somos-footer-badge">
+          <svg class="badge-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><line x1="5" y1="7" x2="19" y2="7"/><path d="M5 7L2 12h6L5 7zM19 7l-3 5h6l-3-5z"/></svg> Defesa da Saúde e Vida
+        </div>
+        <div class="quem-somos-footer-badge">
+          <svg class="badge-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M17.66 6.34l-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg> Jus IA Integrada
         </div>
       </div>
     </section>
@@ -1401,7 +1731,9 @@
           <div class="canal-card">
             <div style="display: flex; flex-direction: column; gap: 20px;">
               <div class="canal-card-header">
-                <span class="canal-card-icon">🟢</span>
+                <span class="canal-card-icon" style="color: #22c55e;">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
+                </span>
                 <div>
                   <h3 class="canal-card-title">Plantão Digital</h3>
                   <p class="canal-card-badge whatsapp-badge">Atendimento via WhatsApp</p>
@@ -1414,7 +1746,7 @@
 
               <ul class="canal-list">
                 <li class="canal-list-item"><span>✓</span> Disponível de Segunda a Sexta-feira</li>
-                <li class="canal-list-item"><span>✓</span> Tempo médio de resposta: &lt; 15 minutos</li>
+                <li class="canal-list-item"><span>✓</span> Retorno ágil e especializado</li>
                 <li class="canal-list-item"><span>✓</span> Direcionamento ágil para a área de especialidade</li>
               </ul>
             </div>
@@ -1429,7 +1761,9 @@
           <!-- Coluna 2: Formulário de Captura -->
           <div class="canal-card email-card">
             <div class="canal-card-header">
-              <span class="canal-card-icon">✉️</span>
+              <span class="canal-card-icon" style="color: var(--gold);">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              </span>
               <div>
                 <h3 class="canal-card-title">Abertura de Chamado</h3>
                 <p class="canal-card-badge email-badge">Análise Prévia de Casos e Consultas</p>
@@ -1478,6 +1812,116 @@
 
         </div>
 
+      </div>
+    </section>
+
+    <!-- ── COMO FUNCIONA (JORNADA DO CLIENTE) ── -->
+    <section class="como-funciona-sec" aria-label="Como funciona o atendimento">
+      <div class="como-funciona-wrapper">
+        <div class="landing-section-header">
+          <span class="landing-section-tag">PROCESSO SIMPLIFICADO</span>
+          <h2 class="landing-section-title">Como Funciona Nosso Atendimento</h2>
+          <p class="landing-section-subtitle">Um fluxo transparente, seguro e 100% digital para solucionar o seu caso jurídico.</p>
+        </div>
+
+        <div class="como-funciona-grid">
+          
+          <!-- Passo 1 -->
+          <div class="como-funciona-card">
+            <span class="como-funciona-num">01</span>
+            <h3 class="como-funciona-title">1. Conversa Inicial e Triagem</h3>
+            <p class="como-funciona-desc">Você relata sua dúvida ou urgência jurídica diretamente em nosso WhatsApp. Realizamos uma triagem ágil e sem custo inicial para entender o contexto.</p>
+          </div>
+
+          <!-- Passo 2 -->
+          <div class="como-funciona-card">
+            <span class="como-funciona-num">02</span>
+            <h3 class="como-funciona-title">2. Análise Técnica e Planejamento</h3>
+            <p class="como-funciona-desc">Nossa equipe avalia os fatos, analisa as provas e desenvolve a tese estratégica ideal (preventiva ou contenciosa) focada no seu objetivo.</p>
+          </div>
+
+          <!-- Passo 3 -->
+          <div class="como-funciona-card">
+            <span class="como-funciona-num">03</span>
+            <h3 class="como-funciona-title">3. Atuação Segura e Acompanhamento</h3>
+            <p class="como-funciona-desc">Iniciamos a defesa dos seus direitos. Você acompanha cada etapa, prazo e notificação em tempo real através do nosso Portal do Cliente.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ── FAQ (PERGUNTAS FREQUENTES) ── -->
+    <section class="faq-sec" id="faq" aria-label="Dúvidas frequentes">
+      <div class="faq-wrapper">
+        <div class="landing-section-header">
+          <span class="landing-section-tag">ESCLARECIMENTOS</span>
+          <h2 class="landing-section-title">Perguntas Frequentes</h2>
+          <p class="landing-section-subtitle">Tire suas principais dúvidas sobre o funcionamento do escritório e de nossa assessoria jurídica.</p>
+        </div>
+
+        <div class="faq-list">
+          
+          <!-- Item 1 -->
+          <div class="faq-item">
+            <button class="faq-trigger">
+              <span>O atendimento é totalmente online? Como funciona?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-content">
+              <p>Sim, nosso atendimento é 100% digital para sua comodidade e agilidade. Realizamos reuniões por videoconferência segura (Teams/Zoom) e você pode nos enviar documentos criptografados por WhatsApp ou pelo nosso Portal do Cliente, sem precisar sair de casa.</p>
+            </div>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="faq-item">
+            <button class="faq-trigger">
+              <span>Como faço para enviar meus documentos de forma segura?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-content">
+              <p>Nossos canais digitais contam com protocolos de criptografia e conformidade estrita com a LGPD. Você pode enviar arquivos em PDF ou imagem diretamente pelo nosso canal de atendimento integrado, garantindo sigilo absoluto.</p>
+            </div>
+          </div>
+
+          <!-- Item 3 -->
+          <div class="faq-item">
+            <button class="faq-trigger">
+              <span>Qual o tempo médio de resposta para urgências jurídicas?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-content">
+              <p>Para casos de urgência máxima, como liminares médicas urgentes ou prazos judiciais fatais, nossa triagem pelo Plantão Digital no WhatsApp ocorre de forma prioritária e ágil, direcionando você de imediato ao profissional responsável.</p>
+            </div>
+          </div>
+
+          <!-- Item 4 -->
+          <div class="faq-item">
+            <button class="faq-trigger">
+              <span>Como posso acompanhar o andamento do meu processo?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-content">
+              <p>Todos os nossos clientes recebem credenciais exclusivas para acessar nosso Portal do Cliente. Lá, você consegue consultar o histórico de andamentos processuais, prazos, notas de reuniões e comprovantes em tempo real.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CTA FINAL ── -->
+    <section class="cta-final-sec" aria-label="Fale conosco agora">
+      <div class="cta-final-wrapper">
+        <h2 class="cta-final-title">Proteja Seus Direitos e Seu Patrimônio Hoje Mesmo</h2>
+        <p class="cta-final-subtitle">Não adie a resolução de problemas jurídicos. Fale diretamente com a Dra. Janaina Tarabauca do Prado e receba orientação estratégica especializada imediata.</p>
+        <a href="https://wa.me/5511947534587?text=Ol%C3%A1%2C%20Gostaria%20de%20falar%20com%20um%20especialista%20sobre%20uma%20consulta%20jur%C3%ADdica." target="_blank" rel="noopener noreferrer" class="cta-final-btn">
+          <svg viewBox="0 0 24 24">
+            <path d="M12.031 2c-5.523 0-10 4.477-10 10 0 1.776.467 3.518 1.355 5.06l-1.385 5.053 5.176-1.357c1.5 1.002 3.256 1.536 5.061 1.537 5.522 0 10-4.478 10-10s-4.478-10-10-10zm6.91 14.549c-.279.789-1.386 1.455-1.922 1.517-.464.053-.984.076-1.636-.134-.739-.238-1.579-.607-2.394-1.013-2.607-1.3-4.298-3.953-4.428-4.126-.13-.173-1.05-1.396-1.05-2.663 0-1.267.662-1.89.897-2.134.234-.244.512-.305.682-.305.17 0 .341.002.489.009.153.007.359-.059.562.433.208.504.712 1.733.774 1.859.062.126.104.272.02.439-.083.167-.126.272-.25.418-.124.146-.26.326-.372.439-.126.126-.258.263-.111.516.147.253.655 1.077 1.403 1.743.966.86 1.777 1.127 2.029 1.253.253.126.401.104.55-.067.149-.172.641-.747.811-1.001.17-.253.34-.212.573-.125.234.088 1.488.701 1.743.829.255.128.425.192.488.301.063.109.063.633-.216 1.422z"/>
+          </svg>
+          <span>Falar no WhatsApp</span>
+        </a>
       </div>
     </section>
 
@@ -2039,9 +2483,20 @@
                   <input type="text" id="client-whatsapp" class="form-input-premium" placeholder="(00) 00000-0000">
                 </div>
 
-                <div class="form-group col-span-2">
-                  <label class="form-label" for="client-email">E-mail de Contato</label>
-                  <input type="email" id="client-email" class="form-input-premium" placeholder="cliente@provedor.com">
+                <div class="form-group col-span-2 flex flex-col gap-1.5 w-full">
+                  <label class="text-sm font-bold text-[#0f1e36] dark:text-slate-200 uppercase tracking-wider" for="client-email">
+                    Endereço de E-mail para Acesso ao Portal
+                  </label>
+                  <input
+                    type="email"
+                    id="client-email"
+                    required
+                    placeholder="nome.cliente@provedor.com"
+                    class="block w-full px-3 py-2.5 text-sm border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#d4af37] bg-white text-slate-800 dark:bg-slate-800 dark:text-white font-medium form-input-premium"
+                  />
+                  <p class="text-xs text-slate-400" style="margin-top: 4px;">
+                    Este e-mail será utilizado como chave de autenticação de segurança para o cliente acessar a Área Restrita.
+                  </p>
                 </div>
               </div>
               <div class="form-navigation-flex">
@@ -2247,9 +2702,20 @@
                       <input type="text" id="edit-client-whatsapp" class="form-input-premium">
                     </div>
 
-                    <div class="form-group col-span-2">
-                      <label class="form-label" for="edit-client-email">E-mail</label>
-                      <input type="email" id="edit-client-email" class="form-input-premium">
+                    <div class="form-group col-span-2 flex flex-col gap-1.5 w-full">
+                      <label class="text-sm font-bold text-[#0f1e36] dark:text-slate-200 uppercase tracking-wider" for="edit-client-email">
+                        Endereço de E-mail para Acesso ao Portal
+                      </label>
+                      <input
+                        type="email"
+                        id="edit-client-email"
+                        required
+                        placeholder="nome.cliente@provedor.com"
+                        class="block w-full px-3 py-2.5 text-sm border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#d4af37] bg-white text-slate-800 dark:bg-slate-800 dark:text-white font-medium form-input-premium"
+                      />
+                      <p class="text-xs text-slate-400" style="margin-top: 4px;">
+                        Este e-mail será utilizado como chave de autenticação de segurança para o cliente acessar a Área Restrita.
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -4881,7 +5347,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-  <script type="module" src="app.js"></script>
+  <script type="module" src="/app.js"></script>
+  <script type="module" src="/src/main.tsx"></script>
 
   <!-- ── MOTOR DE FRASES DO DIA ─────────────────────────────────────────── -->
   <script>
@@ -5426,8 +5893,8 @@
         }, 250);
       }
 
-      // Dispara no carregamento da página
-      document.addEventListener('DOMContentLoaded', function () {
+      // Função para inicializar todos os módulos e scripts da landing page
+      function inicializarTudo() {
         exibirFraseAleatoria();
         var btn = document.getElementById('quote-refresh-btn');
         if (btn) btn.addEventListener('click', exibirFraseAleatoria);
@@ -5484,12 +5951,15 @@
               switchPublicView('login');
             }
           });
-        }
+        }        // Inicialização do Supabase Leads
+        const SUPABASE_URL = "https://cuvhkusitvhygnqbdcyb.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN1dmhrdXNpdHZoeWducWJkY3liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5MTgwNzQsImV4cCI6MjA5NTQ5NDA3NH0.lAJDZpOBwIyqJWV3e96Xf0ntrctv0TWQLGtjEbPa9ao";
+        const supabaseLeadsClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // Formulário de captura "Canais de Atendimento"
         var formCaptura = document.getElementById("form-captura-vanilla");
         if (formCaptura) {
-          formCaptura.addEventListener("submit", function(event) {
+          formCaptura.addEventListener("submit", async function(event) {
             event.preventDefault();
             
             var nome = document.getElementById("vanilla-nome").value;
@@ -5498,39 +5968,91 @@
             var area = document.getElementById("vanilla-area").value;
             var relato = document.getElementById("vanilla-relato").value;
             
-            var mailtoAddress = "janainat.prado@adv.o-absp.org.br";
-            var subject = encodeURIComponent("[Consulta Jurídica - " + area + "] Abertura de Chamado - " + nome);
-            var body = encodeURIComponent(
-              "Nome Completo: " + nome + "\n" +
-              "E-mail: " + email + "\n" +
-              "Telefone/WhatsApp: " + telefone + "\n" +
-              "Área de Interesse: " + area + "\n\n" +
-              "Resumo do Caso:\n" + relato
-            );
-            
-            var mailtoUrl = "mailto:" + mailtoAddress + "?subject=" + subject + "&body=" + body;
-            
             var btnSubmit = document.getElementById("btn-vanilla-submit");
             if (btnSubmit) {
               var originalText = btnSubmit.textContent;
-              btnSubmit.textContent = "Preparando Mensagem...";
+              btnSubmit.textContent = "Enviando Solicitação...";
               btnSubmit.disabled = true;
               
-              setTimeout(function() {
-                window.location.href = mailtoUrl;
-                btnSubmit.textContent = "Mensagem Preparada!";
+              try {
+                const { error } = await supabaseLeadsClient
+                  .from("leads")
+                  .insert([
+                    {
+                      nome: nome,
+                      email: email,
+                      telefone: telefone,
+                      area: area,
+                      relato: relato
+                    }
+                  ]);
+                
+                if (error) throw error;
+
+                btnSubmit.textContent = "Solicitação Enviada! ✔️";
+                formCaptura.reset();
                 
                 setTimeout(function() {
                   btnSubmit.textContent = originalText;
                   btnSubmit.disabled = false;
-                  formCaptura.reset();
                 }, 3000);
-              }, 1000);
+              } catch (err) {
+                console.error("[Leads] Erro ao enviar lead:", err);
+                btnSubmit.textContent = "Erro ao enviar. Tente novamente.";
+                btnSubmit.style.borderColor = "#ef4444";
+                btnSubmit.style.color = "#ef4444";
+                
+                setTimeout(function() {
+                  btnSubmit.textContent = originalText;
+                  btnSubmit.disabled = false;
+                  btnSubmit.style.borderColor = "";
+                  btnSubmit.style.color = "";
+                }, 3000);
+              }
             }
           });
         }
-      });
+
+        // Lógica de expansão do FAQ (Accordions)
+        var faqItems = document.querySelectorAll(".faq-item");
+        faqItems.forEach(function (item) {
+          var trigger = item.querySelector(".faq-trigger");
+          var content = item.querySelector(".faq-content");
+          if (trigger && content) {
+            trigger.addEventListener("click", function () {
+              var isActive = item.classList.contains("active");
+              
+              // Fecha todos os outros itens
+              faqItems.forEach(function (otherItem) {
+                otherItem.classList.remove("active");
+                var otherContent = otherItem.querySelector(".faq-content");
+                if (otherContent) {
+                  otherContent.style.maxHeight = null;
+                }
+              });
+              
+              if (!isActive) {
+                item.classList.add("active");
+                content.style.maxHeight = content.scrollHeight + "px";
+              }
+            });
+          }
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', inicializarTudo);
+      } else {
+        inicializarTudo();
+      }
     })();
   </script>
+
+  <!-- Botão Flutuante do WhatsApp -->
+  <a href="https://wa.me/5511947534587?text=Ol%C3%A1%2C%20Gostaria%20de%20falar%20com%20um%20especialista%20sobre%20uma%20consulta%20jur%C3%ADdica." target="_blank" rel="noopener noreferrer" class="btn-whatsapp-flutuante" aria-label="Falar no WhatsApp">
+    <svg viewBox="0 0 24 24">
+      <path d="M12.031 2c-5.523 0-10 4.477-10 10 0 1.776.467 3.518 1.355 5.06l-1.385 5.053 5.176-1.357c1.5 1.002 3.256 1.536 5.061 1.537 5.522 0 10-4.478 10-10s-4.478-10-10-10zm6.91 14.549c-.279.789-1.386 1.455-1.922 1.517-.464.053-.984.076-1.636-.134-.739-.238-1.579-.607-2.394-1.013-2.607-1.3-4.298-3.953-4.428-4.126-.13-.173-1.05-1.396-1.05-2.663 0-1.267.662-1.89.897-2.134.234-.244.512-.305.682-.305.17 0 .341.002.489.009.153.007.359-.059.562.433.208.504.712 1.733.774 1.859.062.126.104.272.02.439-.083.167-.126.272-.25.418-.124.146-.26.326-.372.439-.126.126-.258.263-.111.516.147.253.655 1.077 1.403 1.743.966.86 1.777 1.127 2.029 1.253.253.126.401.104.55-.067.149-.172.641-.747.811-1.001.17-.253.34-.212.573-.125.234.088 1.488.701 1.743.829.255.128.425.192.488.301.063.109.063.633-.216 1.422z"/>
+    </svg>
+  </a>
 </body>
 </html>

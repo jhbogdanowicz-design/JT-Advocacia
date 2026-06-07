@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { supabase } from '../lib/supabase'; // Ajuste o caminho do seu cliente Supabase
 
 interface AnexarComprovanteProps {

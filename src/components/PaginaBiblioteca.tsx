@@ -373,6 +373,7 @@ Todas as informações trocadas com o cliente estão resguardadas sob o manto do
           </div>
         ))}
       </div>
+      )}
 
       {/* ── MODAL INTERATIVO PARA VISUALIZAÇÃO DE MINUTAS INSTITUCIONAIS ── */}
       {itemSelecionado && (

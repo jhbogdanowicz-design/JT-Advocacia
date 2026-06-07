@@ -1,0 +1,63 @@
+@tailwind components;
+@tailwind utilities;
+
+/* ── EMULADOR DE PREFLIGHT DO TAILWIND PARA O CONTAINER REACT ──
+   Aplica resets de layout apenas para os elementos dentro do portal React,
+   impedindo que estilos padrão de navegadores (como bordas de botões e margens de títulos)
+   prejudiquem o design e evitando que afetem a landing page Vanilla CSS. */
+
+#react-app-root *,
+#react-app-root *::before,
+#react-app-root *::after {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: currentColor;
+}
+
+#react-app-root button,
+#react-app-root input,
+#react-app-root select,
+#react-app-root textarea {
+  font-family: inherit;
+  font-size: 100%;
+  line-height: inherit;
+  color: inherit;
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+  background-image: none;
+  border-style: none;
+}
+
+#react-app-root button,
+#react-app-root [role="button"] {
+  cursor: pointer;
+  background-color: transparent;
+  background-image: none;
+  border: none;
+  outline: none;
+}
+
+#react-app-root h1,
+#react-app-root h2,
+#react-app-root h3,
+#react-app-root h4,
+#react-app-root h5,
+#react-app-root h6 {
+  font-size: inherit;
+  font-weight: inherit;
+  margin: 0;
+}
+
+#react-app-root ul,
+#react-app-root ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#react-app-root a {
+  color: inherit;
+  text-decoration: inherit;
+}
