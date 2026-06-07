@@ -733,7 +733,7 @@ export const PortalCliente: React.FC<PortalClienteProps> = () => {
             <div className="bg-[#d4af37]/5 border border-[#d4af37]/20 rounded-xl p-6">
               <h3 className="font-playfair font-bold text-sm text-slate-900 dark:text-white">Aviso de Governança</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                Para novos envios de provas documentais de andamento civil, utilize a aba de "Documentos" no menu lateral. Todos os arquivos são analisados previamente pela Dra. Janaina Tarabauca do Prado.
+                Para novos envios de provas documentais de andamento civil, utilize a aba de "Documentos" no menu lateral. Todos os arquivos são analisados previamente pela Dra. Janaina Tarabauca.
               </p>
             </div>
           </div>

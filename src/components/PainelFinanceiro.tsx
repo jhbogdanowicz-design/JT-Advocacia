@@ -174,7 +174,7 @@ export default function PainelFinanceiro({
           <div className="p-6 md:grid md:grid-cols-2 md:gap-8 items-center bg-white dark:bg-slate-900">
             <div className="space-y-6 font-serif text-sm md:text-base text-slate-700 dark:text-slate-300 leading-relaxed">
               <p>
-                Fundada pela Dra. Janaina Tarabauca do Prado (OAB/SP 501.070), bacharel em Direito e Administração pela Universidade São Judas Tadeu, com especialização em Direito do Trabalho. A banca consolida uma vivência executiva de mais de duas décadas na gestão de operações de alta complexidade, governança de contratos e mitigação de passivos. Essa sólida bagagem operacional confere à Janaina Tarabauca Advocacia uma visão estritamente estratégica e preventiva, unindo a precisão técnica do ecossistema jurídico à realidade prática corporativa de seus clientes.
+                Fundada pela Dra. Janaina Tarabauca (OAB/SP 501.070), bacharel em Direito e Administração pela Universidade São Judas Tadeu, com especialização em Direito do Trabalho. A banca consolida uma vivência executiva de mais de duas décadas na gestão de operações de alta complexidade, governança de contratos e mitigação de passivos. Essa sólida bagagem operacional confere à Janaina Tarabauca Advocacia uma visão estritamente estratégica e preventiva, unindo a precisão técnica do ecossistema jurídico à realidade prática corporativa de seus clientes.
               </p>
               <p>
                 Sua produção intelectual e acadêmica destaca-se pela pesquisa voltada à tutela do direito à saúde e à vida, com ênfase na tese sobre o direito do nascituro e na responsabilidade do Estado e de operadoras no fornecimento de tratamentos médicos essenciais.

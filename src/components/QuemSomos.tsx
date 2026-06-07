@@ -49,7 +49,7 @@ export const QuemSomos: React.FC = () => {
             </div>
             
             <p className="font-serif text-[#334155] dark:text-slate-300 text-sm md:text-base leading-relaxed text-justify">
-              A advocacia de alta performance exige mais do que o conhecimento das leis; demanda a compreensão profunda do cenário prático em que os direitos são defendidos. Fundado pela <strong>Dra. Janaina Tarabauca do Prado (OAB/SP 501.070)</strong>, o escritório une rigor científico e acolhimento humano para oferecer soluções eficientes de governança de riscos e proteção de patrimônio.
+              A advocacia de alta performance exige mais do que o conhecimento das leis; demanda a compreensão profunda do cenário prático em que os direitos são defendidos. Fundado pela <strong>Dra. Janaina Tarabauca (OAB/SP 501.070)</strong>, o escritório une rigor científico e acolhimento humano para oferecer soluções eficientes de governança de riscos e proteção de patrimônio.
             </p>
 
             {/* Timeline de Carreira */}
